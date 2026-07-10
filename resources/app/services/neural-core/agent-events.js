@@ -1,0 +1,42 @@
+const AGENT_EVENTS = Object.freeze({
+  INTENT_DETECTED: "INTENT_DETECTED",
+  PLAN_CREATED: "PLAN_CREATED",
+  TOOL_SELECTED: "TOOL_SELECTED",
+  TOOL_EXECUTING: "TOOL_EXECUTING",
+  TOOL_RESULT: "TOOL_RESULT",
+  VERIFICATION_DONE: "VERIFICATION_DONE",
+  MEMORY_UPDATED: "MEMORY_UPDATED",
+  TASK_COMPLETED: "TASK_COMPLETED",
+  TASK_FAILED: "TASK_FAILED",
+  AGENT_REGISTERED: "AGENT_REGISTERED",
+  TEAM_CREATED: "TEAM_CREATED",
+  TASK_ASSIGNED: "TASK_ASSIGNED",
+  TASK_TRANSFERRED: "TASK_TRANSFERRED",
+  AGENT_COMPLETED: "AGENT_COMPLETED",
+  TEAM_COMPLETED: "TEAM_COMPLETED"
+});
+
+const EVENT_TO_STATE = Object.freeze({
+  [AGENT_EVENTS.INTENT_DETECTED]: "UNDERSTANDING",
+  [AGENT_EVENTS.PLAN_CREATED]: "PLANNING",
+  [AGENT_EVENTS.TOOL_SELECTED]: "SELECTING_TOOL",
+  [AGENT_EVENTS.TOOL_EXECUTING]: "EXECUTING",
+  [AGENT_EVENTS.TOOL_RESULT]: "EXECUTING",
+  [AGENT_EVENTS.VERIFICATION_DONE]: "VERIFYING",
+  [AGENT_EVENTS.MEMORY_UPDATED]: "LEARNING",
+  [AGENT_EVENTS.TASK_COMPLETED]: "COMPLETED",
+  [AGENT_EVENTS.TASK_FAILED]: "COMPLETED"
+});
+
+function createAgentEvent(type, payload = {}) {
+  return {
+    type,
+    sessionId: payload.sessionId || payload.context?.sessionId || payload.traceId || "global",
+    traceId: payload.traceId || payload.context?.traceId || "",
+    taskId: payload.taskId || payload.taskContext?.taskId || "",
+    payload,
+    timestamp: Date.now()
+  };
+}
+
+module.exports = { AGENT_EVENTS, EVENT_TO_STATE, createAgentEvent };

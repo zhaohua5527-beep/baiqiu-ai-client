@@ -1,0 +1,100 @@
+{
+  "licenses": [
+    {
+      "code": "LLYK-XVY9-X5NV-HMAQ",
+      "status": "used",
+      "expiresAt": "2099-12-31T23:59:59Z",
+      "maxDevices": 1,
+      "devices": [
+        {
+          "deviceId": "TEST-DEVICE-001",
+          "activatedAt": 1783659509229,
+          "lastSeenAt": 1783659509229
+        }
+      ],
+      "notes": "",
+      "createdAt": 1783659409361,
+      "updatedAt": 1783659509229
+    },
+    {
+      "code": "MCW9-A2T9-37HL-V63Z",
+      "status": "used",
+      "expiresAt": "2099-12-31T23:59:59Z",
+      "maxDevices": 1,
+      "devices": [
+        {
+          "deviceId": "OTHER-DEVICE-002",
+          "activatedAt": 1783659565424,
+          "lastSeenAt": 1783659565424
+        }
+      ],
+      "notes": "",
+      "createdAt": 1783659409361,
+      "updatedAt": 1783659565424
+    },
+    {
+      "code": "2HXL-AUP8-MKL6-E4UG",
+      "status": "used",
+      "expiresAt": "2099-12-31T23:59:59Z",
+      "maxDevices": 1,
+      "devices": [
+        {
+          "deviceId": "c38b64f4a2fa301d0c3d5d7f90ea088b",
+          "activatedAt": 1783659597314,
+          "lastSeenAt": 1783659597314
+        }
+      ],
+      "notes": "",
+      "createdAt": 1783659596119,
+      "updatedAt": 1783659597314
+    },
+    {
+      "code": "V3QU-LPQF-NQUN-ZYKY",
+      "status": "used",
+      "expiresAt": "2099-12-31T23:59:59Z",
+      "maxDevices": 1,
+      "devices": [
+        {
+          "deviceId": "c38b64f4a2fa301d0c3d5d7f90ea088b",
+          "activatedAt": 1783660127811,
+          "lastSeenAt": 1783660380283
+        }
+      ],
+      "notes": "",
+      "createdAt": 1783660031936,
+      "updatedAt": 1783660380283
+    },
+    {
+      "code": "GVVM-GNBR-ZETM-62PS",
+      "status": "used",
+      "expiresAt": "2099-12-31T23:59:59Z",
+      "maxDevices": 1,
+      "devices": [
+        {
+          "deviceId": "CLIENT-FINAL-TEST",
+          "activatedAt": 1783662969212,
+          "lastSeenAt": 1783662969212
+        }
+      ],
+      "notes": "client-final-test",
+      "createdAt": 1783662969185,
+      "updatedAt": 1783662969212
+    },
+    {
+      "code": "DUG2-QF8H-PHAT-FNZG",
+      "status": "used",
+      "expiresAt": "2099-12-31T23:59:59Z",
+      "maxDevices": 1,
+      "devices": [
+        {
+          "deviceId": "c38b64f4a2fa301d0c3d5d7f90ea088b",
+          "activatedAt": 1783664202586,
+          "lastSeenAt": 1783664209686
+        }
+      ],
+      "notes": "",
+      "createdAt": 1783664198982,
+      "updatedAt": 1783664209686
+    }
+  ]
+}

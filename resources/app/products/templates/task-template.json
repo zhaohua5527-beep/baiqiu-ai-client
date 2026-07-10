@@ -1,0 +1,20 @@
+{
+  "id": "task.template",
+  "name": "Task Template",
+  "taskType": "product.task",
+  "input": {},
+  "output": {},
+  "capabilities": [],
+  "ui": {
+    "taskCardTitle": "",
+    "progressStages": [
+      "received",
+      "understanding",
+      "planning",
+      "executing",
+      "verifying",
+      "completed"
+    ],
+    "resultComponent": "result-card"
+  }
+}

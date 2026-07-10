@@ -1,0 +1,60 @@
+{
+  "cases": [
+    {
+      "id": "calculator_create",
+      "input": "帮我写一个计算器软件放桌面，然后打开",
+      "expected": {
+        "intent": "create_application",
+        "tools": ["calculator_creator", "browser_open"],
+        "forbiddenTools": ["write_xlsx"],
+        "mustNotContain": ["WPS"]
+      }
+    },
+    {
+      "id": "folder_three_files_open",
+      "input": "帮我创建一个文件夹，里面放三个文本文件，然后打开",
+      "expected": {
+        "intent": "create_folder_with_files",
+        "tools": ["create_folder", "file_creator", "file_creator", "file_creator", "browser_open"],
+        "requiresDependsOn": true
+      }
+    },
+    {
+      "id": "ambiguous_small_tool",
+      "input": "弄个小工具",
+      "expected": {
+        "intent": "clarification_required",
+        "shouldExecute": false,
+        "replyShouldContain": ["补充", "需求"]
+      }
+    },
+    {
+      "id": "memory_project_name",
+      "input": "我的项目叫白球AI",
+      "followUp": "我的项目叫什么？",
+      "expected": {
+        "intent": "memory_project",
+        "memoryAnswer": "白球AI"
+      }
+    },
+    {
+      "id": "weather_skill_missing_capability",
+      "input": "学习一个全国天气查询技能",
+      "expected": {
+        "intent": "skill_learning",
+        "capabilityStatus": "missing",
+        "replyShouldContain": ["缺少", "天气"]
+      }
+    },
+    {
+      "id": "verifier_rejects_false_success",
+      "input": "模拟工具成功但验证失败",
+      "expected": {
+        "intent": "verification_failure",
+        "toolSuccess": true,
+        "verificationStatus": "failed",
+        "finalStatus": "failed"
+      }
+    }
+  ]
+}

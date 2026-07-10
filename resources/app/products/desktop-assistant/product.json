@@ -1,0 +1,16 @@
+{
+  "id": "desktop-assistant",
+  "name": "Desktop Assistant",
+  "version": "0.1.0",
+  "description": "Product Layer demo for submitting desktop assistant tasks through Neural Core v1.0.",
+  "capabilities": [
+    "understand_goal",
+    "create_plan",
+    "execute_tool_task",
+    "verify_result"
+  ],
+  "ui": "desktop",
+  "taskTemplates": [
+    "templates/general-task.json"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "product-id",
+  "name": "Product Name",
+  "version": "0.1.0",
+  "description": "Product Layer module using Neural Core v1.0 through Product SDK.",
+  "capabilities": [],
+  "ui": "workspace",
+  "inputTypes": [],
+  "outputTypes": [],
+  "taskTemplates": [],
+  "uiComponents": {
+    "chat": true,
+    "taskCard": true,
+    "resultCard": true,
+    "historyList": true,
+    "developerTimeline": false
+  }
+}

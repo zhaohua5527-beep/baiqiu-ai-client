@@ -1,0 +1,15 @@
+{
+  "id": "spreadsheet-agent",
+  "name": "Spreadsheet Agent",
+  "version": "0.1.0",
+  "description": "Product Layer shell for spreadsheet analysis tasks through Neural Core v1.0.",
+  "capabilities": [
+    "understand_goal",
+    "execute_tool_task",
+    "verify_result"
+  ],
+  "ui": "workspace",
+  "taskTemplates": [
+    "templates/analyze-spreadsheet.json"
+  ]
+}

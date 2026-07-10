@@ -1,0 +1,37 @@
+{
+  "cases": [
+    {
+      "id": "create_folder_low",
+      "input": "创建一个文件夹",
+      "expected": {
+        "toolId": "create_folder",
+        "riskLevel": "low",
+        "requiresPermission": false,
+        "needUserConfirm": false,
+        "executable": true
+      }
+    },
+    {
+      "id": "shutdown_high",
+      "input": "关闭电脑",
+      "expected": {
+        "toolId": "system_shutdown",
+        "riskLevel": "high",
+        "requiresPermission": true,
+        "needUserConfirm": true,
+        "executable": true
+      }
+    },
+    {
+      "id": "delete_file_high",
+      "input": "删除桌面上的测试文件",
+      "expected": {
+        "toolId": "delete_file",
+        "riskLevel": "high",
+        "requiresPermission": true,
+        "needUserConfirm": true,
+        "executable": true
+      }
+    }
+  ]
+}

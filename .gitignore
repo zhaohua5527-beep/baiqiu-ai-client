@@ -1,0 +1,16 @@
+# Local runtime files
+*.log
+*.tmp
+*.temp
+
+# OS/editor metadata
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# Build output folders when generated locally
+dist/
+out/
+release/

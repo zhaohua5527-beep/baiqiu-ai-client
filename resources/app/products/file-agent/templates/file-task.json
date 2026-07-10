@@ -1,0 +1,20 @@
+{
+  "id": "file.task",
+  "name": "File Task",
+  "taskType": "file.task",
+  "input": {
+    "message": "string",
+    "path": "string"
+  },
+  "output": {
+    "files": [],
+    "folders": [],
+    "status": "success|failed"
+  },
+  "capabilities": [
+    "create_file",
+    "create_folder",
+    "open_path",
+    "verify_result"
+  ]
+}

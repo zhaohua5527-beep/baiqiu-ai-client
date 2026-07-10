@@ -1,0 +1,43 @@
+{
+  "cases": [
+    {
+      "id": "calculator_create_open",
+      "input": "帮我写一个计算器软件放桌面，然后打开",
+      "expected": {
+        "steps": 2,
+        "tools": ["calculator_creator", "browser_open"],
+        "dependsOn": [{ "step": 2, "dependsOnStep": 1 }]
+      }
+    },
+    {
+      "id": "folder_three_files_open",
+      "input": "帮我创建一个文件夹，里面放三个文本文件，然后打开",
+      "expected": {
+        "steps": 5,
+        "tools": ["create_folder", "file_creator", "file_creator", "file_creator", "browser_open"],
+        "dependsOn": [
+          { "step": 2, "dependsOnStep": 1 },
+          { "step": 3, "dependsOnStep": 1 },
+          { "step": 4, "dependsOnStep": 1 },
+          { "step": 5, "dependsOnStep": 4 }
+        ]
+      }
+    },
+    {
+      "id": "shutdown_computer",
+      "input": "关闭电脑",
+      "expected": {
+        "steps": 1,
+        "tools": ["system_shutdown"]
+      }
+    },
+    {
+      "id": "learn_skill",
+      "input": "学习一个全国天气查询技能",
+      "expected": {
+        "steps": 1,
+        "tools": ["skill_install"]
+      }
+    }
+  ]
+}

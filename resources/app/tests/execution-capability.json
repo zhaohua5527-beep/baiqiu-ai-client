@@ -1,0 +1,38 @@
+{
+  "cases": [
+    {
+      "id": "create_folder",
+      "toolId": "create_folder",
+      "input": {
+        "name": "phase-4-3-folder-test"
+      },
+      "expected": {
+        "exists": true,
+        "verification": "passed"
+      }
+    },
+    {
+      "id": "skill_install",
+      "toolId": "skill_install",
+      "input": {
+        "message": "学习一个测试笔记技能"
+      },
+      "expected": {
+        "skillCenterChanged": true,
+        "verification": "passed"
+      }
+    },
+    {
+      "id": "system_shutdown",
+      "toolId": "system_shutdown",
+      "input": {
+        "delaySeconds": 60
+      },
+      "expected": {
+        "permissionTool": true,
+        "dryRun": true,
+        "verification": "passed"
+      }
+    }
+  ]
+}

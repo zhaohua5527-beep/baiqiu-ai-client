@@ -1,0 +1,20 @@
+{
+  "id": "desktop.general_task",
+  "name": "Desktop General Task",
+  "taskType": "desktop.task",
+  "input": {
+    "message": "string",
+    "sessionId": "string"
+  },
+  "output": {
+    "status": "success|failed",
+    "result": "object",
+    "traceId": "string"
+  },
+  "capabilities": [
+    "understand_goal",
+    "create_plan",
+    "execute_tool_task",
+    "verify_result"
+  ]
+}

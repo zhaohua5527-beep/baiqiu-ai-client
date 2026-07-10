@@ -1,0 +1,2849 @@
+﻿const api = window.heiqiu;
+
+const state = {
+  db: null,
+  selectedSessionId: null,
+  attachments: [],
+  busy: false,
+  queue: [],
+  dragSessionId: null,
+  longPressTimer: null,
+  longPressReady: false,
+  progress: 0,
+  progressTimer: null,
+  lastMessageCount: 0,
+  currentMessages: [],
+  flickerTimer: null,
+  ecgTimer: null,
+  monitorLogLines: [],
+  monitorLogIndex: 0,
+  lastMonitorLogAt: 0,
+  forceScrollBottom: false,
+  lastRenderedSessionId: null,
+  taskBoardTab: "overview",
+  taskBoardFocusId: ""
+};
+let pendingConfirmations = {};
+
+const $ = (id) => document.getElementById(id);
+const gatewayStatus = $("gatewayStatus");
+const trialStatus = $("trialStatus");
+const licenseOverlay = $("licenseOverlay");
+const licenseCodeInput = $("licenseCodeInput");
+const licenseActivateBtn = $("licenseActivateBtn");
+const licenseCustomerFields = $("licenseCustomerFields");
+const licenseNameInput = $("licenseNameInput");
+const licensePhoneInput = $("licensePhoneInput");
+const licenseBuyBtn = $("licenseBuyBtn");
+const licenseOverlayStatus = $("licenseOverlayStatus");
+const sessionList = $("sessionList");
+const messageList = $("messageList");
+const chatForm = $("chatForm");
+const chatInput = $("chatInput");
+const sendBtn = $("sendBtn");
+const accessModeBtn = $("accessModeBtn");
+const attachBtn = $("attachBtn");
+const fileInput = $("fileInput");
+const attachmentPreview = $("attachmentPreview");
+const taskState = $("taskState");
+const modelState = $("modelState");
+const recordState = $("recordState");
+const progressFill = $("progressFill");
+const settingsDialog = $("settingsDialog");
+const settingsCloseBtn = $("settingsCloseBtn");
+const providerList = $("providerList");
+const providerSelect = $("providerSelect");
+const reasoningSelect = $("reasoningSelect");
+const sideReasoningSelect = $("sideReasoningSelect");
+const contextMenu = $("contextMenu");
+const queuePanel = $("queuePanel");
+const queueList = $("queueList");
+const appShell = $("app");
+const copyToast = $("copyToast");
+const monitorModel = $("monitorModel");
+const monitorSession = $("monitorSession");
+const monitorMode = $("monitorMode");
+const monitorContext = $("monitorContext");
+const monitorLog = $("monitorLog");
+const barUsed = $("barUsed");
+const barRemain = $("barRemain");
+const barToken = $("barToken");
+const barCompress = $("barCompress");
+const barLogic = $("barLogic");
+const contextCompressState = $("contextCompressState");
+const contextCompressDetail = $("contextCompressDetail");
+const contextCompressMode = $("contextCompressMode");
+const contextCompressFill = $("contextCompressFill");
+const modelBtn = $("modelBtn");
+const skinBtn = $("skinBtn");
+const inviteBtn = $("inviteBtn");
+const textColorInput = $("textColorInput");
+const accentColorInput = $("accentColorInput");
+const backgroundColorInput = $("backgroundColorInput");
+const panelColorInput = $("panelColorInput");
+const fontSizeInput = $("fontSizeInput");
+const skinSelect = $("skinSelect");
+const skinImageInput = $("skinImageInput");
+const clearSkinImageBtn = $("clearSkinImageBtn");
+const skinImageStatus = $("skinImageStatus");
+const renameDialog = $("renameDialog");
+const renameInput = $("renameInput");
+const renameSaveBtn = $("renameSaveBtn");
+const personaDialog = $("personaDialog");
+const personaNameInput = $("personaNameInput");
+const personaPersonalityInput = $("personaPersonalityInput");
+const personaAbilitiesInput = $("personaAbilitiesInput");
+const savePersonaBtn = $("savePersonaBtn");
+const personaNameSettingsInput = $("personaNameSettingsInput");
+const personaPersonalitySettingsInput = $("personaPersonalitySettingsInput");
+const personaAbilitiesSettingsInput = $("personaAbilitiesSettingsInput");
+const personaNotesSettingsInput = $("personaNotesSettingsInput");
+const updateCheckBtn = $("updateCheckBtn");
+const syncOpenClawBtn = $("syncOpenClawBtn");
+const applyOnlineUpdateBtn = $("applyOnlineUpdateBtn");
+const updateManifestInput = $("updateManifestInput");
+const autoLaunchInput = $("autoLaunchInput");
+const updateContent = $("updateContent");
+const appVersion = $("appVersion");
+const publishUpdatePanel = $("publishUpdatePanel");
+const publishVersionInput = $("publishVersionInput");
+const publishNotesInput = $("publishNotesInput");
+const publishUpdateBtn = $("publishUpdateBtn");
+const startUpdateServerBtn = $("startUpdateServerBtn");
+const saveLocationInput = $("saveLocationInput");
+const chooseSaveLocationBtn = $("chooseSaveLocationBtn");
+const resetSaveLocationBtn = $("resetSaveLocationBtn");
+const inviteInput = $("inviteInput");
+const inviteNameInput = $("inviteNameInput");
+const invitePhoneInput = $("invitePhoneInput");
+const inviteStatus = $("inviteStatus");
+const unlockInviteBtn = $("unlockInviteBtn");
+const ownerInvitePanel = $("ownerInvitePanel");
+const inviteCountInput = $("inviteCountInput");
+const adminCodeSearchInput = $("adminCodeSearchInput");
+const adminRefreshCodesBtn = $("adminRefreshCodesBtn");
+const adminExportCodesBtn = $("adminExportCodesBtn");
+const adminCodeListOutput = $("adminCodeListOutput");
+const developerLogsTab = $("developerLogsTab");
+const developerLogsPage = $("developerLogsPage");
+const developerLogTypeSelect = $("developerLogTypeSelect");
+const refreshDeveloperLogsBtn = $("refreshDeveloperLogsBtn");
+const exportDeveloperLogsBtn = $("exportDeveloperLogsBtn");
+const developerLogOutput = $("developerLogOutput");
+const generateInviteBtn = $("generateInviteBtn");
+const generatedInviteOutput = $("generatedInviteOutput");
+const skillList = $("skillList");
+const skillNameInput = $("skillNameInput");
+const skillBodyInput = $("skillBodyInput");
+const addSkillBtn = $("addSkillBtn");
+const agentModeInput = $("agentModeInput");
+const advancedLocalExecutionInput = $("advancedLocalExecutionInput");
+const memoryInput = $("memoryInput");
+const addMemoryBtn = $("addMemoryBtn");
+const memoryList = $("memoryList");
+const learnSkillNameInput = $("learnSkillNameInput");
+const learnSkillSourceInput = $("learnSkillSourceInput");
+const learnSkillBtn = $("learnSkillBtn");
+const learnSkillStatus = $("learnSkillStatus");
+const closeConfirmLayer = $("closeConfirmLayer");
+const closeConfirmText = $("closeConfirmText");
+const closeHideBtn = $("closeHideBtn");
+const closeQuitBtn = $("closeQuitBtn");
+const closeCancelBtn = $("closeCancelBtn");
+const neuralDashboard = $("neuralDashboard");
+const productTaskId = $("productTaskId");
+const productTaskStatus = $("productTaskStatus");
+const productAgentStatus = $("productAgentStatus");
+const productRuntimeDetails = $("productRuntimeDetails");
+const productTimeline = $("productTimeline");
+const productTaskStrip = $("productTaskStrip");
+
+const ACCESS_MODES = {
+  normal: { label: "普通", short: "普通", title: "普通模式：默认聊天，不执行系统权限工具。" },
+  ask: { label: "询问", short: "询问", title: "询问模式：执行任务前先询问权限。" },
+  full: { label: "完全访问", short: "完全访问", title: "完全访问模式：允许已授权工具直接执行。" }
+};
+
+const SKIN_PRESETS = {
+  black: {
+    textColor: "#f3f4f6",
+    accentColor: "#94a3b8",
+    backgroundColor: "#09090b",
+    panelColor: "#141417",
+    fontSize: 16
+  },
+  white: {
+    textColor: "#111827",
+    accentColor: "#2563eb",
+    backgroundColor: "#f7f8fb",
+    panelColor: "#ffffff",
+    fontSize: 16
+  },
+  custom: {
+    textColor: "#eef4ff",
+    accentColor: "#7dd3fc",
+    backgroundColor: "#07090d",
+    panelColor: "#111722",
+    fontSize: 16
+  }
+};
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderMarkdown(text) {
+  const escaped = escapeHtml(filterAssistantExecutionOutput(text));
+  const withCode = escaped.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (_m, lang, code) => (
+    `<pre><code data-lang="${escapeHtml(lang || "text")}">${code}</code></pre>`
+  ));
+  const inline = (value) => String(value || "")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_m, label, url) => `<a href="${url}" target="_blank" rel="noreferrer">${label}</a>`);
+  const splitTableCells = (line) => String(line || "")
+    .trim()
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
+    .split("|")
+    .map((cell) => cell.trim());
+  const isTableDivider = (line) => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line || "");
+  const renderTable = (lines) => {
+    const header = splitTableCells(lines[0]);
+    const rows = lines.slice(2).filter((line) => line.trim()).map(splitTableCells);
+    return `<div class="markdown-table-wrap"><table><thead><tr>${header.map((cell) => `<th>${inline(cell)}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr>${header.map((_cell, index) => `<td>${inline(row[index] || "")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  };
+  return withCode
+    .split(/\n{2,}/)
+    .map((block) => {
+      if (block.startsWith("<pre>")) return block;
+      const lines = block.split("\n");
+      const first = lines[0] || "";
+      if (/^#{1,4}\s+/.test(first)) {
+        const level = Math.min(4, first.match(/^#+/)?.[0].length || 2);
+        const title = inline(first.replace(/^#{1,4}\s+/, ""));
+        const rest = lines.slice(1).join("\n");
+        return `<h${level}>${title}</h${level}>${rest ? renderMarkdown(rest) : ""}`;
+      }
+      if (lines.length >= 3 && /\|/.test(lines[0]) && isTableDivider(lines[1])) return renderTable(lines);
+      if (lines.every((line) => !line.trim() || /^[-*]\s+/.test(line))) {
+        const items = lines.filter((line) => line.trim()).map((line) => `<li>${inline(line.replace(/^[-*]\s+/, ""))}</li>`).join("");
+        return `<ul>${items}</ul>`;
+      }
+      if (lines.every((line) => !line.trim() || /^\d+\.\s+/.test(line))) {
+        const items = lines.filter((line) => line.trim()).map((line) => `<li>${inline(line.replace(/^\d+\.\s+/, ""))}</li>`).join("");
+        return `<ol>${items}</ol>`;
+      }
+      if (lines.every((line) => !line.trim() || /^&gt;\s?/.test(line))) {
+        const quote = lines.map((line) => line.replace(/^&gt;\s?/, "")).join("\n");
+        return `<blockquote>${inline(quote).replace(/\n/g, "<br>")}</blockquote>`;
+      }
+      return `<p>${inline(block).replace(/\n/g, "<br>")}</p>`;
+    })
+    .join("");
+}
+
+function filterAssistantExecutionOutput(text) {
+  return String(text || "")
+    .replace(/```[a-zA-Z0-9_-]*\s*[\s\S]*?```/g, "（代码内容已隐藏。需要查看源码时请明确说“显示代码”。）")
+    .replace(/(?:^|\n)\s*(?:import\s+\w+|from\s+\w+\s+import|def\s+\w+\(|class\s+\w+|const\s+\w+\s*=|let\s+\w+\s*=|var\s+\w+\s*=|function\s+\w+\(|console\.log\(|print\(|subprocess\.|child_process|powershell|cmd\.exe)[\s\S]*$/i, "\n（执行脚本内容已隐藏，仅保留结果摘要。）")
+    .replace(/^\s*(stdout|stderr|returnValue|exitCode)\s*:\s*[\s\S]*$/gim, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function selectedSession() {
+  return state.db?.sessions.find((item) => item.id === state.selectedSessionId) || state.db?.sessions[0];
+}
+
+function statusText(status) {
+  if (status === "running") return "执行中";
+  if (status === "done") return "完成";
+  if (status === "timeout") return "超时";
+  if (status === "failed") return "失败";
+  if (status === "aborted") return "已中断";
+  return "待命";
+}
+
+function productPhaseFor(status = "") {
+  if (status === "created") return "UNDERSTANDING";
+  if (status === "running") return "EXECUTING";
+  if (status === "success") return "LEARNING";
+  if (status === "failed") return "VERIFYING";
+  return "IDLE";
+}
+
+function productStageLabel(stage = "") {
+  return {
+    received: "已接收",
+    understanding: "正在理解",
+    planning: "正在规划",
+    executing: "正在执行",
+    verifying: "正在验证",
+    completed: "已完成",
+    failed: "执行失败"
+  }[stage] || "待命";
+}
+
+function shouldUseProductTask(text = "", attachments = []) {
+  if (attachments.length) return true;
+  const value = String(text || "").trim();
+  if (!value) return false;
+  if (/(学习|学|安装|创建|新增|做).{0,30}(?:skill|技能)|(?:skill|技能).{0,30}(?:学习|安装|创建|新增)/i.test(value)) return false;
+  if (/(你.*(技能|能力|会什么)|有什么(技能|能力)|能做什么|介绍.*自己|你是谁|状态|记忆|上下文)/i.test(value)) return false;
+  return /(创建|新建|生成|制作|写一个|做一个|打开|保存|文件|文件夹|计算器|HTML|网页|表格|Excel|分析|整理|自动|执行|运行|下载|导出|转换|截图|浏览器)/i.test(value);
+}
+
+function isSkillLearningPrompt(text = "") {
+  return /(?:学习|学|安装|创建|新增|做).{0,40}(?:skill|技能)|(?:skill|技能).{0,40}(?:学习|安装|创建|新增)/i.test(String(text || "").trim());
+}
+
+function isCalculatorCreationPrompt(text = "") {
+  const value = String(text || "").trim();
+  return /(计算器|calculator|calc)/i.test(value) && /(帮我|请|写|做|生成|创建|开发|制作|弄|打开|软件|程序|应用|html|桌面)/i.test(value);
+}
+
+function setTaskProgressStage(label, value) {
+  if (taskState) taskState.textContent = label || "执行中";
+  if (monitorMode) monitorMode.textContent = label || "执行中";
+  setProgress(value);
+  renderMonitorLog(selectedSession(), state.currentMessages || []);
+}
+
+async function submitProductInput(session, text, { taskMode = true } = {}) {
+  if (typeof api.productSubmitTask !== "function") {
+    throw new Error("Product SDK 通道不可用，请检查发布包是否已同步。");
+  }
+  return api.productSubmitTask({
+    productId: "desktop-assistant",
+    templateId: taskMode ? "desktop.general_task" : "desktop.chat",
+    sessionId: session.id,
+    text,
+    message: text,
+    skipPersist: true,
+    context: {
+      conversationOnly: !taskMode
+    }
+  });
+}
+
+async function submitSkillLearningInput(session, text) {
+  if (typeof api.productSubmitTask !== "function") {
+    throw new Error("Product SDK 通道不可用，请检查发布包是否已同步。");
+  }
+  return api.productSubmitTask({
+    productId: "desktop-assistant",
+    templateId: "desktop.chat_runtime",
+    sessionId: session.id,
+    text,
+    message: text,
+    skipPersist: true,
+    context: {
+      chatRuntime: true,
+      skillLearning: true
+    }
+  });
+}
+
+async function submitAttachmentInput(session, text, attachments = []) {
+  if (typeof api.productSubmitTask !== "function") {
+    throw new Error("Product SDK 通道不可用，请检查发布包是否已同步。");
+  }
+  return api.productSubmitTask({
+    productId: "desktop-assistant",
+    templateId: "desktop.chat_runtime",
+    sessionId: session.id,
+    text: text || "请分析附件内容。",
+    message: text || "请分析附件内容。",
+    attachments,
+    skipPersist: true,
+    context: {
+      chatRuntime: true,
+      hasAttachments: true
+    }
+  });
+}
+
+function renderProductDashboard(task = null, { devMode = false } = {}) {
+  if (!neuralDashboard) return;
+  neuralDashboard.hidden = !devMode;
+  if (!devMode) return;
+  const phase = productPhaseFor(task?.status || "");
+  if (productTaskId) productTaskId.textContent = task?.taskId || "-";
+  if (productTaskStatus) productTaskStatus.textContent = task?.status || "待命";
+  if (productAgentStatus) productAgentStatus.textContent = phase;
+  document.querySelectorAll("[data-product-phase]").forEach((item) => {
+    item.classList.toggle("active", item.dataset.productPhase === phase);
+  });
+  const result = task?.result?.result || task?.result || {};
+  const experience = task?.experience || task?.result?.experience || {};
+  const plan = result?.normalized?.meta?.evidence?.planObject || result?.planObject || result?.result?.planObject || {};
+  const strategy = plan.strategyResult || result?.strategyResult || null;
+  const decision = plan.strategyDecision || result?.strategyDecision || null;
+  const tool = result.toolId || result.logicalTool || result?.agentManager?.executorAgentId || "";
+  const verification = result.response?.verification || result.normalized?.meta?.verification || result.verification || null;
+  const experienceText = Array.isArray(plan.experienceMemoryHints) ? `${plan.experienceMemoryHints.length} hits` : (experience.details?.experience ? `${experience.details.experience} hits` : "");
+  if (productRuntimeDetails) {
+    productRuntimeDetails.innerHTML = [
+      ["Strategy", strategy?.mode || strategy?.strategyId || "-"],
+      ["Decision", decision?.decision || decision?.reason || "-"],
+      ["Tool", tool || "-"],
+      ["Verification", verification?.status || (result.normalized?.success ? "passed" : "-")],
+      ["Experience", experienceText || "-"]
+    ].map(([label, value]) => `<div><span>${label}</span><b>${escapeHtml(value)}</b></div>`).join("");
+  }
+  if (productTimeline) {
+    productTimeline.innerHTML = (experience.timeline || []).map((item) => `
+      <div class="timeline-item">
+        <span>${escapeHtml(item.label || productStageLabel(item.stage))}</span>
+        <b>${escapeHtml(item.message || "")}</b>
+      </div>
+    `).join("") || `<div class="timeline-item"><span>待命</span><b>暂无任务</b></div>`;
+  }
+}
+
+function renderProductTaskStrip(tasks = []) {
+  if (!productTaskStrip) return;
+  productTaskStrip.hidden = true;
+  productTaskStrip.innerHTML = "";
+  return;
+  const visible = tasks.filter(Boolean).slice(0, 5);
+  productTaskStrip.hidden = visible.length === 0;
+  productTaskStrip.innerHTML = visible.map((task) => {
+    const experience = task.experience || {};
+    return `
+      <button class="product-task-pill" type="button" data-task-id="${escapeHtml(task.taskId || "")}">
+        <span>${escapeHtml(experience.title || task.input || "产品任务")}</span>
+        <b>${escapeHtml(productStageLabel(experience.currentStage || ""))}</b>
+      </button>
+    `;
+  }).join("");
+}
+
+function renderTaskCard(experience = {}) {
+  return [
+    `**${experience.title || "产品任务"}**`,
+    `${experience.message || productStageLabel(experience.currentStage || "")}`,
+    `进度：${Number(experience.progress || 0)}%`
+  ].join("\n\n");
+}
+
+function renderResultCard(result = {}) {
+  const text = productResultText(result) || (result.success ? "任务完成。" : "任务未完成。");
+  return `**结果**\n\n${text}`;
+}
+
+function reasoningLabel(value) {
+  return {
+    default: "默认",
+    off: "关闭",
+    minimal: "最低",
+    low: "低",
+    medium: "中",
+    high: "高",
+    extra_high: "最高",
+    maximum: "极限"
+  }[value || "minimal"] || value;
+}
+
+function formatTrialTime(seconds) {
+  const value = Math.max(0, Number(seconds || 0));
+  const min = Math.floor(value / 60);
+  const sec = value % 60;
+  return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
+function formatLicenseCode(value) {
+  const original = String(value || "").toUpperCase();
+  const inviteRaw = original.replace(/[^A-Z0-9]/g, "");
+  if (inviteRaw.startsWith("BQ")) {
+    const payload = inviteRaw.slice(2, 14);
+    return ["BQ", payload.slice(0, 4), payload.slice(4, 8), payload.slice(8, 12)]
+      .filter(Boolean)
+      .join("-");
+  }
+  return original
+    .toUpperCase()
+    .replace(/[^23456789ABCDEFGHJKLMNPQRSTUVWXYZ]/g, "")
+    .slice(0, 16)
+    .replace(/(.{4})(?=.)/g, "$1-");
+}
+
+function renderLicenseStatus(status) {
+  if (!status) return;
+  if (status.state === "developer" || status.devMode || status.owner) {
+    if (trialStatus) trialStatus.textContent = "开发工具面板";
+    if (licenseOverlay) licenseOverlay.hidden = true;
+    if (inviteStatus) inviteStatus.textContent = "开发工具面板已解锁。";
+    return;
+  }
+  if (trialStatus) {
+    trialStatus.textContent = status.unlocked
+      ? "已激活"
+      : status.locked
+        ? "试用已结束"
+        : `试用剩余：${formatTrialTime(status.trialRemainingSeconds)} | 购买卡密解锁`;
+  }
+  if (licenseOverlay) licenseOverlay.hidden = Boolean(status.unlocked || !status.locked);
+  if (inviteStatus) {
+    inviteStatus.textContent = status.unlocked
+      ? "已激活：当前设备可永久使用白球 AI。"
+      : status.locked
+        ? "试用已结束：请输入卡密激活。"
+        : `试用中：剩余 ${formatTrialTime(status.trialRemainingSeconds)}。`;
+  }
+}
+
+async function refreshLicenseStatus() {
+  const status = await window.license?.getStatus?.();
+  renderLicenseStatus(status);
+  return status;
+}
+
+function markCopySuccess(button) {
+  if (!button) return;
+  const oldText = button.textContent;
+  button.textContent = "✓";
+  button.classList.add("copied");
+  setTimeout(() => {
+    button.textContent = oldText;
+    button.classList.remove("copied");
+  }, 900);
+}
+
+function showCopyToast(text = "已复制") {
+  if (!copyToast) return;
+  copyToast.textContent = text;
+  copyToast.hidden = false;
+  clearTimeout(showCopyToast.timer);
+  showCopyToast.timer = setTimeout(() => {
+    copyToast.hidden = true;
+  }, 900);
+}
+
+async function tryOpenExternalUrl(url) {
+  if (!url) return;
+  if (typeof api.openExternal === "function") {
+    await api.openExternal(url);
+    return;
+  }
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+async function openAttachmentExternally(item = {}) {
+  const pathValue = item.path || item.originalPath || item.filePath || "";
+  const urlValue = item.url || "";
+  if (pathValue && typeof api.openPath === "function") {
+    await api.openPath(pathValue);
+    return;
+  }
+  if (urlValue) {
+    await tryOpenExternalUrl(urlValue);
+    return;
+  }
+  if (item.dataUrl && /^image\//i.test(String(item.mimeType || ""))) {
+    window.open(item.dataUrl, "_blank", "noopener,noreferrer");
+    return;
+  }
+  if (item.textContent) {
+    const blob = new Blob([item.textContent], { type: item.mimeType || "text/plain;charset=utf-8" });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    return;
+  }
+  showCopyToast("当前附件暂无可外部打开内容");
+}
+
+function openAttachmentInBoard(item = {}) {
+  const isImage = /^image\//i.test(String(item.mimeType || ""));
+  openTaskBoard(isImage ? "images" : "files", item.id || item.name || "");
+}
+
+function adjustComposerHeight() {
+  if (chatInput.dataset.manualResize === "1") return;
+  chatInput.style.height = "auto";
+  const autoMax = Math.min(360, Math.floor(window.innerHeight * 0.5));
+  chatInput.style.height = `${Math.min(autoMax, Math.max(38, chatInput.scrollHeight))}px`;
+}
+
+function setupComposerResize() {
+  if (!chatForm || !chatInput || chatForm.querySelector(".composer-resize-handle")) return;
+  const minHeight = 38;
+  const maxHeight = () => Math.max(180, Math.floor(window.innerHeight * 0.68));
+  const saved = Number(localStorage.getItem("baiqiu.composerHeight") || 0);
+  if (saved > 0) {
+    chatInput.dataset.manualResize = "1";
+    chatInput.style.height = `${Math.max(minHeight, Math.min(saved, maxHeight()))}px`;
+  }
+  const handle = document.createElement("div");
+  handle.className = "composer-resize-handle";
+  handle.title = "按住拖拽调整输入框高度";
+  chatForm.prepend(handle);
+  let startY = 0;
+  let startHeight = 0;
+  const stop = (event) => {
+    handle.releasePointerCapture?.(event?.pointerId);
+    document.body.classList.remove("resizing-composer");
+  };
+  handle.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    handle.setPointerCapture(event.pointerId);
+    startY = event.clientY;
+    startHeight = chatInput.getBoundingClientRect().height;
+    document.body.classList.add("resizing-composer");
+  });
+  handle.addEventListener("pointermove", (event) => {
+    if (!document.body.classList.contains("resizing-composer")) return;
+    const next = Math.max(minHeight, Math.min(startHeight + (startY - event.clientY), maxHeight()));
+    chatInput.dataset.manualResize = "1";
+    chatInput.style.height = `${next}px`;
+    localStorage.setItem("baiqiu.composerHeight", String(Math.round(next)));
+  });
+  handle.addEventListener("pointerup", stop);
+  handle.addEventListener("pointercancel", stop);
+}
+
+function isNearBottom(element) {
+  return element.scrollHeight - element.scrollTop - element.clientHeight < 80;
+}
+
+function scrollMessagesToBottom() {
+  if (!messageList) return;
+  const scrollNow = () => {
+    const previousBehavior = messageList.style.scrollBehavior;
+    messageList.style.scrollBehavior = "auto";
+    messageList.scrollTop = messageList.scrollHeight;
+    messageList.lastElementChild?.scrollIntoView({ block: "end", inline: "nearest", behavior: "auto" });
+    messageList.style.scrollBehavior = previousBehavior;
+  };
+  scrollNow();
+  requestAnimationFrame(scrollNow);
+  requestAnimationFrame(() => requestAnimationFrame(scrollNow));
+  setTimeout(scrollNow, 80);
+  setTimeout(scrollNow, 180);
+}
+
+function setProgress(value) {
+  state.progress = Math.max(0, Math.min(100, Math.round(value)));
+  progressFill.style.width = `${state.progress}%`;
+  progressFill.parentElement?.style.setProperty("--progress", `${state.progress}%`);
+}
+
+function startProgress() {
+  clearInterval(state.progressTimer);
+  if (state.progress < 8) setProgress(8);
+  state.progressTimer = setInterval(() => {
+    if (!state.busy) return;
+    const ceiling = 92;
+    const step = state.progress < 55 ? 3 : state.progress < 78 ? 2 : 1;
+    setProgress(Math.min(ceiling, state.progress + step));
+    renderMonitorLog(selectedSession(), []);
+    renderMetricBars(selectedSession(), state.currentMessages);
+  }, 620);
+}
+
+function stopProgress(status) {
+  if (status === "running") return;
+  clearInterval(state.progressTimer);
+  state.progressTimer = null;
+  if (status === "done") setProgress(100);
+  else if (status === "failed" || status === "timeout" || status === "aborted") setProgress(0);
+  else if (!state.busy) setProgress(0);
+}
+
+function randomizeEcg() {
+  document.body.style.setProperty("--ecg-rate", "1.8s");
+}
+
+function scheduleCrtFlicker() {
+  clearTimeout(state.flickerTimer);
+  state.flickerTimer = null;
+  document.documentElement.style.setProperty("--crt-brightness", "1");
+  document.documentElement.style.setProperty("--crt-glow", "0");
+  document.documentElement.style.setProperty("--ecg-pulse", "1");
+}
+
+function scheduleEcgRandomizer() {
+  clearTimeout(state.ecgTimer);
+  randomizeEcg();
+  state.ecgTimer = null;
+}
+
+function resetMonitorEffects() {
+  clearTimeout(state.flickerTimer);
+  clearTimeout(state.ecgTimer);
+  state.flickerTimer = null;
+  state.ecgTimer = null;
+  document.documentElement.style.setProperty("--crt-brightness", "1");
+  document.documentElement.style.setProperty("--crt-glow", "0");
+  document.documentElement.style.setProperty("--ecg-pulse", "1");
+}
+
+function compactMonitorText(text = "", limit = 48) {
+  return String(text || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, limit);
+}
+
+function ensureMonitorLogFill(lines, minimum = 13) {
+  const time = new Date().toLocaleTimeString("zh-CN", { hour12: false });
+  const filled = [...lines].filter(Boolean);
+  const fillers = [
+    `${time} [SYS] task pipeline synced`,
+    `${time} [WAIT] next output pending`,
+    `${time} [CTX] session state retained`,
+    `${time} [MEM] local record online`
+  ];
+  let index = 0;
+  while (filled.length < minimum) {
+    filled.unshift(fillers[index % fillers.length]);
+    index += 1;
+  }
+  return filled.slice(-minimum);
+}
+
+function paintMonitorLogLines(lines = []) {
+  if (!monitorLog) return;
+  const nextLines = ensureMonitorLogFill(lines, 13);
+  const signature = nextLines.join("\n");
+  if (monitorLog.dataset.signature === signature) return;
+
+  let track = monitorLog.querySelector(".monitor-log-track");
+  if (!track || track.children.length !== nextLines.length) {
+    track = document.createElement("div");
+    track.className = "monitor-log-track";
+    for (let index = 0; index < nextLines.length; index += 1) {
+      const row = document.createElement("span");
+      track.appendChild(row);
+    }
+    monitorLog.replaceChildren(track);
+  }
+
+  nextLines.forEach((line, index) => {
+    const row = track.children[index];
+    if (row && row.textContent !== line) row.textContent = line;
+  });
+  monitorLog.dataset.signature = signature;
+}
+
+function renderMonitorLog(session, messages = []) {
+  if (!monitorLog) return;
+  const provider = state.db?.settings?.providers?.[state.db?.settings?.defaultProvider];
+  const time = new Date().toLocaleTimeString("zh-CN", { hour12: false });
+  const selected = selectedSession();
+  const statusMap = {
+    waiting: "等待",
+    running: "执行中",
+    verifying: "验证中",
+    success: "成功",
+    failed: "失败",
+    retry: "重试",
+    timeout: "超时",
+    cancelled: "已终止"
+  };
+  const taskLines = (state.db?.queue || [])
+    .filter((task) => !selected?.id || task.sessionId === selected.id)
+    .slice(-8)
+    .map((task) => {
+      const status = statusMap[task.status] || task.status || "等待";
+      const title = task.title || task.type || "任务";
+      const detail = task.error ? ` · ${task.error}` : "";
+      return `${time} [TASK] ${status} ${compactMonitorText(`${title}${detail}`, 48)}`;
+    });
+  const recentMessages = messages
+    .slice(-8)
+    .map((message) => {
+      const role = message.role === "user" ? "USER" : "AI";
+      return `${time} [${role}] ${compactMonitorText(message.text || message.content || "", 48)}`;
+    });
+  if (taskLines.length) {
+    state.monitorLogLines = ensureMonitorLogFill([
+      `${time} [RUN] process attached`,
+      `${time} [QUEUE] active tasks ${taskLines.length}`,
+      ...recentMessages,
+      ...taskLines
+    ], 13);
+    paintMonitorLogLines(state.monitorLogLines);
+    return;
+  }
+  if (session?.status !== "running") {
+    state.monitorLogLines = ensureMonitorLogFill([
+      `${time} [IDLE] task process standby`,
+      `${time} [MSG] conversation records ${messages.length}`,
+      `${time} [MODEL] ${provider?.name || "DeepSeek"} ready`,
+      `${time} [MEM] local record online`,
+      `${time} [WAIT] waiting for requirement`,
+      ...recentMessages
+    ], 13);
+    state.monitorLogIndex = 0;
+    state.lastMonitorLogAt = 0;
+  } else {
+    const now = Date.now();
+    const beatMs = 220;
+    const steps = [
+      "[INTENT] receive user requirement",
+      `[MODEL] route ${provider?.name || "DeepSeek"}`,
+      "[CTX] read conversation context",
+      "[PLAN] build execution steps",
+      `[PROGRESS] running ${state.progress}%`,
+      "[EXEC] waiting for tool result",
+      "[MEM] sync local record",
+      "[OUT] prepare final response"
+    ];
+    if (!state.monitorLogLines.length || now - state.lastMonitorLogAt >= beatMs) {
+      const burstCount = state.monitorLogLines.length ? 3 : 6;
+      for (let i = 0; i < burstCount; i += 1) {
+        const stepNo = String((state.monitorLogIndex % steps.length) + 1).padStart(2, "0");
+        state.monitorLogLines.push(`${time} ${stepNo} ${steps[state.monitorLogIndex % steps.length]}`);
+        state.monitorLogIndex += 1;
+      }
+      state.monitorLogLines = ensureMonitorLogFill([...recentMessages, ...state.monitorLogLines], 13);
+      state.lastMonitorLogAt = now;
+    }
+  }
+  paintMonitorLogLines(state.monitorLogLines);
+}
+
+function applyAppearance() {
+  const appearance = state.db?.settings?.appearance || {};
+  const skin = SKIN_PRESETS[appearance.skin] ? appearance.skin : "custom";
+  const fallback = SKIN_PRESETS[skin] || SKIN_PRESETS.custom;
+  const textColor = appearance.textColor || fallback.textColor;
+  const accentColor = appearance.accentColor || fallback.accentColor;
+  const backgroundColor = appearance.backgroundColor || fallback.backgroundColor;
+  const panelColor = appearance.panelColor || fallback.panelColor;
+  const fontSize = Math.max(12, Math.min(22, Number(appearance.fontSize || 16)));
+  document.body.dataset.skin = skin;
+  document.documentElement.style.setProperty("--text", textColor);
+  document.documentElement.style.setProperty("--accent", accentColor);
+  document.documentElement.style.setProperty("--acid", accentColor);
+  document.documentElement.style.setProperty("--bg", backgroundColor);
+  document.documentElement.style.setProperty("--panel", panelColor);
+  document.documentElement.style.setProperty("--panel2", panelColor);
+  document.documentElement.style.setProperty("--line", `${accentColor}66`);
+  document.documentElement.style.setProperty("--app-font-size", `${fontSize}px`);
+  document.documentElement.style.setProperty("--muted", "#a4adba");
+  document.documentElement.style.setProperty("--assistant", "rgba(23, 28, 36, 0.9)");
+  document.documentElement.style.setProperty("--user", "rgba(47, 214, 235, 0.12)");
+  if (appearance.skinImage) {
+    document.documentElement.style.setProperty("--skin-image", `url("${String(appearance.skinImage).replace(/"/g, '\\"')}")`);
+    document.body.classList.add("has-skin-image");
+  } else {
+    document.documentElement.style.setProperty("--skin-image", "none");
+    document.body.classList.remove("has-skin-image");
+  }
+  if (skinImageStatus) skinImageStatus.textContent = appearance.skinImage ? "已应用自定义皮肤图片。" : "上传图片后会作为白球背景皮肤。";
+}
+
+function updateLogicBar() {
+  const logicMap = { off: 8, minimal: 18, low: 32, medium: 52, high: 74, extra_high: 88, maximum: 100, default: 42 };
+  const logic = logicMap[state.db?.settings?.reasoning || "minimal"] || 18;
+  barLogic?.style.setProperty("--value", `${logic}%`);
+}
+
+function estimateTokens(text) {
+  const value = String(text || "");
+  if (!value) return 0;
+  const cjk = (value.match(/[\u3400-\u9fff]/g) || []).length;
+  const latin = value.replace(/[\u3400-\u9fff]/g, "");
+  const words = (latin.match(/[A-Za-z0-9_]+/g) || []).join(" ");
+  const symbols = latin.replace(/[A-Za-z0-9_\s]/g, "");
+  return Math.ceil(cjk * 1.05 + words.length / 3.8 + symbols.length * 0.6);
+}
+
+function messageTokenText(message) {
+  const files = (message.attachments || []).map((item) => `${item.name || ""} ${item.mimeType || ""}`).join("\n");
+  return [message.role || "", message.text || "", files].filter(Boolean).join("\n");
+}
+
+function usageFromRaw(messages = []) {
+  let total = 0;
+  let prompt = 0;
+  for (const message of messages) {
+    const usage = message.raw?.usage || message.raw?.response?.usage || message.raw?.metadata?.usage;
+    const used = Number(usage?.total_tokens || usage?.totalTokens || 0);
+    const promptUsed = Number(usage?.prompt_tokens || usage?.input_tokens || usage?.inputTokens || 0);
+    if (used > 0) total += used;
+    if (promptUsed > 0) prompt += promptUsed;
+  }
+  return total > 0 ? { total, prompt } : null;
+}
+
+function contextLimitForSettings() {
+  const settings = state.db?.settings || {};
+  const provider = settings.providers?.[settings.defaultProvider] || {};
+  const model = String(provider.model || provider.name || settings.defaultProvider || "").toLowerCase();
+  if (model.includes("128k")) return 128000;
+  if (model.includes("32k")) return 32000;
+  if (model.includes("16k")) return 16000;
+  if (model.includes("gpt-4.1") || model.includes("4.1")) return 1047576;
+  if (model.includes("kimi") || model.includes("moonshot")) return 128000;
+  if (model.includes("deepseek")) return 64000;
+  if (settings.defaultProvider === "openclaw") return 128000;
+  return 64000;
+}
+
+function conversationUsage(messages = []) {
+  const rawUsage = usageFromRaw(messages);
+  const estimated = messages.reduce((sum, message) => sum + estimateTokens(messageTokenText(message)), 0);
+  const used = Math.max(rawUsage?.prompt || rawUsage?.total || 0, estimated);
+  const limit = contextLimitForSettings();
+  const remaining = Math.max(0, limit - used);
+  return {
+    used,
+    limit,
+    remaining,
+    usedPercent: Math.max(0, Math.min(100, Math.round((used / limit) * 100))),
+    remainPercent: Math.max(0, Math.min(100, Math.round((remaining / limit) * 100))),
+    exact: Boolean(rawUsage)
+  };
+}
+
+function compactNumber(value) {
+  const number = Math.max(0, Math.round(Number(value) || 0));
+  if (number >= 1000000) return `${(number / 1000000).toFixed(1)}M`;
+  if (number >= 10000) return `${Math.round(number / 1000)}K`;
+  if (number >= 1000) return `${(number / 1000).toFixed(1)}K`;
+  return String(number);
+}
+
+function renderMetricBars(session, messages = []) {
+  const usage = conversationUsage(messages);
+  const used = usage.usedPercent;
+  const remain = usage.remainPercent;
+  const compress = Math.max(8, Math.min(100, state.progress || (session?.status === "done" ? 100 : 12)));
+  barUsed?.style.setProperty("--value", `${used}%`);
+  barRemain?.style.setProperty("--value", `${remain}%`);
+  if (barUsed) barUsed.title = `已用 ${compactNumber(usage.used)} / ${compactNumber(usage.limit)} token${usage.exact ? "（API真实值）" : "（本地估算）"}`;
+  if (barRemain) barRemain.title = `剩余 ${compactNumber(usage.remaining)} token`;
+  if (barToken) {
+    barToken.style.setProperty("--value", `${remain}%`);
+    const remainText = compactNumber(usage.remaining);
+    const limitText = compactNumber(usage.limit);
+    barToken.textContent = `${remainText}/${limitText}`;
+    barToken.title = `剩余 ${Math.round(usage.remaining)} / ${Math.round(usage.limit)} token${usage.exact ? "（API真实值）" : "（本地估算）"}`;
+  }
+  barCompress?.style.setProperty("--value", `${compress}%`);
+  updateLogicBar();
+  if (monitorContext) monitorContext.textContent = `剩余 ${remain}% / ${compactNumber(usage.remaining)}T`;
+  if (contextCompressState) contextCompressState.textContent = `剩余 ${remain}%`;
+  if (contextCompressDetail) {
+    contextCompressDetail.textContent = `可用 ${compactNumber(usage.remaining)} / 已用 ${compactNumber(usage.used)}`;
+    contextCompressDetail.title = `上下文窗口 ${compactNumber(usage.limit)} token，剩余 ${compactNumber(usage.remaining)} token`;
+  }
+  if (contextCompressMode) contextCompressMode.textContent = usage.exact ? "API真实值" : "本地估算";
+  if (contextCompressFill) {
+    contextCompressFill.style.setProperty("--value", `${remain}%`);
+    contextCompressFill.title = `上下文压缩剩余 ${remain}%`;
+  }
+}
+
+function setBusy(value) {
+  const wasBusy = state.busy;
+  state.busy = value;
+  document.body.classList.toggle("running", value);
+  sendBtn.classList.toggle("abort", value);
+  sendBtn.textContent = value ? "■" : "↑";
+  sendBtn.title = value ? "输入为空时中断，输入内容时加入预置任务" : "发送";
+  taskState.textContent = value ? "执行中" : "待命";
+  if (monitorMode) monitorMode.textContent = value ? "执行中" : "待命";
+  if (value) {
+    if (!wasBusy) setProgress(0);
+    startProgress();
+  }
+}
+
+function currentAccessMode() {
+  return state.db?.settings?.permissions?.accessMode || "full";
+}
+
+function renderAccessMode() {
+  if (!accessModeBtn) return;
+  const mode = currentAccessMode();
+  const active = ACCESS_MODES[mode] || ACCESS_MODES.ask;
+  accessModeBtn.innerHTML = `
+    <span class="access-mode-icon" aria-hidden="true"></span>
+    <span class="access-mode-copy">
+      <span class="access-mode-label">权限</span>
+      <span class="access-mode-current">${active.short || active.label}</span>
+    </span>
+    <span class="access-mode-caret">⌄</span>
+    <span class="access-mode-menu" role="menu">
+      ${["normal", "ask", "full"].map((key) => {
+        const config = ACCESS_MODES[key];
+        return `<span class="access-mode-option ${key === mode ? "active" : ""}" data-mode="${key}" role="menuitem"><b>${config.label}</b><small>${key === "normal" ? "仅聊天" : key === "ask" ? "执行前确认" : "已授权直行"}</small></span>`;
+      }).join("")}
+    </span>
+  `;
+  accessModeBtn.title = (ACCESS_MODES[mode] || ACCESS_MODES.full).title;
+  accessModeBtn.dataset.mode = mode;
+}
+
+async function setAccessMode(next) {
+  next = ["normal", "ask", "full"].includes(next) ? next : "full";
+  if (next === "full") {
+    const ok = await showAppConfirm({
+      title: "开启完全访问模式",
+      message: "完全访问模式会减少权限打断，允许已授权工具直接执行。请只在您信任当前任务时开启。",
+      primary: "开启完全访问",
+      secondary: "取消"
+    });
+    if (!ok) return;
+  }
+  state.db.settings.permissions ||= {};
+  state.db.settings.permissions.accessMode = next;
+  state.db.settings.permissions.advancedLocalExecution = next !== "normal";
+  state.db.settings.permissions.permissionModes ||= {};
+  if (next === "full") {
+    for (const scope of ["file", "system", "tool", "network"]) state.db.settings.permissions.permissionModes[scope] = { mode: "allow_always", scope };
+  }
+  await api.saveSettings(state.db.settings);
+  await api.setAutoLaunch?.(Boolean(autoLaunchInput?.checked));
+  state.db = await api.init();
+  renderSettings();
+  renderAccessMode();
+}
+
+function showCloseConfirm(data = {}) {
+  if (!closeConfirmLayer) return;
+  if (closeConfirmText) closeConfirmText.textContent = data.message || "您想彻底关闭，还是隐藏到托盘继续后台运行？";
+  closeConfirmLayer.hidden = false;
+}
+
+function hideCloseConfirm() {
+  if (closeConfirmLayer) closeConfirmLayer.hidden = true;
+}
+
+function showAppConfirm({ title = "确认操作", message = "", primary = "确认", secondary = "取消" } = {}) {
+  return new Promise((resolve) => {
+    const layer = document.createElement("div");
+    layer.className = "app-modal-layer runtime-confirm-layer";
+    layer.innerHTML = `
+      <div class="app-modal-panel" role="dialog" aria-modal="true">
+        <strong>${escapeHtml(title)}</strong>
+        <p>${escapeHtml(message)}</p>
+        <div class="app-modal-actions">
+          <button class="runtime-confirm-primary" type="button">${escapeHtml(primary)}</button>
+          <button class="runtime-confirm-secondary" type="button">${escapeHtml(secondary)}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(layer);
+    const finish = (value) => {
+      layer.remove();
+      resolve(value);
+    };
+    layer.querySelector(".runtime-confirm-primary")?.addEventListener("click", () => finish(true));
+    layer.querySelector(".runtime-confirm-secondary")?.addEventListener("click", () => finish(false));
+  });
+}
+
+function renderSessions() {
+  sessionList.innerHTML = "";
+  for (const session of state.db?.sessions || []) {
+    const btn = document.createElement("button");
+    btn.className = `session-item${session.id === state.selectedSessionId ? " active" : ""}${session.pinned ? " pinned" : ""}`;
+    btn.draggable = false;
+    btn.dataset.id = session.id;
+    btn.innerHTML = `<span>${session.pinned ? "★ " : ""}${escapeHtml(session.title || "新会话")}</span><small>${escapeHtml(statusText(session.status))}</small>`;
+    btn.addEventListener("click", async () => {
+      if (state.longPressReady) return;
+      state.db = await api.selectSession(session.id);
+      state.selectedSessionId = session.id;
+      await renderAll();
+    });
+    btn.addEventListener("contextmenu", (event) => showSessionMenu(event, session));
+    btn.addEventListener("pointerdown", () => {
+      state.longPressReady = false;
+      clearTimeout(state.longPressTimer);
+      state.longPressTimer = setTimeout(() => {
+        state.longPressReady = true;
+        btn.draggable = true;
+        btn.classList.add("drag-ready");
+      }, 260);
+    });
+    btn.addEventListener("pointerup", () => {
+      clearTimeout(state.longPressTimer);
+      setTimeout(() => {
+        state.longPressReady = false;
+        btn.draggable = false;
+        btn.classList.remove("drag-ready");
+      }, 0);
+    });
+    btn.addEventListener("pointerleave", () => clearTimeout(state.longPressTimer));
+    btn.addEventListener("dragstart", (event) => {
+      if (!state.longPressReady) {
+        event.preventDefault();
+        return;
+      }
+      state.dragSessionId = session.id;
+      btn.classList.add("dragging");
+    });
+    btn.addEventListener("dragend", () => {
+      btn.classList.remove("dragging", "drag-ready");
+      btn.draggable = false;
+      state.longPressReady = false;
+    });
+    btn.addEventListener("dragover", (event) => event.preventDefault());
+    btn.addEventListener("drop", async (event) => {
+      event.preventDefault();
+      if (!state.dragSessionId || state.dragSessionId === session.id) return;
+      const ids = (state.db.sessions || []).map((item) => item.id);
+      const from = ids.indexOf(state.dragSessionId);
+      const to = ids.indexOf(session.id);
+      const [moved] = ids.splice(from, 1);
+      ids.splice(to, 0, moved);
+      state.db = await api.reorderSessions(ids);
+      await renderAll();
+    });
+    sessionList.appendChild(btn);
+  }
+}
+
+function showSessionMenu(event, session) {
+  event.preventDefault();
+  contextMenu.dataset.id = session.id;
+  contextMenu.innerHTML = `
+    <button data-action="favorite">${session.pinned ? "取消收藏" : "收藏"}</button>
+    <button data-action="rename">重命名</button>
+    <button data-action="delete">删除会话</button>
+  `;
+  contextMenu.style.left = `${Math.min(event.clientX, window.innerWidth - 150)}px`;
+  contextMenu.style.top = `${Math.min(event.clientY, window.innerHeight - 170)}px`;
+  contextMenu.hidden = false;
+}
+
+async function handleSessionAction(action, sessionId) {
+  const session = state.db.sessions.find((item) => item.id === sessionId);
+  if (!session) return;
+  if (action === "favorite") state.db = await api.favoriteSession(sessionId, !session.pinned);
+  if (action === "rename") {
+    const title = await askSessionTitle(session.title || "新会话");
+    if (title) state.db = await api.renameSession(sessionId, title);
+  }
+  if (action === "delete" && await showAppConfirm({
+    title: "删除会话",
+    message: `删除会话「${session.title || "新会话"}」？此操作不可恢复。`,
+    primary: "删除",
+    secondary: "取消"
+  })) {
+    state.db = await api.deleteSession(sessionId);
+  }
+  state.selectedSessionId = state.db.selectedSessionId || state.db.sessions[0]?.id;
+  await renderAll();
+}
+
+function askSessionTitle(currentTitle) {
+  return new Promise((resolve) => {
+    if (!renameDialog || !renameInput) {
+      resolve("");
+      return;
+    }
+    renameInput.value = currentTitle || "";
+    renameDialog.returnValue = "";
+    const cleanup = () => {
+      renameDialog.removeEventListener("close", onClose);
+      renameSaveBtn?.removeEventListener("click", onSave);
+    };
+    const onClose = () => {
+      cleanup();
+      resolve(renameDialog.returnValue === "save" ? renameInput.value.trim() : "");
+    };
+    const onSave = (event) => {
+      event.preventDefault();
+      renameDialog.returnValue = "save";
+      renameDialog.close("save");
+    };
+    renameDialog.addEventListener("close", onClose);
+    renameSaveBtn?.addEventListener("click", onSave);
+    renameDialog.showModal();
+    setTimeout(() => {
+      renameInput.focus();
+      renameInput.select();
+    }, 30);
+  });
+}
+function addMessage(message, target = messageList) {
+  const row = document.createElement("div");
+  row.className = `message ${message.role} entering`;
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  const rendered = document.createElement("div");
+  rendered.className = "rendered";
+  const displayText = message.role === "assistant" ? filterAssistantExecutionOutput(message.text || "") : (message.text || "");
+  rendered.innerHTML = renderMarkdown(displayText);
+  bubble.appendChild(rendered);
+  for (const image of message.images || []) {
+    const img = document.createElement("img");
+    img.src = image;
+    img.className = "message-image";
+    bubble.appendChild(img);
+  }
+  if (message.attachments?.length) {
+    const files = document.createElement("div");
+    files.className = "message-files";
+    for (const item of message.attachments) {
+      const file = document.createElement("div");
+      file.className = "message-file-card";
+      file.innerHTML = `
+        <strong>▣ ${escapeHtml(item.name || "附件")}</strong>
+        <small>${escapeHtml(item.mimeType || "未知类型")}${item.sizeBytes ? ` · ${formatTaskBoardBytes(item.sizeBytes)}` : ""}</small>
+      `;
+      const actions = document.createElement("div");
+      actions.className = "message-file-actions";
+      const openBtn = document.createElement("button");
+      openBtn.type = "button";
+      openBtn.textContent = "外部打开";
+      openBtn.addEventListener("click", async () => {
+        await openAttachmentExternally(item).catch(() => showCopyToast("当前附件暂无可外部打开路径"));
+      });
+      const boardBtn = document.createElement("button");
+      boardBtn.type = "button";
+      boardBtn.textContent = "在看板查看";
+      boardBtn.addEventListener("click", () => {
+        openAttachmentInBoard(item);
+      });
+      actions.append(openBtn, boardBtn);
+      file.appendChild(actions);
+      files.appendChild(file);
+    }
+    bubble.appendChild(files);
+  }
+  const copy = document.createElement("button");
+  copy.className = "copy";
+  copy.type = "button";
+  copy.textContent = "⧉";
+  copy.title = "复制";
+  copy.addEventListener("click", async () => {
+    await api.copyText(displayText || rendered.textContent || "");
+    markCopySuccess(copy);
+  });
+  bubble.appendChild(copy);
+  row.appendChild(bubble);
+  target.appendChild(row);
+  requestAnimationFrame(() => {
+    row.classList.remove("entering");
+    if (target === messageList) scrollMessagesToBottom();
+  });
+}
+
+function buildPersistedAttachments(attachments = []) {
+  return attachments.map((item) => ({
+    id: item.id,
+    name: item.name,
+    mimeType: item.mimeType,
+    sizeBytes: item.sizeBytes,
+    dataUrl: item.dataUrl,
+    textContent: item.textContent,
+    path: item.path || item.originalPath || item.filePath || "",
+    url: item.url || ""
+  }));
+}
+
+function productResultText(result = {}) {
+  return result.text
+    || result.result?.text
+    || result.result?.normalized?.error
+    || result.result?.response?.error
+    || (result.success ? "任务完成。" : "");
+}
+
+function showConfirmCard(request) {
+  if (!request?.id || pendingConfirmations[request.id]) return;
+  pendingConfirmations[request.id] = request;
+
+  const card = document.createElement("div");
+  card.className = "message assistant confirm-card";
+  card.dataset.confirmId = request.id;
+
+  let paramsDisplay = "";
+  try {
+    paramsDisplay = JSON.stringify(request.params || {}, null, 2);
+  } catch {
+    paramsDisplay = String(request.params || "");
+  }
+
+  const scopeName = ({ file: "文件", system: "系统", tool: "工具", network: "网络" })[request.scope] || "工具";
+  const title = `小白要执行${scopeName}操作，可以吗？`;
+  card.innerHTML = `
+    <div class="bubble">
+      <div class="confirm-title">
+        <span aria-hidden="true">!</span>
+        <strong>${escapeHtml(title)}</strong>
+      </div>
+      <div class="confirm-subtitle">${escapeHtml(request.toolName || request.toolId || "工具")} · ${escapeHtml(scopeName)}权限</div>
+      <div class="confirm-params">${escapeHtml(paramsDisplay)}</div>
+      <label class="confirm-mode">
+        <span>权限记忆</span>
+        <select class="confirm-mode-select">
+          <option value="allow_once">一次允许</option>
+          <option value="allow_always">始终允许（完全访问）</option>
+          <option value="ask">每次询问</option>
+          <option value="deny">拒绝</option>
+        </select>
+      </label>
+      <div class="confirm-actions">
+        <button class="confirm-yes" data-id="${escapeHtml(request.id)}" type="button">确认执行</button>
+        <button class="confirm-no" data-id="${escapeHtml(request.id)}" type="button">取消</button>
+      </div>
+    </div>
+  `;
+
+  messageList.appendChild(card);
+  messageList.scrollTop = messageList.scrollHeight;
+
+  card.querySelector(".confirm-yes")?.addEventListener("click", () => {
+    const mode = card.querySelector(".confirm-mode-select")?.value || "allow_once";
+    api.confirmTool(request.id, mode !== "deny", mode);
+    delete pendingConfirmations[request.id];
+    card.remove();
+  });
+  card.querySelector(".confirm-no")?.addEventListener("click", () => {
+    const mode = card.querySelector(".confirm-mode-select")?.value || "ask";
+    api.confirmTool(request.id, false, mode === "deny" ? "deny" : "ask");
+    delete pendingConfirmations[request.id];
+    card.remove();
+  });
+}
+
+function parsePersonaCommand(text) {
+  const raw = String(text || "").trim();
+  if (!/(设定|设置|修改|更改|改成|改为)/.test(raw)) return null;
+  const boundary = String.raw`(?=\s*(?:，|。|；|;|\n|名字|名称|称呼|性格|人格|语气|说话方式|能力|技能|擅长|备注|主人备注|背景|偏好)\s*(?:为|成|是|:|：)?|$)`;
+  const fields = [
+    ["name", new RegExp(String.raw`(?:名字|名称|称呼)\s*(?:为|成|是|:|：)\s*([\s\S]+?)${boundary}`)],
+    ["personality", new RegExp(String.raw`(?:性格|人格|语气|说话方式)\s*(?:为|成|是|:|：)\s*([\s\S]+?)${boundary}`)],
+    ["abilities", new RegExp(String.raw`(?:能力|技能|擅长)\s*(?:为|成|是|:|：)\s*([\s\S]+?)${boundary}`)],
+    ["notes", new RegExp(String.raw`(?:备注|主人备注|背景|偏好)\s*(?:为|成|是|:|：)\s*([\s\S]+?)${boundary}`)]
+  ];
+  const patch = {};
+  for (const [key, pattern] of fields) {
+    const match = raw.match(pattern);
+    if (match?.[1]) patch[key] = match[1].trim();
+  }
+  return Object.keys(patch).length ? patch : null;
+}
+
+async function handlePersonaCommand(text, session) {
+  const patch = parsePersonaCommand(text);
+  if (!patch || !session) return false;
+  state.db.settings.persona = {
+    ...(state.db.settings.persona || {}),
+    configured: true,
+    ...patch
+  };
+  await api.saveSettings(state.db.settings);
+  await api.setAutoLaunch?.(Boolean(autoLaunchInput?.checked));
+  await api.appendMessage(session.id, { role: "user", text });
+  const changed = [
+    patch.name ? `名字：${patch.name}` : "",
+    patch.personality ? `性格：${patch.personality}` : "",
+    patch.abilities ? `能力：${patch.abilities}` : "",
+    patch.notes ? `备注：${patch.notes}` : ""
+  ].filter(Boolean);
+  await api.appendMessage(session.id, {
+    role: "assistant",
+    text: `设定已保存。\n${changed.map((item) => `- ${item}`).join("\n")}`
+  });
+  chatInput.value = "";
+  adjustComposerHeight();
+  state.attachments = [];
+  renderAttachments();
+  state.db = await api.init();
+  await renderAll();
+  return true;
+}
+
+async function renderMessages() {
+  const session = selectedSession();
+  if (!session) return;
+  const messages = await api.messages(session.id);
+  const sessionChanged = state.lastRenderedSessionId !== session.id;
+  const messageCountIncreased = messages.length > state.lastMessageCount;
+  const shouldFollow = state.forceScrollBottom || sessionChanged || messageCountIncreased || isNearBottom(messageList) || state.lastMessageCount === 0;
+  state.currentMessages = messages;
+  const fragment = document.createDocumentFragment();
+  if (!messages.length) addMessage({ role: "assistant", text: "发送第一条消息后，我会先引导您设定专属助手的名字、称呼和风格。" }, fragment);
+  else messages.forEach((message) => addMessage(message, fragment));
+  messageList.replaceChildren(fragment);
+  state.lastMessageCount = messages.length;
+  state.lastRenderedSessionId = session.id;
+  if (shouldFollow) scrollMessagesToBottom();
+  setBusy(session.status === "running");
+  stopProgress(session.status);
+  renderMonitorLog(session, messages);
+  renderMetricBars(session, messages);
+  renderTaskBoard();
+}
+
+function renderAttachments() {
+  attachmentPreview.hidden = state.attachments.length === 0;
+  attachmentPreview.innerHTML = "";
+  for (const [index, item] of state.attachments.entries()) {
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    if (item.mimeType.startsWith("image/")) {
+      const img = document.createElement("img");
+      img.src = item.dataUrl;
+      chip.appendChild(img);
+    }
+    const label = document.createElement("span");
+    label.textContent = item.name;
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "×";
+    remove.addEventListener("click", () => {
+      state.attachments.splice(index, 1);
+      renderAttachments();
+    });
+    chip.append(label, remove);
+    attachmentPreview.appendChild(chip);
+  }
+}
+
+function renderQueue() {
+  const selected = selectedSession();
+  const runtimeQueue = (state.db?.queue || [])
+    .filter((task) => !selected?.id || task.sessionId === selected.id)
+    .slice(-12);
+  queuePanel.hidden = state.queue.length === 0;
+  queueList.innerHTML = "";
+  state.queue.forEach((task, index) => {
+    const item = document.createElement("div");
+    item.className = "queue-item queued-input";
+    item.innerHTML = `<span>预置 ${index + 1}. ${escapeHtml(task.text || `附件任务 ${task.attachments.length}`)}</span><button type="button">×</button>`;
+    item.querySelector("button").addEventListener("click", () => {
+      state.queue.splice(index, 1);
+      renderQueue();
+    });
+    queueList.appendChild(item);
+  });
+}
+
+function renderSettings() {
+  providerSelect.innerHTML = "";
+  const settings = state.db.settings;
+  settings.appearance ||= {};
+  settings.appearance.skin = SKIN_PRESETS[settings.appearance.skin] ? settings.appearance.skin : "custom";
+  const skinPreset = SKIN_PRESETS[settings.appearance.skin] || SKIN_PRESETS.custom;
+  for (const [key, provider] of Object.entries(settings.providers)) {
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = provider.name || key;
+    option.selected = settings.defaultProvider === key;
+    providerSelect.appendChild(option);
+  }
+  reasoningSelect.value = settings.reasoning || "minimal";
+  if (sideReasoningSelect) sideReasoningSelect.value = settings.reasoning || "minimal";
+  renderProviderDetails();
+  const current = settings.providers[settings.defaultProvider];
+  modelState.textContent = `${current?.name || "DeepSeek"} / ${reasoningLabel(settings.reasoning)}`;
+  if (monitorModel) monitorModel.textContent = (current?.name || "DeepSeek").toUpperCase();
+  if (skinSelect) skinSelect.value = settings.appearance.skin;
+  if (textColorInput) textColorInput.value = settings.appearance.textColor || skinPreset.textColor;
+  if (accentColorInput) accentColorInput.value = settings.appearance.accentColor || skinPreset.accentColor;
+  if (backgroundColorInput) backgroundColorInput.value = settings.appearance.backgroundColor || skinPreset.backgroundColor;
+  if (panelColorInput) panelColorInput.value = settings.appearance.panelColor || skinPreset.panelColor;
+  if (fontSizeInput) fontSizeInput.value = settings.appearance.fontSize || skinPreset.fontSize || 16;
+  if (skinImageStatus) skinImageStatus.textContent = settings.appearance.skinImage ? "已应用自定义皮肤图片。" : "上传图片后会作为白球背景皮肤。";
+  if (inviteInput) inviteInput.value = settings.license?.inviteCode || "";
+  refreshLicenseStatus();
+  if (personaNameInput) personaNameInput.value = settings.persona?.name || "助手";
+  if (personaPersonalityInput) personaPersonalityInput.value = settings.persona?.personality || "";
+  if (personaAbilitiesInput) personaAbilitiesInput.value = settings.persona?.abilities || "";
+  if (personaNameSettingsInput) personaNameSettingsInput.value = settings.persona?.name || "助手";
+  if (personaPersonalitySettingsInput) personaPersonalitySettingsInput.value = settings.persona?.personality || "";
+  if (personaAbilitiesSettingsInput) personaAbilitiesSettingsInput.value = settings.persona?.abilities || "";
+  if (personaNotesSettingsInput) personaNotesSettingsInput.value = settings.persona?.notes || "";
+  if (updateManifestInput) updateManifestInput.value = settings.update?.updateServer || settings.update?.manifestUrl || "";
+  window.heiqiu.getAutoLaunch?.().then((enabled) => { if (autoLaunchInput) autoLaunchInput.checked = Boolean(enabled); }).catch(() => null);
+  if (saveLocationInput) saveLocationInput.value = settings.files?.saveLocation || "D:\\BaiQiuAI\\data\\workspace";
+  if (agentModeInput) agentModeInput.checked = true;
+  if (advancedLocalExecutionInput) advancedLocalExecutionInput.checked = (settings.permissions?.accessMode || "full") !== "normal";
+  applyAppearance();
+  updateLogicBar();
+  renderAccessMode();
+  renderSkills();
+}
+
+function renderProviderDetails() {
+  const settings = state.db.settings;
+  const key = providerSelect.value || settings.defaultProvider || "deepseek";
+  const provider = settings.providers[key];
+  providerList.hidden = false;
+  if (key === "openclaw") {
+    providerList.innerHTML = `
+      <div class="provider-note">
+        OpenClaw 已套入白球 AI：选择这个模型后，会直接走本机 OpenClaw 网关，不需要 API Key。
+      </div>
+    `;
+    return;
+  }
+  providerList.innerHTML = `
+    <label>API Key <input id="apiKeyInput" type="password" autocomplete="off" spellcheck="false" value="${escapeHtml(provider.apiKey || "")}" placeholder="sk-..."></label>
+    <label>Base URL <input id="baseUrlInput" value="${escapeHtml(provider.baseURL || "")}" placeholder="https://api.deepseek.com"></label>
+    <label>模型 <input id="modelInput" value="${escapeHtml(provider.model || "")}" placeholder="deepseek-chat"></label>
+  `;
+}
+
+async function renderAll() {
+  document.body.classList.add("ui-rendering");
+  try {
+    state.selectedSessionId ||= state.db.selectedSessionId || state.db.sessions[0]?.id;
+    renderSessions();
+    await renderMessages();
+    renderSettings();
+    await renderLicenseControls();
+    renderQueue();
+    recordState.textContent = `${state.db.sessions.length} 会话`;
+    if (monitorSession) monitorSession.textContent = statusText(selectedSession()?.status);
+    const owner = await api.ownerStatus?.().catch(() => ({ devMode: false }));
+    const history = await api.productTaskHistory?.({ productId: "desktop-assistant", limit: 5 }).catch(() => []);
+    renderProductTaskStrip(history || []);
+    renderProductDashboard(history?.[0] || null, { devMode: Boolean(owner?.devMode) });
+  } finally {
+    requestAnimationFrame(() => document.body.classList.remove("ui-rendering"));
+  }
+}
+
+function readSettingsFromDialog() {
+  const settings = JSON.parse(JSON.stringify(state.db.settings));
+  const updateTarget = updateManifestInput?.value?.trim() || "";
+  settings.defaultProvider = providerSelect.value || "deepseek";
+  settings.reasoning = reasoningSelect.value || "minimal";
+  if (settings.reasoning === "off") settings.defaultProvider = "ollama";
+  for (const [key, provider] of Object.entries(settings.providers)) provider.enabled = key === settings.defaultProvider;
+  const provider = settings.providers[settings.defaultProvider];
+  if (settings.defaultProvider !== "openclaw") {
+    provider.apiKey = $("apiKeyInput")?.value || "";
+    provider.baseURL = $("baseUrlInput")?.value || provider.baseURL || "";
+    provider.model = $("modelInput")?.value || provider.model || "";
+  }
+  const selectedSkin = SKIN_PRESETS[skinSelect?.value] ? skinSelect.value : "custom";
+  const selectedPreset = SKIN_PRESETS[selectedSkin] || SKIN_PRESETS.custom;
+  settings.appearance = {
+    ...(settings.appearance || {}),
+    skin: selectedSkin,
+    textColor: textColorInput?.value || selectedPreset.textColor,
+    accentColor: accentColorInput?.value || selectedPreset.accentColor,
+    backgroundColor: backgroundColorInput?.value || selectedPreset.backgroundColor,
+    panelColor: panelColorInput?.value || selectedPreset.panelColor,
+    fontSize: Number(fontSizeInput?.value || selectedPreset.fontSize || 16)
+  };
+  settings.license = {
+    ...(settings.license || {}),
+    inviteCode: inviteInput?.value || "",
+    unlocked: Boolean(settings.license?.unlocked)
+  };
+  settings.persona = {
+    ...(settings.persona || {}),
+    configured: Boolean(settings.persona?.configured || personaNameSettingsInput?.value?.trim() || personaPersonalitySettingsInput?.value?.trim() || personaAbilitiesSettingsInput?.value?.trim() || personaNotesSettingsInput?.value?.trim()),
+    name: personaNameSettingsInput?.value?.trim() || personaNameInput?.value?.trim() || "助手",
+    personality: personaPersonalitySettingsInput?.value?.trim() || personaPersonalityInput?.value?.trim() || "专业、可靠、高效的本地桌面执行官。",
+    abilities: personaAbilitiesSettingsInput?.value?.trim() || personaAbilitiesInput?.value?.trim() || "桌面工作、文件分析、图片识别、表格处理、运营分析和自动化任务。",
+    notes: personaNotesSettingsInput?.value?.trim() || settings.persona?.notes || ""
+  };
+  settings.update = {
+    ...(settings.update || {}),
+    updateServer: /\.json(?:\?.*)?$/i.test(updateTarget) ? "" : updateTarget,
+    manifestUrl: /\.json(?:\?.*)?$/i.test(updateTarget) ? updateTarget : (settings.update?.manifestUrl || ""),
+    autoLaunch: Boolean(autoLaunchInput?.checked)
+  };
+  settings.files = {
+    ...(settings.files || {}),
+    saveLocation: saveLocationInput?.value?.trim() || "D:\\BaiQiuAI\\data\\workspace"
+  };
+  settings.permissions = {
+    ...(settings.permissions || {}),
+    accessMode: settings.permissions?.accessMode || currentAccessMode(),
+    permissionModes: settings.permissions?.permissionModes || {},
+    agentMode: true,
+    advancedLocalExecution: (settings.permissions?.accessMode || currentAccessMode()) !== "normal"
+  };
+  return settings;
+}
+
+async function savePersona(configured = true) {
+  state.db.settings.persona = {
+    ...(state.db.settings.persona || {}),
+    configured,
+    name: personaNameInput?.value?.trim() || "助手",
+    personality: personaPersonalityInput?.value?.trim() || "专业、可靠、高效的本地桌面执行官。",
+    abilities: personaAbilitiesInput?.value?.trim() || "桌面工作、文件分析、图片识别、表格处理、运营分析和自动化任务。",
+    notes: state.db.settings.persona?.notes || ""
+  };
+  await api.saveSettings(state.db.settings);
+  await api.setAutoLaunch?.(Boolean(autoLaunchInput?.checked));
+  state.db = await api.init();
+  renderSettings();
+}
+
+function maybeShowPersonaDialog() {
+  const persona = state.db?.settings?.persona || {};
+  if (!persona.configured && personaDialog && !personaDialog.open) {
+    personaNameInput.value = persona.name || "";
+    personaPersonalityInput.value = persona.personality || "";
+    personaAbilitiesInput.value = persona.abilities || "";
+    personaDialog.showModal();
+  }
+}
+
+function applySkinPreset(skin) {
+  const normalized = SKIN_PRESETS[skin] ? skin : "custom";
+  const preset = SKIN_PRESETS[normalized] || SKIN_PRESETS.custom;
+  if (textColorInput) textColorInput.value = preset.textColor;
+  if (accentColorInput) accentColorInput.value = preset.accentColor;
+  if (backgroundColorInput) backgroundColorInput.value = preset.backgroundColor;
+  if (panelColorInput) panelColorInput.value = preset.panelColor;
+  if (fontSizeInput) fontSizeInput.value = preset.fontSize || 16;
+  state.db.settings.appearance = {
+    ...(state.db.settings.appearance || {}),
+    skin: normalized,
+    ...preset
+  };
+  applyAppearance();
+}
+
+function switchSettingsTab(tab) {
+  document.querySelectorAll(".settings-tab").forEach((button) => {
+    button.classList.toggle("active", button.dataset.settingsTab === tab);
+  });
+  document.querySelectorAll(".settings-page").forEach((page) => {
+    page.classList.toggle("active", page.dataset.settingsPage === tab);
+  });
+  if (tab === "update") renderUpdateInfo();
+  if (tab === "skills") renderSkills(true);
+  if (tab === "invite") renderInviteOwner();
+  if (tab === "developerLogs") renderDeveloperLogs();
+}
+
+function openSettingsTab(tab, mode = "external") {
+  settingsDialog.dataset.mode = mode;
+  settingsDialog.showModal();
+  switchSettingsTab(tab);
+}
+
+async function renderAdminCodeList() {
+  if (!adminCodeListOutput) return;
+  try {
+    const query = (adminCodeSearchInput?.value || "").trim().toLowerCase();
+    const list = await window.admin.getCodeList();
+    const rows = list
+      .filter((item) => !query || JSON.stringify(item).toLowerCase().includes(query))
+      .map((item) => [
+        item.code,
+        item.status || "unknown",
+        item.type || "",
+        item.activatedAt ? new Date(item.activatedAt).toLocaleString() : "未激活",
+        item.deviceId || "",
+        item.notes || ""
+      ].join(" | "));
+    adminCodeListOutput.value = rows.length ? rows.join("\n") : "暂无卡密记录";
+  } catch (error) {
+    adminCodeListOutput.value = `读取失败：${error.message || error}`;
+  }
+}
+async function renderInviteOwner() {
+  if (!ownerInvitePanel) return;
+  const status = await api.ownerStatus().catch(() => ({ owner: false }));
+  ownerInvitePanel.hidden = !status.owner;
+}
+
+async function renderLicenseControls() {
+  const status = await api.ownerStatus().catch(() => ({ owner: false }));
+  const unlocked = Boolean(state.db?.settings?.license?.unlocked);
+  await renderAdminCodeList();
+  if (developerLogsTab) developerLogsTab.hidden = !status.devMode;
+  if (developerLogsPage) developerLogsPage.hidden = !status.devMode;
+  if (applyOnlineUpdateBtn) applyOnlineUpdateBtn.hidden = Boolean(status.devMode);
+  if (inviteBtn) {
+    inviteBtn.hidden = !status.owner && unlocked;
+    inviteBtn.textContent = status.owner ? "卡密管理" : "购买卡密";
+    inviteBtn.title = status.owner ? "卡密生成与管理" : "购买卡密并激活";
+  }
+  if (ownerInvitePanel) ownerInvitePanel.hidden = !status.owner;
+  if (publishUpdatePanel) publishUpdatePanel.hidden = !status.owner;
+}
+
+async function renderDeveloperLogs() {
+  if (!developerLogOutput) return;
+  const status = await api.ownerStatus().catch(() => ({ devMode: false }));
+  if (!status.devMode || !window.admin?.readLogs) {
+    developerLogOutput.value = "开发者日志仅开发者版本可见。";
+    return;
+  }
+  const type = developerLogTypeSelect?.value || "system";
+  try {
+    const data = await window.admin.readLogs(type, 500);
+    developerLogOutput.value = (data.lines || []).join("\n") || "暂无日志。";
+  } catch (error) {
+    developerLogOutput.value = `读取失败：${error.message || error}`;
+  }
+}
+
+async function renderUpdateInfo() {
+  if (!updateContent) return;
+  const info = await api.updateInfo().catch(() => null);
+  if (!info) {
+    updateContent.textContent = "无法读取更新信息。请检查网络或更新清单配置。";
+    return;
+  }
+  if (appVersion) appVersion.textContent = info.currentVersion;
+  if (publishVersionInput && !publishVersionInput.value) publishVersionInput.value = info.currentVersion;
+  if (info.hasUpdate) {
+    updateContent.innerHTML = `
+      <div class="update-card">
+        <strong>有新版本可用</strong>
+        <p>当前版本：<b>${escapeHtml(info.currentVersion)}</b></p>
+        <p>最新版本：<b>${escapeHtml(info.latestVersion)}</b></p>
+        ${(info.notes || []).length ? `<p>更新内容：</p><ul>${info.notes.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
+        <button id="downloadUpdateBtn" type="button">下载更新</button>
+      </div>
+    `;
+    document.getElementById("downloadUpdateBtn")?.addEventListener("click", async () => {
+      updateContent.textContent = "正在下载更新包。";
+      try {
+        const result = await api.applyOnlineUpdate();
+        updateContent.innerHTML = `<p>${escapeHtml(result.message || "更新包已准备。")}</p><pre>${escapeHtml(`${result.packageFile || ""}\n${result.script || ""}`)}</pre>`;
+      } catch (error) {
+        updateContent.textContent = `在线更新失败：${String(error.message || error).replace(/Error:|Exception:|Failed:/gi, "").trim()}`;
+      }
+    });
+  } else {
+    updateContent.innerHTML = `<p>当前已是最新版本（${escapeHtml(info.currentVersion)}）</p>`;
+  }
+}
+
+function showUpdateBadge(info) {
+  const settingsBtn = document.getElementById("settingsBtn");
+  if (!settingsBtn || settingsBtn.dataset.updateBadge === "1") return;
+  settingsBtn.dataset.updateBadge = "1";
+  settingsBtn.textContent = `* ${settingsBtn.textContent}`;
+  settingsBtn.title = `新版本 ${info.latestVersion} 可用`;
+  settingsBtn.style.borderColor = "var(--accent)";
+}
+
+async function renderSkills(force = false) {
+  if (!skillList || (!force && skillList.dataset.loaded === "1")) return;
+  const data = await api.skills().catch(() => null);
+  if (!data) {
+    skillList.textContent = "技能读取失败。";
+    return;
+  }
+  const bundled = data.bundled || [];
+  const custom = data.custom || [];
+  const skillCards = [...bundled.slice(0, 12), ...custom].map((item) => `
+    <article class="skill-card ${item.id ? "custom-skill" : ""}" data-skill-id="${escapeHtml(item.id || item.name || "")}">
+      <strong>${escapeHtml(item.name || "未命名技能")}</strong>
+      <p>${escapeHtml(item.description || item.source || "可通过对话调用")}</p>
+      <small>使用次数：${Number(item.usageCount || 0)}</small>
+    </article>
+  `).join("");
+  const memoryCards = (data.memories || []).map((item) => `
+    <article class="memory-card custom-memory" data-memory-id="${escapeHtml(item.id || "")}">
+      <strong>我的偏好</strong>
+      <p>${escapeHtml(item.text || "")}</p>
+      <small>${escapeHtml(item.source || "白球记忆")}</small>
+    </article>
+  `).join("");
+  skillList.dataset.loaded = "1";
+  skillList.innerHTML = `
+    <div class="skill-tabs-view">
+      <section><h3>我的技能</h3><div class="skill-card-grid">${skillCards || "<em>暂无技能</em>"}</div></section>
+      <section><h3>我的偏好</h3><div class="skill-card-grid">${memoryCards || "<em>暂无偏好记忆</em>"}</div></section>
+    </div>
+  `;
+  if (memoryList) {
+    memoryList.hidden = false;
+    memoryList.innerHTML = memoryCards || "暂无偏好记忆";
+  }
+  skillList.querySelectorAll(".custom-skill").forEach((item) => {
+    item.addEventListener("contextmenu", async (event) => {
+      event.preventDefault();
+      const name = item.textContent || "该技能";
+      const ok = await showAppConfirm({
+        title: "删除技能",
+        message: `删除技能「${name}」？`,
+        primary: "删除",
+        secondary: "取消"
+      });
+      if (!ok) return;
+      await api.deleteSkill(item.dataset.skillId);
+      skillList.dataset.loaded = "0";
+      await renderSkills(true);
+    });
+  });
+  memoryList?.querySelectorAll(".custom-memory").forEach((item) => {
+    item.addEventListener("contextmenu", async (event) => {
+      event.preventDefault();
+      const text = item.textContent || "该记忆";
+      const ok = await showAppConfirm({
+        title: "删除记忆",
+        message: `删除记忆「${text.slice(0, 40)}」？`,
+        primary: "删除",
+        secondary: "取消"
+      });
+      if (!ok) return;
+      await api.deleteMemory(item.dataset.memoryId);
+      if (skillList) skillList.dataset.loaded = "0";
+      await renderSkills(true);
+    });
+  });
+}
+
+function applySavedLayout() {
+  const sessionsW = localStorage.getItem("heiqiu.sessionsW");
+  const terminalW = localStorage.getItem("heiqiu.terminalW");
+  if (sessionsW) appShell.style.setProperty("--sessions-w", `${sessionsW}px`);
+  if (terminalW) appShell.style.setProperty("--terminal-w", `${terminalW}px`);
+}
+
+function setupSplitters() {
+  let active = null;
+  document.querySelector(".splitter-left")?.addEventListener("pointerdown", (event) => {
+    active = "left";
+    event.currentTarget.setPointerCapture(event.pointerId);
+  });
+  document.querySelector(".splitter-right")?.addEventListener("pointerdown", (event) => {
+    active = "right";
+    event.currentTarget.setPointerCapture(event.pointerId);
+  });
+  document.addEventListener("pointermove", (event) => {
+    if (!active) return;
+    const rect = appShell.getBoundingClientRect();
+    if (active === "left") {
+      const value = Math.min(340, Math.max(210, event.clientX - rect.left));
+      appShell.style.setProperty("--sessions-w", `${value}px`);
+      localStorage.setItem("heiqiu.sessionsW", String(value));
+    } else {
+      const value = Math.min(680, Math.max(340, rect.right - event.clientX));
+      appShell.style.setProperty("--terminal-w", `${value}px`);
+      localStorage.setItem("heiqiu.terminalW", String(value));
+    }
+  });
+  document.addEventListener("pointerup", () => {
+    active = null;
+  });
+}
+
+function guessMime(name) {
+  if (/\.xlsx$/i.test(name)) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  if (/\.xls$/i.test(name)) return "application/vnd.ms-excel";
+  if (/\.csv$/i.test(name)) return "text/csv";
+  if (/\.md$/i.test(name)) return "text/markdown";
+  if (/\.json$/i.test(name)) return "application/json";
+  return "application/octet-stream";
+}
+
+function fileToAttachment(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => {
+      const attachment = {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: file.name || "clipboard-image.png",
+        mimeType: file.type || guessMime(file.name || ""),
+        sizeBytes: file.size,
+        path: file.path || "",
+        dataUrl: String(reader.result || ""),
+        textContent: ""
+      };
+      if (/^text\/|json|markdown|csv/i.test(attachment.mimeType) || /\.(txt|md|json|csv)$/i.test(file.name || "")) {
+        const textReader = new FileReader();
+        textReader.onload = () => {
+          attachment.textContent = String(textReader.result || "").slice(0, 120000);
+          resolve(attachment);
+        };
+        textReader.onerror = () => resolve(attachment);
+        textReader.readAsText(file);
+      } else {
+        resolve(attachment);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function addFiles(files) {
+  for (const file of files) state.attachments.push(await fileToAttachment(file));
+  renderAttachments();
+}
+
+async function enqueueCurrentTask() {
+  const text = chatInput.value.trim();
+  if (!text && !state.attachments.length) return false;
+  state.queue.push({ text, attachments: [...state.attachments] });
+  chatInput.value = "";
+  adjustComposerHeight();
+  state.attachments = [];
+  renderAttachments();
+  renderQueue();
+  return true;
+}
+
+async function abortCurrentTask() {
+  const session = selectedSession();
+  if (!session) return;
+  setBusy(false);
+  taskState.textContent = "正在终止";
+  if (monitorMode) monitorMode.textContent = "正在终止";
+  await api.abortChat(session.id);
+  state.queue = [];
+  state.db = await api.init();
+  await renderAll();
+}
+
+async function sendCurrentTask(task = null) {
+  const session = selectedSession();
+  if (!session) return;
+  const text = task ? task.text : chatInput.value.trim();
+  const attachments = task ? task.attachments : [...state.attachments];
+  if (!text && !attachments.length) return;
+  const persistedAttachments = buildPersistedAttachments(attachments);
+  const userMessage = {
+    role: "user",
+    text,
+    attachments: persistedAttachments,
+    images: persistedAttachments.filter((item) => String(item.mimeType || "").startsWith("image/")).map((item) => item.dataUrl)
+  };
+  addMessage(userMessage);
+  state.forceScrollBottom = true;
+  scrollMessagesToBottom();
+  chatInput.value = "";
+  adjustComposerHeight();
+  state.attachments = [];
+  renderAttachments();
+  setBusy(true);
+  setTaskProgressStage("已接收", 8);
+  try {
+    const useProductTask = shouldUseProductTask(text, attachments);
+    if (isSkillLearningPrompt(text) && api.productSubmitTask) {
+      setTaskProgressStage("正在学习技能", 24);
+      const productResult = await submitSkillLearningInput(session, text);
+      setTaskProgressStage("正在验证", 88);
+      const assistantText = productResultText(productResult) || productResult?.text || "技能学习流程已结束。";
+      addMessage({ role: "assistant", text: assistantText });
+      scrollMessagesToBottom();
+      setTaskProgressStage(productResult?.success ? "已完成" : "执行失败", productResult?.success ? 100 : 0);
+      await api.appendMessage(session.id, userMessage);
+      await api.appendMessage(session.id, { role: "assistant", text: assistantText, raw: { productLayer: true, skillLearning: true, productResult } });
+      state.db = await api.init();
+      const owner = await api.ownerStatus?.().catch(() => ({ devMode: false }));
+      const productTask = await api.productQueryTask?.(productResult.taskId).catch(() => null);
+      renderProductDashboard(productTask, { devMode: Boolean(owner?.devMode) });
+      return;
+    }
+    if (isCalculatorCreationPrompt(text) && api.productSubmitTask) {
+      setTaskProgressStage("正在生成计算器", 32);
+      const productResult = await submitProductInput(session, text, { taskMode: false });
+      setTaskProgressStage("正在打开", 78);
+      const assistantText = productResultText(productResult) || productResult?.text || "计算器任务已结束。";
+      addMessage({ role: "assistant", text: assistantText });
+      scrollMessagesToBottom();
+      setTaskProgressStage(productResult?.success ? "已完成" : "执行失败", productResult?.success ? 100 : 0);
+      await api.appendMessage(session.id, userMessage);
+      await api.appendMessage(session.id, { role: "assistant", text: assistantText, raw: { productLayer: true, calculatorShortcut: true, productResult } });
+      state.db = await api.init();
+      return;
+    }
+    if (!useProductTask) {
+      setTaskProgressStage("正在理解", 18);
+      const productResult = await submitProductInput(session, text, { taskMode: false });
+      setTaskProgressStage("正在生成回复", 76);
+      const assistantText = productResultText(productResult) || productResult?.text || "我在。";
+      addMessage({ role: "assistant", text: assistantText });
+      scrollMessagesToBottom();
+      setTaskProgressStage("已完成", 100);
+      await api.appendMessage(session.id, userMessage);
+      await api.appendMessage(session.id, { role: "assistant", text: assistantText, raw: { productLayer: true, conversationOnly: true, productResult } });
+      return;
+    }
+    if (attachments.length && api.productSubmitTask) {
+      setTaskProgressStage("正在读取附件", 24);
+      const productResult = await submitAttachmentInput(session, text, attachments);
+      setTaskProgressStage("正在分析", 70);
+      const assistantText = productResultText(productResult) || productResult?.text || "附件已收到，但没有生成有效分析。";
+      addMessage({ role: "assistant", text: assistantText });
+      scrollMessagesToBottom();
+      setTaskProgressStage(productResult?.success ? "已完成" : "执行失败", productResult?.success ? 100 : 0);
+      await api.appendMessage(session.id, userMessage);
+      await api.appendMessage(session.id, { role: "assistant", text: assistantText, raw: { productLayer: true, attachmentAnalysis: true, productResult } });
+      state.db = await api.init();
+      const owner = await api.ownerStatus?.().catch(() => ({ devMode: false }));
+      const productTask = await api.productQueryTask?.(productResult.taskId).catch(() => null);
+      renderProductDashboard(productTask, { devMode: Boolean(owner?.devMode) });
+      return;
+    }
+    if (api.productSubmitTask) {
+      setTaskProgressStage("正在规划", 28);
+      const createdTask = await api.productCreateTask?.({
+        productId: "desktop-assistant",
+        templateId: "desktop.general_task",
+        sessionId: session.id,
+        text,
+        message: text
+      });
+      if (createdTask?.experience) {
+        addMessage({ role: "assistant", text: renderTaskCard(createdTask.experience) });
+        renderProductTaskStrip([createdTask]);
+      }
+      setTaskProgressStage("正在执行", 58);
+      const productResult = await api.productSubmitTask({
+        ...(createdTask || {}),
+        productId: "desktop-assistant",
+        templateId: "desktop.general_task",
+        sessionId: session.id,
+        text,
+        message: text
+      });
+      setTaskProgressStage("正在验证", 86);
+      const assistantText = productResultText(productResult) || (productResult?.success ? "任务完成。" : "请补充具体需求后我再执行。");
+      if (!productResult?.success) {
+        setTaskProgressStage("正在恢复", 64);
+        const fallbackResult = await submitProductInput(session, text, { taskMode: false });
+        const fallbackText = productResultText(fallbackResult) || fallbackResult?.text || "这个任务需要再补充一些细节。";
+        addMessage({ role: "assistant", text: fallbackText });
+        scrollMessagesToBottom();
+        setTaskProgressStage(fallbackResult?.success ? "已完成" : "执行失败", fallbackResult?.success ? 100 : 0);
+        await api.appendMessage(session.id, userMessage);
+        await api.appendMessage(session.id, { role: "assistant", text: fallbackText, raw: { productLayer: true, fallback: true, productResult: fallbackResult } });
+        return;
+      }
+      addMessage({ role: "assistant", text: renderResultCard({ ...productResult, text: assistantText }) });
+      scrollMessagesToBottom();
+      setTaskProgressStage(productResult?.success ? "已完成" : "执行失败", productResult?.success ? 100 : 0);
+      await api.appendMessage(session.id, userMessage);
+      await api.appendMessage(session.id, { role: "assistant", text: assistantText, raw: { productLayer: true, productResult } });
+      state.db = await api.init();
+      const owner = await api.ownerStatus?.().catch(() => ({ devMode: false }));
+      const productTask = await api.productQueryTask?.(productResult.taskId).catch(() => null);
+      renderProductDashboard(productTask, { devMode: Boolean(owner?.devMode) });
+      return;
+    }
+    addMessage({ role: "assistant", text: "当前产品层暂时没有返回结果，请稍后再试。" });
+    scrollMessagesToBottom();
+    await api.appendMessage(session.id, userMessage);
+    await api.appendMessage(session.id, { role: "assistant", text: "当前产品层暂时没有返回结果，请稍后再试。", raw: { productLayer: true, emptyResult: true } });
+  } catch (error) {
+    console.error(error);
+    const message = error?.message || String(error || "未知错误");
+    addMessage({ role: "assistant", text: `没有发送成功。\n原因：${message}` });
+    scrollMessagesToBottom();
+    setTaskProgressStage("执行失败", 0);
+    await api.appendMessage(session.id, { role: "assistant", text: `没有发送成功。\n原因：${message}`, raw: { uiError: true } }).catch(() => null);
+  } finally {
+    state.db = await api.init();
+    await renderAll();
+    scrollMessagesToBottom();
+    state.forceScrollBottom = false;
+    if (!state.busy) processQueue();
+  }
+}
+
+async function processQueue() {
+  if (state.busy || !state.queue.length) return;
+  const task = state.queue.shift();
+  renderQueue();
+  await sendCurrentTask(task);
+}
+
+attachBtn.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", async () => {
+  await addFiles([...fileInput.files]);
+  fileInput.value = "";
+});
+
+document.addEventListener("dragover", (event) => event.preventDefault());
+document.addEventListener("drop", async (event) => {
+  event.preventDefault();
+  if (event.dataTransfer?.files?.length) await addFiles([...event.dataTransfer.files]);
+});
+
+document.addEventListener("paste", async (event) => {
+  let files = [...(event.clipboardData?.files || [])];
+  if (!files.length) {
+    files = [...(event.clipboardData?.items || [])]
+      .filter((item) => item.kind === "file")
+      .map((item) => item.getAsFile())
+      .filter(Boolean);
+  }
+  if (files.length) await addFiles(files);
+});
+
+chatInput.addEventListener("input", () => {
+  adjustComposerHeight();
+});
+
+chatInput.addEventListener("keydown", async (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    if (state.busy) {
+      await abortCurrentTask();
+      return;
+    }
+    chatForm.requestSubmit();
+  }
+});
+
+chatForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (state.busy) {
+    await abortCurrentTask();
+    return;
+  }
+  await sendCurrentTask();
+});
+accessModeBtn?.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-mode]");
+  if (target && target !== accessModeBtn) {
+    accessModeBtn.dataset.open = "0";
+    setAccessMode(target.dataset.mode || "ask");
+    return;
+  }
+  accessModeBtn.dataset.open = accessModeBtn.dataset.open === "1" ? "0" : "1";
+});
+
+document.addEventListener("click", (event) => {
+  if (!accessModeBtn || accessModeBtn.contains(event.target)) return;
+  accessModeBtn.dataset.open = "0";
+});
+
+$("newSessionBtn").addEventListener("click", async () => {
+  const session = await api.createSession();
+  state.db = await api.init();
+  state.selectedSessionId = session.id;
+  await renderAll();
+});
+
+$("settingsBtn").addEventListener("click", () => openSettingsTab("update", "settings"));
+modelBtn?.addEventListener("click", () => openSettingsTab("model"));
+skinBtn?.addEventListener("click", () => openSettingsTab("skin"));
+inviteBtn?.addEventListener("click", () => openSettingsTab("invite"));
+function closeSettingsDialog(event) {
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if (settingsDialog?.open) settingsDialog.close("close");
+}
+
+settingsCloseBtn?.addEventListener("click", closeSettingsDialog);
+settingsCloseBtn?.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+});
+settingsDialog?.addEventListener("pointerup", (event) => {
+  if (!settingsDialog?.open || !settingsCloseBtn) return;
+  const rect = settingsCloseBtn.getBoundingClientRect();
+  const hit = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+  if (hit) closeSettingsDialog(event);
+});
+$("saveSettingsBtn").addEventListener("click", async (event) => {
+  event.preventDefault();
+  state.db.settings = readSettingsFromDialog();
+  await api.saveSettings(state.db.settings);
+  await api.setAutoLaunch?.(Boolean(autoLaunchInput?.checked));
+  state.db = await api.init();
+  renderSettings();
+  settingsDialog.close();
+});
+providerSelect.addEventListener("change", renderProviderDetails);
+skinSelect?.addEventListener("change", () => applySkinPreset(skinSelect.value));
+[textColorInput, accentColorInput, backgroundColorInput, panelColorInput, fontSizeInput].forEach((input) => {
+  input?.addEventListener("input", () => {
+    const selectedSkin = SKIN_PRESETS[skinSelect?.value] ? skinSelect.value : "custom";
+    const selectedPreset = SKIN_PRESETS[selectedSkin] || SKIN_PRESETS.custom;
+    state.db.settings.appearance = {
+      ...(state.db.settings.appearance || {}),
+      skin: selectedSkin,
+      textColor: textColorInput?.value || selectedPreset.textColor,
+      accentColor: accentColorInput?.value || selectedPreset.accentColor,
+      backgroundColor: backgroundColorInput?.value || selectedPreset.backgroundColor,
+      panelColor: panelColorInput?.value || selectedPreset.panelColor,
+      fontSize: Number(fontSizeInput?.value || selectedPreset.fontSize || 16)
+    };
+    applyAppearance();
+  });
+});
+skinImageInput?.addEventListener("change", async () => {
+  const file = skinImageInput.files?.[0];
+  if (!file) return;
+  if (!String(file.type || "").startsWith("image/")) {
+    if (skinImageStatus) skinImageStatus.textContent = "请选择图片文件。";
+    return;
+  }
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  });
+  state.db.settings.appearance = {
+    ...(state.db.settings.appearance || {}),
+    skin: "custom",
+    skinImage: dataUrl
+  };
+  applyAppearance();
+  await api.saveSettings(state.db.settings);
+  state.db = await api.init();
+  skinImageInput.value = "";
+});
+clearSkinImageBtn?.addEventListener("click", async () => {
+  state.db.settings.appearance = {
+    ...(state.db.settings.appearance || {}),
+    skin: "custom",
+    skinImage: ""
+  };
+  applyAppearance();
+  await api.saveSettings(state.db.settings);
+  state.db = await api.init();
+});
+document.querySelectorAll(".settings-tab").forEach((button) => {
+  button.addEventListener("click", () => switchSettingsTab(button.dataset.settingsTab || "model"));
+});
+async function saveSettingsFromDialogSilently() {
+  state.db.settings = readSettingsFromDialog();
+  await api.saveSettings(state.db.settings);
+  await api.setAutoLaunch?.(Boolean(autoLaunchInput?.checked));
+  state.db = await api.init();
+}
+
+updateCheckBtn?.addEventListener("click", async () => {
+  await saveSettingsFromDialogSilently();
+  await renderUpdateInfo();
+});
+applyOnlineUpdateBtn?.addEventListener("click", async () => {
+  if (!updateContent) return;
+  await saveSettingsFromDialogSilently();
+  if (!await showAppConfirm({
+    title: "下载在线更新",
+    message: "下载在线更新包并生成更新脚本？当前运行中的白球不会被直接覆盖。",
+    primary: "开始下载",
+    secondary: "取消"
+  })) return;
+  applyOnlineUpdateBtn.disabled = true;
+  updateContent.textContent = "正在下载在线更新包。";
+  try {
+    const result = await api.applyOnlineUpdate();
+    updateContent.innerHTML = `<p>${escapeHtml(result.message || "更新包已准备。")}</p><pre>${escapeHtml(`${result.packageFile || ""}\n${result.script || ""}`)}</pre>`;
+  } catch (error) {
+    updateContent.textContent = `在线更新失败：${String(error.message || error).replace(/Error:|Exception:|Failed:/gi, "").trim()}`;
+  } finally {
+    applyOnlineUpdateBtn.disabled = false;
+  }
+});
+publishUpdateBtn?.addEventListener("click", async () => {
+  if (!updateContent) return;
+  const version = publishVersionInput?.value?.trim() || appVersion?.textContent?.trim() || "";
+  const notes = publishNotesInput?.value?.trim() || "客户版更新。";
+  if (!version) {
+    updateContent.textContent = "请输入新版本号。";
+    return;
+  }
+  if (!await showAppConfirm({
+    title: "发布客户版更新",
+    message: `发布客户版 ${version}？客户将可以在更新里下载。`,
+    primary: "发布",
+    secondary: "取消"
+  })) return;
+  publishUpdateBtn.disabled = true;
+  updateContent.textContent = "正在发布客户更新包。";
+  try {
+    const result = await api.publishUpdate({ version, notes });
+    updateContent.innerHTML = `<p>${escapeHtml(result.message || "发布完成。")}</p><pre>${escapeHtml(`${result.packageFile || ""}\n${result.manifestPath || ""}`)}</pre>`;
+  } catch (error) {
+    updateContent.textContent = `发布失败：${String(error.message || error).replace(/Error:|Exception:|Failed:/gi, "").trim()}`;
+  } finally {
+    publishUpdateBtn.disabled = false;
+  }
+});
+startUpdateServerBtn?.addEventListener("click", async () => {
+  if (!updateContent) return;
+  startUpdateServerBtn.disabled = true;
+  updateContent.textContent = "正在启动更新服务器。";
+  try {
+    const result = await api.startUpdateServer();
+    updateContent.textContent = `${result.message || "更新服务器已启动。"} 地址：${result.url || "http://localhost:3000"}`;
+  } catch (error) {
+    updateContent.textContent = `启动失败：${error.message || error}`;
+  } finally {
+    startUpdateServerBtn.disabled = false;
+  }
+});
+syncOpenClawBtn?.addEventListener("click", async () => {
+  if (!updateContent) return;
+  if (!await showAppConfirm({
+    title: "同步 OpenClaw",
+    message: "同步 OpenClaw 最新功能需要联网，并建议完成后重启白球。现在开始？",
+    primary: "开始同步",
+    secondary: "取消"
+  })) return;
+  syncOpenClawBtn.disabled = true;
+  updateContent.textContent = "正在同步 OpenClaw 最新功能，请稍等。";
+  try {
+    const result = await api.syncOpenClaw();
+    updateContent.innerHTML = `<p>${escapeHtml(result.message || "同步完成。")}</p><pre>${escapeHtml(result.log || "")}</pre>`;
+  } catch (error) {
+    updateContent.textContent = `同步失败：${error.message || error}`;
+  } finally {
+    syncOpenClawBtn.disabled = false;
+  }
+});
+chooseSaveLocationBtn?.addEventListener("click", async () => {
+  const folder = await api.chooseSaveLocation();
+  if (!folder || !saveLocationInput) return;
+  saveLocationInput.value = folder;
+  state.db.settings = readSettingsFromDialog();
+  await api.saveSettings(state.db.settings);
+  await api.setAutoLaunch?.(Boolean(autoLaunchInput?.checked));
+  state.db = await api.init();
+  renderSettings();
+});
+resetSaveLocationBtn?.addEventListener("click", async () => {
+  if (!saveLocationInput) return;
+  saveLocationInput.value = "D:\\BaiQiuAI\\data\\workspace";
+  state.db.settings = readSettingsFromDialog();
+  await api.saveSettings(state.db.settings);
+  await api.setAutoLaunch?.(Boolean(autoLaunchInput?.checked));
+  state.db = await api.init();
+  renderSettings();
+});
+unlockInviteBtn?.addEventListener("click", async () => {
+  const code = (inviteInput?.value || "").trim();
+  if (!code) {
+    if (inviteStatus) inviteStatus.textContent = "请输入卡密。";
+    return;
+  }
+  const customer = {
+    name: inviteNameInput?.value?.trim() || "客户",
+    phone: invitePhoneInput?.value?.trim() || ""
+  };
+  const result = await (window.license.confirmActivation?.({ code, ...customer }) || window.license.verifyCode(code, customer));
+  state.db = await api.init();
+  if (inviteStatus) inviteStatus.textContent = result.message || (result.ok || result.success ? "激活成功。" : "卡密无效。");
+  if (inviteInput) inviteInput.value = result.code || code;
+  await refreshLicenseStatus();
+  await renderLicenseControls();
+});
+inviteInput?.addEventListener("input", () => {
+  inviteInput.value = formatLicenseCode(inviteInput.value);
+});
+licenseCodeInput?.addEventListener("input", () => {
+  licenseCodeInput.value = formatLicenseCode(licenseCodeInput.value);
+});
+let licenseActivationStep = 1;
+licenseActivateBtn?.addEventListener("click", async () => {
+  const code = licenseCodeInput?.value || "";
+  if (!code) {
+    if (licenseOverlayStatus) licenseOverlayStatus.textContent = "请输入卡密。";
+    return;
+  }
+  if (licenseActivationStep === 1) {
+    licenseActivationStep = 2;
+    if (licenseCustomerFields) licenseCustomerFields.hidden = false;
+    if (licenseActivateBtn) licenseActivateBtn.textContent = "确认激活";
+    if (licenseOverlayStatus) licenseOverlayStatus.textContent = "请填写姓名和手机号，用于售后与激活记录。";
+    licenseNameInput?.focus?.();
+    return;
+  }
+  const customer = {
+    name: licenseNameInput?.value?.trim() || "客户",
+    phone: licensePhoneInput?.value?.trim() || ""
+  };
+  const result = await (window.license.confirmActivation?.({ code, ...customer }) || window.license.verifyCode(code, customer));
+  if (licenseOverlayStatus) licenseOverlayStatus.textContent = result.message || (result.ok ? "激活成功。" : "卡密无效。");
+  if (result.ok || result.success) {
+    state.db = await api.init();
+    await refreshLicenseStatus();
+    await renderLicenseControls();
+    setTimeout(() => {
+      if (licenseOverlay) licenseOverlay.hidden = true;
+      licenseActivationStep = 1;
+      if (licenseCustomerFields) licenseCustomerFields.hidden = true;
+      if (licenseActivateBtn) licenseActivateBtn.textContent = "下一步";
+    }, 1500);
+  }
+});
+licenseBuyBtn?.addEventListener("click", () => {
+  showAppConfirm({
+    title: "获取卡密",
+    message: "请联系销售获取卡密。",
+    primary: "知道了",
+    secondary: "关闭"
+  });
+});
+addSkillBtn?.addEventListener("click", async () => {
+  const name = skillNameInput?.value?.trim() || "";
+  const body = skillBodyInput?.value?.trim() || "";
+  if (!name || !body) return;
+  await api.addSkill({ name, body });
+  skillNameInput.value = "";
+  skillBodyInput.value = "";
+  if (skillList) skillList.dataset.loaded = "0";
+  await renderSkills(true);
+});
+addMemoryBtn?.addEventListener("click", async () => {
+  const text = memoryInput?.value?.trim() || "";
+  if (!text) return;
+  await api.addMemory({ text, source: "手动记忆" });
+  if (memoryInput) memoryInput.value = "";
+  if (skillList) skillList.dataset.loaded = "0";
+  await renderSkills(true);
+});
+learnSkillBtn?.addEventListener("click", async () => {
+  const source = learnSkillSourceInput?.value?.trim() || "";
+  const name = learnSkillNameInput?.value?.trim() || "";
+  if (!source) {
+    if (learnSkillStatus) learnSkillStatus.textContent = "请输入资料网址或专业主题。";
+    return;
+  }
+  if (learnSkillBtn) learnSkillBtn.disabled = true;
+  if (learnSkillStatus) learnSkillStatus.textContent = "正在学习并整理为本地技能。";
+  try {
+    const result = await api.learnSkill({ source, name });
+    const skillName = result?.item?.name || name || source;
+    if (learnSkillStatus) learnSkillStatus.textContent = `已学习：${skillName}`;
+    if (learnSkillNameInput) learnSkillNameInput.value = "";
+    if (learnSkillSourceInput) learnSkillSourceInput.value = "";
+    if (skillList) skillList.dataset.loaded = "0";
+    await renderSkills(true);
+  } catch (error) {
+    if (learnSkillStatus) learnSkillStatus.textContent = `学习失败：${error.message || error}`;
+  } finally {
+    if (learnSkillBtn) learnSkillBtn.disabled = false;
+  }
+});
+savePersonaBtn?.addEventListener("click", async (event) => {
+  event.preventDefault();
+  await savePersona(true);
+  personaDialog?.close();
+});
+adminRefreshCodesBtn?.addEventListener("click", renderAdminCodeList);
+adminCodeSearchInput?.addEventListener("input", renderAdminCodeList);
+adminExportCodesBtn?.addEventListener("click", async () => {
+  try {
+    const csv = await window.admin.exportCodes("csv");
+    await api.copyText(csv);
+    showCopyToast("CSV已复制");
+  } catch (error) {
+    if (adminCodeListOutput) adminCodeListOutput.value = `导出失败：${error.message || error}`;
+  }
+});
+refreshDeveloperLogsBtn?.addEventListener("click", renderDeveloperLogs);
+developerLogTypeSelect?.addEventListener("change", renderDeveloperLogs);
+exportDeveloperLogsBtn?.addEventListener("click", async () => {
+  if (!developerLogOutput) return;
+  try {
+    const result = await window.admin.exportLogs();
+    developerLogOutput.value = `已导出：${result.file}`;
+  } catch (error) {
+    developerLogOutput.value = `导出失败：${error.message || error}`;
+  }
+});
+generateInviteBtn?.addEventListener("click", async () => {
+  const count = Number(inviteCountInput?.value || 5);
+  const codes = await api.generateInvite(count).catch((error) => [`生成失败：${error.message || error}`]);
+  if (generatedInviteOutput) generatedInviteOutput.value = codes.join("\n");
+});
+sideReasoningSelect?.addEventListener("change", async () => {
+  state.db.settings.reasoning = sideReasoningSelect.value || "minimal";
+  reasoningSelect.value = state.db.settings.reasoning;
+  await api.saveSettings(state.db.settings);
+  await api.setAutoLaunch?.(Boolean(autoLaunchInput?.checked));
+  state.db = await api.init();
+  renderSettings();
+  renderMetricBars(selectedSession(), []);
+});
+document.querySelectorAll("[data-window]").forEach((button) => {
+  button.addEventListener("click", () => api.windowControl(button.dataset.window));
+});
+
+closeHideBtn?.addEventListener("click", async () => {
+  hideCloseConfirm();
+  await api.windowControl("close-hide");
+});
+closeQuitBtn?.addEventListener("click", async () => {
+  hideCloseConfirm();
+  await api.windowControl("close-quit");
+});
+closeCancelBtn?.addEventListener("click", hideCloseConfirm);
+closeConfirmLayer?.addEventListener("click", (event) => {
+  if (event.target === closeConfirmLayer) hideCloseConfirm();
+});
+
+contextMenu.addEventListener("click", async (event) => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  const id = contextMenu.dataset.id;
+  contextMenu.hidden = true;
+  await handleSessionAction(button.dataset.action, id);
+});
+
+document.addEventListener("click", () => {
+  contextMenu.hidden = true;
+});
+
+let lastGatewayRenderAt = 0;
+let lastGatewayRenderState = "";
+api.onGatewayStatus((status) => {
+  const key = `${status.state || ""}:${status.message || ""}`;
+  const now = Date.now();
+  if (key === lastGatewayRenderState && now - lastGatewayRenderAt < 30000) return;
+  lastGatewayRenderAt = now;
+  lastGatewayRenderState = key;
+  const map = {
+    connecting: "白球内核启动中",
+    connected: "白球内核已就绪",
+    disconnected: "白球内核重连中",
+    error: `白球内核异常 ${status.message || ""}`,
+    auth_failed: "白球内核鉴权失败"
+  };
+  gatewayStatus.textContent = map[status.state] || status.state || "白球内核";
+});
+
+window.updater?.onUpdateAvailable((data) => {
+  if (state.db?.licenseStatus?.devMode || state.db?.licenseStatus?.owner) return;
+  const notes = Array.isArray(data.releaseNotes) ? data.releaseNotes.join("\n") : String(data.releaseNotes || "");
+  if (updateContent) updateContent.textContent = `发现新版本 v${data.version}，正在自动更新。\n${notes}`;
+});
+
+window.updater?.onDownloadProgress((progress) => {
+  console.log(`下载进度：${progress}%`);
+  if (updateContent) updateContent.textContent = `正在下载更新：${progress}%`;
+});
+
+window.license?.onTrialUpdate((status) => renderLicenseStatus(status));
+window.license?.onLocked((status) => renderLicenseStatus(status));
+window.license?.onTrialWarning((status) => {
+  renderLicenseStatus(status);
+  if (!sessionStorage.getItem("baiqiuTrialWarned")) {
+    sessionStorage.setItem("baiqiuTrialWarned", "1");
+    showAppConfirm({
+      title: "试用即将结束",
+      message: `白球 AI 试用还剩 ${formatTrialTime(status.trialRemainingSeconds)}，请及时购买卡密激活。`,
+      primary: "知道了",
+      secondary: "稍后"
+    });
+  }
+});
+
+api.onWindowActivity?.((activity) => {
+  const moving = activity === "moving";
+  const resizing = activity === "resizing";
+  document.body.classList.toggle("window-moving", moving);
+  document.body.classList.toggle("window-resizing", resizing);
+  if (activity === "idle") {
+    requestAnimationFrame(() => {
+      appShell.style.transform = "translateZ(0)";
+      void appShell.offsetHeight;
+      appShell.style.transform = "";
+    });
+  }
+});
+
+api.onCloseRequest?.((data) => showCloseConfirm(data));
+
+function formatTaskBoardBytes(bytes) {
+  const value = Number(bytes || 0);
+  if (!value) return "0 B";
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function collectTaskBoardLinks(messages = []) {
+  const found = new Map();
+  const pattern = /https?:\/\/[^\s<>"')]+/gi;
+  for (const message of messages) {
+    const text = String(message?.text || message?.content || "");
+    const matches = text.match(pattern) || [];
+    for (const url of matches) {
+      if (!found.has(url)) found.set(url, { url, source: message.role === "user" ? "用户消息" : "白球回复" });
+    }
+  }
+  return [...found.values()];
+}
+
+function collectTaskBoardAssets(messages = []) {
+  const files = [];
+  const images = [];
+  for (const message of messages) {
+    for (const attachment of message.attachments || []) {
+      const item = {
+        ...attachment,
+        source: message.role === "user" ? "用户附件" : "白球附件"
+      };
+      files.push(item);
+      if (String(item.mimeType || "").startsWith("image/") && item.dataUrl) images.push(item);
+    }
+    for (const image of message.images || []) {
+      images.push({
+        id: `${message.id || Date.now()}-img`,
+        name: "会话图片",
+        mimeType: "image/png",
+        dataUrl: image,
+        source: message.role === "user" ? "用户图片" : "白球图片"
+      });
+    }
+  }
+  return { files, images, links: collectTaskBoardLinks(messages) };
+}
+
+function ensureTaskBoardDrawer() {
+  let drawer = document.getElementById("taskBoardDrawer");
+  if (drawer) return drawer;
+  const chat = document.querySelector(".chat");
+  if (!chat) return null;
+  drawer = document.createElement("section");
+  drawer.id = "taskBoardDrawer";
+  drawer.className = "task-board-drawer";
+  drawer.hidden = true;
+  drawer.innerHTML = `
+    <div class="task-board-head">
+      <div>
+        <strong>任务看板</strong>
+        <small>任务进程 / 文件 / 图片 / 网页</small>
+      </div>
+      <button id="taskBoardCloseBtn" type="button" aria-label="关闭">&times;</button>
+    </div>
+    <div class="task-board-tabs">
+      <button type="button" data-board-tab="overview" class="active">概览</button>
+      <button type="button" data-board-tab="files">文件</button>
+      <button type="button" data-board-tab="images">图片</button>
+      <button type="button" data-board-tab="links">网页</button>
+      <button type="button" data-board-tab="timeline">进程</button>
+    </div>
+    <div id="taskBoardBody" class="task-board-body"></div>
+  `;
+  chat.appendChild(drawer);
+  drawer.querySelectorAll("[data-board-tab]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.taskBoardTab = button.dataset.boardTab || "overview";
+      state.taskBoardFocusId = "";
+      drawer.dataset.tab = state.taskBoardTab;
+      renderTaskBoard();
+    });
+  });
+  drawer.querySelector("#taskBoardCloseBtn")?.addEventListener("click", closeTaskBoard);
+  return drawer;
+}
+
+function openTaskBoard(tab = "overview", focusId = "") {
+  const drawer = ensureTaskBoardDrawer();
+  if (!drawer) return;
+  state.taskBoardTab = tab || "overview";
+  state.taskBoardFocusId = focusId || "";
+  drawer.hidden = false;
+  drawer.dataset.tab = state.taskBoardTab;
+  drawer.classList.add("open");
+  renderTaskBoard();
+}
+
+function closeTaskBoard() {
+  const drawer = document.getElementById("taskBoardDrawer");
+  if (!drawer) return;
+  drawer.classList.remove("open");
+  drawer.hidden = true;
+}
+
+function renderTaskBoard() {
+  const drawer = ensureTaskBoardDrawer();
+  const body = document.getElementById("taskBoardBody");
+  if (!drawer || !body || drawer.hidden) return;
+  const tab = state.taskBoardTab || drawer.dataset.tab || "overview";
+  drawer.dataset.tab = tab;
+  drawer.querySelectorAll("[data-board-tab]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.boardTab === tab);
+  });
+
+  const session = selectedSession();
+  const messages = state.currentMessages || [];
+  const monitorLines = (state.monitorLogLines || []).slice(-12).reverse();
+  const { files, images, links } = collectTaskBoardAssets(messages);
+  const currentModel = modelState?.textContent || "DeepSeek / Minimal";
+  const currentTask = taskState?.textContent || statusText(session?.status);
+  const currentRecord = recordState?.textContent || "-";
+  const contextText = contextCompressState?.textContent || "剩余 100%";
+
+  if (tab === "overview") {
+    body.innerHTML = `
+      <div class="task-board-grid">
+        <div class="task-board-stat"><span>当前任务</span><b>${escapeHtml(currentTask || "待命")}</b></div>
+        <div class="task-board-stat"><span>模型 / 推理</span><b>${escapeHtml(currentModel)}</b></div>
+        <div class="task-board-stat"><span>会话记录</span><b>${escapeHtml(currentRecord)}</b></div>
+        <div class="task-board-stat"><span>上下文</span><b>${escapeHtml(contextText)}</b></div>
+      </div>
+      <div class="task-board-summary">
+        <div><span>消息</span><b>${messages.length}</b></div>
+        <div><span>文件</span><b>${files.length}</b></div>
+        <div><span>图片</span><b>${images.length}</b></div>
+        <div><span>链接</span><b>${links.length}</b></div>
+      </div>
+      <div class="task-board-section">
+        <div class="task-board-section-title">最近进程</div>
+        <div class="task-board-timeline">
+          ${(monitorLines.length ? monitorLines : ["当前暂无进程记录。"]).map((line) => `<div class="task-board-line">${escapeHtml(line)}</div>`).join("")}
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (tab === "files") {
+    if (!files.length) {
+      body.innerHTML = `<div class="task-board-empty">当前会话还没有可展示的附件文件。</div>`;
+      return;
+    }
+    body.innerHTML = files.map((file, index) => {
+      const id = file.id || file.name || "";
+      return `
+        <article class="task-board-file${state.taskBoardFocusId && state.taskBoardFocusId === id ? " active" : ""}">
+          <div class="task-board-file-head">
+            <strong>${escapeHtml(file.name || `附件 ${index + 1}`)}</strong>
+            <span>${escapeHtml(file.source || "附件")} · ${escapeHtml(file.mimeType || "未知类型")} · ${formatTaskBoardBytes(file.sizeBytes)}</span>
+          </div>
+          <div class="task-board-file-actions">
+            <button type="button" data-board-file-open="${escapeHtml(id)}">外部打开</button>
+            <button type="button" data-board-file-copy="${escapeHtml(file.name || "")}">复制文件名</button>
+          </div>
+          <div class="task-board-file-preview">${escapeHtml((file.textContent || "暂不支持此类文件的内嵌预览。").slice(0, 1200))}</div>
+        </article>
+      `;
+    }).join("");
+    body.querySelectorAll("[data-board-file-open]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const current = files.find((item) => (item.id || item.name || "") === (button.dataset.boardFileOpen || ""));
+        if (!current) return;
+        await openAttachmentExternally(current).catch(() => showCopyToast("当前文件暂无可外部打开路径"));
+      });
+    });
+    body.querySelectorAll("[data-board-file-copy]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        await api.copyText(button.dataset.boardFileCopy || "");
+        showCopyToast("文件名已复制");
+      });
+    });
+    return;
+  }
+
+  if (tab === "images") {
+    if (!images.length) {
+      body.innerHTML = `<div class="task-board-empty">当前会话还没有图片可预览。</div>`;
+      return;
+    }
+    body.innerHTML = `<div class="task-board-gallery">${
+      images.map((image, index) => {
+        const id = image.id || image.name || "";
+        return `
+          <figure class="task-board-image-card${state.taskBoardFocusId && state.taskBoardFocusId === id ? " active" : ""}">
+            <img src="${image.dataUrl}" alt="${escapeHtml(image.name || `图片 ${index + 1}`)}">
+            <figcaption>
+              <span>${escapeHtml(image.name || `图片 ${index + 1}`)} · ${escapeHtml(image.source || "会话图片")}</span>
+              <button type="button" data-board-image-open="${escapeHtml(id)}">外部打开</button>
+            </figcaption>
+          </figure>
+        `;
+      }).join("")
+    }</div>`;
+    body.querySelectorAll("[data-board-image-open]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const current = images.find((item) => (item.id || item.name || "") === (button.dataset.boardImageOpen || ""));
+        if (!current) return;
+        await openAttachmentExternally(current).catch(() => showCopyToast("当前图片暂无可外部打开内容"));
+      });
+    });
+    return;
+  }
+
+  if (tab === "links") {
+    if (!links.length) {
+      body.innerHTML = `<div class="task-board-empty">当前会话还没有网页链接。</div>`;
+      return;
+    }
+    body.innerHTML = links.map((item) => `
+      <div class="task-board-link-row">
+        <div>
+          <strong>${escapeHtml(item.source || "网页")}</strong>
+          <div>${escapeHtml(item.url)}</div>
+        </div>
+        <button type="button" data-open-link="${escapeHtml(item.url)}">外部打开</button>
+      </div>
+    `).join("");
+    body.querySelectorAll("[data-open-link]").forEach((button) => {
+      button.addEventListener("click", () => {
+        tryOpenExternalUrl(button.dataset.openLink || "");
+      });
+    });
+    return;
+  }
+
+  body.innerHTML = `
+    <div class="task-board-section">
+      <div class="task-board-section-title">任务进程时间线</div>
+      <div class="task-board-timeline">
+        ${(monitorLines.length ? monitorLines : ["当前暂无进程记录。"]).map((line) => `<div class="task-board-line">${escapeHtml(line)}</div>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function bindTaskBoardEntrances() {
+  document.querySelector(".mini-monitor")?.addEventListener("click", (event) => {
+    if (event.target.closest("button")) return;
+    openTaskBoard("timeline");
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeTaskBoard();
+  });
+}
+
+api.onSessionChanged(async (db) => {
+  const wasBusy = state.busy;
+  state.db = db;
+  await renderAll();
+  if (wasBusy && !state.busy) processQueue();
+});
+
+api.init().then(async (db) => {
+  applySavedLayout();
+  setupSplitters();
+  setupComposerResize();
+  resetMonitorEffects();
+  ensureTaskBoardDrawer();
+  bindTaskBoardEntrances();
+  state.db = db;
+  state.selectedSessionId = db.selectedSessionId;
+  adjustComposerHeight();
+  await renderAll();
+  await refreshLicenseStatus();
+  api.onToolConfirmation?.((request) => showConfirmCard(request));
+  try {
+    const info = await api.updateInfo();
+    if (info?.hasUpdate) showUpdateBadge(info);
+  } catch {}
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

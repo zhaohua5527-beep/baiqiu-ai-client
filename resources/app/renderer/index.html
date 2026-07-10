@@ -1,0 +1,484 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>白球 AI</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="titlebar">
+      <div class="brand terminal-brand">
+        <div class="brand-terminal" aria-hidden="true">
+          <span>BAIQIU</span>
+          <b></b>
+        </div>
+        <div>
+          <strong>白球 AI</strong>
+          <span id="gatewayStatus">白球内核待命</span>
+        </div>
+      </div>
+      <div class="title-actions">
+        <span id="trialStatus" class="trial-status">试用检测中</span>
+        <button id="modelBtn" title="模型">模型</button>
+        <button id="skinBtn" title="主题">主题</button>
+        <button id="inviteBtn" title="购买卡密">购买卡密</button>
+        <button id="settingsBtn" title="设置">设置</button>
+        <button data-window="minimize" title="最小化">_</button>
+        <button data-window="maximize" title="最大化">□</button>
+        <button data-window="close" title="关闭到托盘">×</button>
+      </div>
+    </header>
+
+    <aside class="sessions">
+      <div class="sessions-head">
+        <button id="newSessionBtn">新对话</button>
+      </div>
+      <div id="sessionList" class="session-list"></div>
+    </aside>
+
+    <div class="splitter splitter-left" aria-hidden="true"></div>
+
+    <main class="chat">
+      <section id="messageList" class="message-list"></section>
+      <section id="productTaskStrip" class="product-task-strip" hidden></section>
+      <section id="attachmentPreview" class="attachment-preview" hidden></section>
+      <section id="queuePanel" class="queue-panel" hidden>
+        <div class="queue-title">预置任务</div>
+        <div id="queueList" class="queue-list"></div>
+      </section>
+      <form id="chatForm" class="composer">
+        <button id="attachBtn" type="button" title="上传文件">+</button>
+        <textarea id="chatInput" rows="1"></textarea>
+        <button id="accessModeBtn" class="access-mode-btn" type="button" title="访问模式">完全</button>
+        <button id="sendBtn" type="submit" title="发送">↑</button>
+      </form>
+      <input id="fileInput" type="file" multiple hidden accept="image/*,.xlsx,.xls,.csv,.txt,.md,.json">
+    </main>
+
+    <div id="licenseOverlay" class="license-overlay" hidden>
+      <div class="license-panel">
+        <strong>您的免费试用已结束</strong>
+        <p>请输入卡密激活白球 AI，激活后将绑定当前设备并永久使用。</p>
+        <input id="licenseCodeInput" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
+        <div id="licenseCustomerFields" class="license-customer-fields" hidden>
+          <input id="licenseNameInput" placeholder="姓名">
+          <input id="licensePhoneInput" placeholder="手机号">
+          <p class="license-privacy">仅用于购买记录、售后和设备激活核验，不会用于无关用途。</p>
+        </div>
+        <div class="license-actions">
+          <button id="licenseActivateBtn" type="button">下一步</button>
+          <button id="licenseBuyBtn" type="button">获取卡密</button>
+        </div>
+        <div id="licenseOverlayStatus" class="license-status"></div>
+      </div>
+    </div>
+
+    <div class="splitter splitter-right" aria-hidden="true"></div>
+
+    <aside class="terminal">
+      <div class="mini-monitor" aria-hidden="true">
+        <div class="mini-monitor-screen">
+          <div class="monitor-corner">LV-426 AUX</div>
+          <div class="monitor-sync">SYNC</div>
+          <div class="monitor-frame">
+            <div class="monitor-left">
+              <div class="monitor-label">AI 工作台</div>
+              <div class="monitor-meta">
+                <span>模型</span><b id="monitorModel">DEEPSEEK</b>
+                <span>会话</span><b id="monitorSession">待命</b>
+                <span>上下文</span><b id="monitorContext">压缩剩余</b>
+              </div>
+              <div id="monitorLog" class="monitor-log">
+                <span>需求通道已就绪</span>
+                <span>产品层连接完成</span>
+                <span>任务体验已同步</span>
+                <span>模型路由已连接</span>
+                <span>本地记录在线</span>
+              </div>
+            </div>
+            <div class="monitor-radar">
+              <div class="radar-ring">
+                <div class="radar-core"></div>
+                <div class="radar-sweep"></div>
+              </div>
+              <span id="monitorMode">待命</span>
+              <small>BAIQIU AI</small>
+            </div>
+          </div>
+          <div class="monitor-bars">
+            <span class="monitor-grid">GRID 09-27</span>
+            <span>已用 <b id="barUsed"></b></span>
+            <span>剩余 <b id="barRemain"></b></span>
+            <span class="monitor-auth">toekn <b id="barToken"></b></span>
+          </div>
+          <div class="monitor-footer ecg-footer">
+            <span class="ecg-line"></span>
+            <span class="ecg-line"></span>
+            <span class="ecg-line"></span>
+          </div>
+        </div>
+      </div>
+      <div class="terminal-panel compact-terminal-panel">
+        <div class="terminal-head">
+          <div class="terminal-title">任务状态</div>
+          <div class="inline-reasoning">
+            <span>思考模式</span>
+            <select id="sideReasoningSelect" class="side-reasoning side-reasoning-inline">
+              <option value="default">默认</option>
+              <option value="off">关闭</option>
+              <option value="minimal">最低</option>
+              <option value="low">低</option>
+              <option value="medium">中</option>
+              <option value="high">高</option>
+              <option value="extra_high">最高</option>
+              <option value="maximum">极限</option>
+            </select>
+          </div>
+        </div>
+        <div class="stat"><span>任务</span><b id="taskState">待命</b></div>
+        <div class="stat"><span>模型</span><b id="modelState">DeepSeek</b></div>
+        <div class="stat"><span>记录</span><b id="recordState">本地保存</b></div>
+        <div class="progress compact-progress"><span id="progressFill"></span></div>
+        <div class="context-compress-card" aria-label="上下文压缩剩余">
+          <div class="context-compress-head">
+            <span>上下文压缩</span>
+            <b id="contextCompressState">剩余 100%</b>
+          </div>
+          <div class="context-compress-meta">
+            <span id="contextCompressDetail">可用 64K / 已用 0</span>
+            <span id="contextCompressMode">本地估算</span>
+          </div>
+          <div class="context-compress-bar"><span id="contextCompressFill"></span></div>
+        </div>
+      </div>
+      <div id="neuralDashboard" class="neural-dashboard" hidden>
+        <div class="terminal-title">开发者驾驶舱</div>
+        <div class="stat"><span>Task ID</span><b id="productTaskId">-</b></div>
+        <div class="stat"><span>任务状态</span><b id="productTaskStatus">待命</b></div>
+        <div class="stat"><span>Agent 状态</span><b id="productAgentStatus">IDLE</b></div>
+        <div class="phase-rail" aria-label="Neural Core 阶段">
+          <span data-product-phase="UNDERSTANDING">UNDERSTANDING</span>
+          <span data-product-phase="PLANNING">PLANNING</span>
+          <span data-product-phase="EXECUTING">EXECUTING</span>
+          <span data-product-phase="VERIFYING">VERIFYING</span>
+          <span data-product-phase="LEARNING">LEARNING</span>
+        </div>
+        <div id="productRuntimeDetails" class="runtime-details"></div>
+        <details class="timeline-panel">
+          <summary>Timeline</summary>
+          <div id="productTimeline" class="product-timeline"></div>
+        </details>
+      </div>
+    </aside>
+  </div>
+
+  <div id="contextMenu" class="context-menu" hidden></div>
+  <div id="copyToast" class="copy-toast" hidden>已复制</div>
+  <div id="closeConfirmLayer" class="app-modal-layer" hidden>
+    <div class="app-modal-panel close-confirm-panel" role="dialog" aria-modal="true" aria-labelledby="closeConfirmTitle">
+      <strong id="closeConfirmTitle">关闭白球 AI</strong>
+      <p id="closeConfirmText">您想彻底关闭，还是隐藏到托盘继续后台运行？</p>
+      <div class="app-modal-actions">
+        <button id="closeHideBtn" type="button">隐藏到托盘</button>
+        <button id="closeQuitBtn" type="button">彻底关闭</button>
+        <button id="closeCancelBtn" type="button">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="settingsDialog" class="settings-dialog settings-hub">
+    <form method="dialog">
+      <header>
+        <strong>白球 AI 设置中心</strong>
+        <button id="settingsCloseBtn" type="button" aria-label="关闭设置">×</button>
+      </header>
+      <div class="settings-tabs" role="tablist">
+        <button type="button" class="settings-tab internal-tab" data-settings-tab="model">模型</button>
+        <button type="button" class="settings-tab internal-tab" data-settings-tab="skin">皮肤</button>
+        <button type="button" class="settings-tab internal-tab active" data-settings-tab="update">更新</button>
+        <button type="button" class="settings-tab internal-tab" data-settings-tab="skills">技能</button>
+        <button id="developerLogsTab" type="button" class="settings-tab internal-tab" data-settings-tab="developerLogs" hidden>开发日志</button>
+      </div>
+
+      <section class="settings-page active" data-settings-page="model">
+        <div class="model-simple">
+          <label>
+            <span>模型</span>
+            <select id="providerSelect"></select>
+          </label>
+          <label>
+            <span>推理等级</span>
+            <select id="reasoningSelect">
+              <option value="default">默认</option>
+              <option value="off">关闭</option>
+              <option value="minimal">最低</option>
+              <option value="low">低</option>
+              <option value="medium">中</option>
+              <option value="high">高</option>
+              <option value="extra_high">最高</option>
+              <option value="maximum">极限</option>
+            </select>
+          </label>
+        </div>
+        <div id="providerList" class="providers"></div>
+      </section>
+
+      <section class="settings-page" data-settings-page="skin">
+        <div class="appearance-settings">
+          <strong>经典主题</strong>
+          <label>
+            <span>主题</span>
+            <select id="skinSelect">
+              <option value="custom">AI OS</option>
+              <option value="black">经典黑</option>
+              <option value="white">经典白</option>
+            </select>
+          </label>
+          <label class="skin-image-picker">
+            <span>皮肤图片</span>
+            <input id="skinImageInput" type="file" accept="image/*">
+          </label>
+          <button id="clearSkinImageBtn" type="button">清除皮肤图片</button>
+          <div id="skinImageStatus" class="update-content">上传图片后会作为白球背景皮肤。</div>
+          <label>
+            <span>文字颜色</span>
+            <input id="textColorInput" type="color" value="#f2ff64">
+          </label>
+          <label>
+            <span>主光颜色</span>
+            <input id="accentColorInput" type="color" value="#f7ff2f">
+          </label>
+          <label>
+            <span>背景颜色</span>
+            <input id="backgroundColorInput" type="color" value="#020402">
+          </label>
+          <label>
+            <span>面板颜色</span>
+            <input id="panelColorInput" type="color" value="#071008">
+          </label>
+          <label class="skin-picker">
+            <span>文字大小</span>
+            <input id="fontSizeInput" type="range" min="12" max="22" step="1" value="16">
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-page" data-settings-page="update">
+        <div class="settings-card">
+          <strong>版本更新</strong>
+          <div class="stat"><span>当前版本</span><b id="appVersion">0.2.0</b></div>
+          <label>
+            <span>更新服务器</span>
+            <input id="updateManifestInput" placeholder="http://localhost:3000">
+          </label>
+          <button id="updateCheckBtn" type="button">检查最新版本</button>
+          <button id="applyOnlineUpdateBtn" type="button">下载在线更新</button>
+          <button id="syncOpenClawBtn" type="button" hidden>同步 OpenClaw 最新功能</button>
+          <label>
+            <span>开机自启动</span>
+            <input id="autoLaunchInput" type="checkbox">
+          </label>
+          <div id="updateContent" class="update-content">等待检查。</div>
+        </div>
+        <div id="publishUpdatePanel" class="settings-card" hidden>
+          <strong>发布客户更新</strong>
+          <label>
+            <span>新版本号</span>
+            <input id="publishVersionInput" placeholder="例如：1.0.1">
+          </label>
+          <label class="skill-editor-row">
+            <span>更新说明</span>
+            <textarea id="publishNotesInput" rows="4" placeholder="写给客户看的更新内容。"></textarea>
+          </label>
+          <button id="publishUpdateBtn" type="button">发布客户版更新</button>
+          <button id="startUpdateServerBtn" type="button">启动更新服务器</button>
+          <div class="update-content">只在开发工具面板显示。发布后，客户版可在“更新”里下载。</div>
+        </div>
+        <div class="settings-card">
+          <strong>文件保存</strong>
+          <label>
+            <span>保存位置</span>
+            <input id="saveLocationInput" readonly value="desktop">
+          </label>
+          <button id="chooseSaveLocationBtn" type="button">选择文件夹</button>
+          <button id="resetSaveLocationBtn" type="button">恢复桌面</button>
+          <div class="update-content">白球生成的表格、文本和导出文件默认保存到这里。</div>
+        </div>
+      </section>
+
+      <section class="settings-page" data-settings-page="persona">
+        <div class="settings-card">
+          <strong>Agent 设定</strong>
+          <label>
+            <span>名字</span>
+            <input id="personaNameSettingsInput" placeholder="例如：白球、运营执行官、小白">
+          </label>
+          <label class="skill-editor-row">
+            <span>性格</span>
+            <textarea id="personaPersonalitySettingsInput" rows="4" placeholder="例如：直接、稳定、少废话、执行力强。"></textarea>
+          </label>
+          <label class="skill-editor-row">
+            <span>能力</span>
+            <textarea id="personaAbilitiesSettingsInput" rows="4" placeholder="例如：操作电脑、分析表格、整理桌面、学习技能、执行任务。"></textarea>
+          </label>
+          <label class="skill-editor-row">
+            <span>备注</span>
+            <textarea id="personaNotesSettingsInput" rows="5" placeholder="写给主人偏好、业务背景、禁忌、默认保存位置等。"></textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-page" data-settings-page="invite">
+        <div class="settings-card">
+          <strong>购买卡密</strong>
+          <label>
+            <span>卡密</span>
+            <input id="inviteInput" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
+          </label>
+          <label>
+            <span>姓名</span>
+            <input id="inviteNameInput" placeholder="用于售后记录">
+          </label>
+          <label>
+            <span>手机号</span>
+            <input id="invitePhoneInput" placeholder="用于激活核验">
+          </label>
+          <button id="unlockInviteBtn" type="button">激活卡密</button>
+          <div id="inviteStatus" class="update-content">购买后在这里输入卡密，激活成功后将绑定当前设备。</div>
+        </div>
+        <div id="ownerInvitePanel" class="settings-card" hidden>
+          <strong>卡密管理模板</strong>
+          <label>
+            <span>生成数量</span>
+            <input id="inviteCountInput" type="number" min="1" max="50" value="5">
+          </label>
+          <button id="generateInviteBtn" type="button">生成卡密</button>
+          <textarea id="generatedInviteOutput" rows="6" readonly placeholder="生成后复制给客户。"></textarea>
+          <div class="admin-code-tools">
+            <input id="adminCodeSearchInput" placeholder="搜索卡密/状态/备注">
+            <button id="adminRefreshCodesBtn" type="button">刷新列表</button>
+            <button id="adminExportCodesBtn" type="button">导出CSV</button>
+          </div>
+          <textarea id="adminCodeListOutput" rows="10" readonly placeholder="管理员卡密与用户列表"></textarea>
+        </div>
+      </section>
+
+      <section class="settings-page" data-settings-page="skills">        <div class="settings-card">
+          <strong>当前 OpenClaw 技能</strong>
+          <div id="skillList" class="skill-list">读取中。</div>
+        </div>
+        <div class="settings-card">
+          <strong>白球 AI 自学习技能</strong>
+          <label>
+            <span>技能名</span>
+            <input id="skillNameInput" placeholder="例如：美团运营分析">
+          </label>
+          <label class="skill-editor-row">
+            <span>技能内容</span>
+            <textarea id="skillBodyInput" rows="6" placeholder="写入技能规则、流程、常用判断方式。保存后会进入白球 AI 技能库。"></textarea>
+          </label>
+          <button id="addSkillBtn" type="button">添加技能</button>
+        </div>
+        <div class="settings-card">
+          <strong>白球长期记忆</strong>
+          <label class="skill-editor-row">
+            <span>记忆内容</span>
+            <textarea id="memoryInput" rows="4" placeholder="例如：老板喜欢直接给结论；小柴购相关文件不要移动；表格默认保存在桌面。"></textarea>
+          </label>
+          <button id="addMemoryBtn" type="button">保存记忆</button>
+          <div id="memoryList" class="skill-list memory-list" hidden>后台记忆已开启。</div>
+        </div>
+        <div class="settings-card">
+          <strong>专业技能学习</strong>
+          <label>
+            <span>技能名</span>
+            <input id="learnSkillNameInput" placeholder="可选，例如：外卖运营诊断">
+          </label>
+          <label>
+            <span>资料/主题</span>
+            <input id="learnSkillSourceInput" placeholder="粘贴专业资料网址，或输入要学习的专业主题">
+          </label>
+          <button id="learnSkillBtn" type="button">学习专业技能</button>
+          <div id="learnSkillStatus" class="skill-learn-status"></div>
+        </div>
+      </section>
+
+      <section id="developerLogsPage" class="settings-page" data-settings-page="developerLogs" hidden>
+        <div class="settings-card">
+          <strong>开发者日志</strong>
+          <label>
+            <span>日志类型</span>
+            <select id="developerLogTypeSelect">
+              <option value="system">系统日志</option>
+              <option value="agent">Agent Loop</option>
+              <option value="update">更新系统</option>
+              <option value="error">错误日志</option>
+            </select>
+          </label>
+          <div class="admin-code-tools">
+            <button id="refreshDeveloperLogsBtn" type="button">刷新日志</button>
+            <button id="exportDeveloperLogsBtn" type="button">导出日志</button>
+          </div>
+          <textarea id="developerLogOutput" rows="16" readonly placeholder="仅开发者版本可见"></textarea>
+        </div>
+      </section>
+
+      <menu>
+        <button id="saveSettingsBtn" value="default">保存</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="renameDialog" class="rename-dialog">
+    <form method="dialog">
+      <header>
+        <strong>修改会话名称</strong>
+        <button value="cancel">×</button>
+      </header>
+      <input id="renameInput" maxlength="80" autocomplete="off">
+      <menu>
+        <button id="renameCancelBtn" value="cancel">取消</button>
+        <button id="renameSaveBtn" value="default">保存</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="personaDialog" class="settings-dialog persona-dialog">
+    <form method="dialog">
+      <header>
+        <strong>初始定制</strong>
+      </header>
+      <div class="settings-card">
+        <strong>给你的助手设定身份</strong>
+        <label>
+          <span>名字</span>
+          <input id="personaNameInput" placeholder="例如：小白、运营助手、店铺参谋">
+        </label>
+        <label class="skill-editor-row">
+          <span>性格</span>
+          <textarea id="personaPersonalityInput" rows="4" placeholder="例如：稳重、直接、少废话、执行力强。"></textarea>
+        </label>
+        <label class="skill-editor-row">
+          <span>能力</span>
+          <textarea id="personaAbilitiesInput" rows="4" placeholder="例如：分析表格、处理图片、写方案、协助店铺运营。"></textarea>
+        </label>
+      </div>
+      <menu>
+        <button id="savePersonaBtn" value="default">保存并开始</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+

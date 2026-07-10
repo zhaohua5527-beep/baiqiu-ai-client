@@ -1,0 +1,19 @@
+{
+  "id": "spreadsheet.analyze",
+  "name": "Analyze Spreadsheet",
+  "taskType": "data.spreadsheet.analyze",
+  "input": {
+    "file": "string",
+    "question": "string"
+  },
+  "output": {
+    "summary": "string",
+    "tables": [],
+    "evidence": []
+  },
+  "capabilities": [
+    "read_spreadsheet",
+    "analyze_data",
+    "verify_result"
+  ]
+}

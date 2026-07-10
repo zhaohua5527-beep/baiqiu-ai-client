@@ -1,0 +1,2199 @@
+{
+  "generatedAt": "2026-07-09T20:46:05.610Z",
+  "total": 100,
+  "passed": 100,
+  "failed": 0,
+  "successRate": 1,
+  "failureRate": 0,
+  "failures": [],
+  "results": [
+    {
+      "index": 1,
+      "group": "calculator_create",
+      "text": "帮我写一个计算器软件放桌面然后打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 2,
+      "group": "calculator_create",
+      "text": "做个白球计算器 html 放到桌面并启动",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 3,
+      "group": "calculator_create",
+      "text": "生成一个能加减乘除的计算器小工具，保存桌面，再打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 4,
+      "group": "calculator_create",
+      "text": "给客户做一个本地计算器网页，放桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 5,
+      "group": "calculator_create",
+      "text": "创建计算器应用，支持百分比，然后帮我打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 6,
+      "group": "calculator_create",
+      "text": "写个 calculator 程序放桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 7,
+      "group": "calculator_create",
+      "text": "我要一个计算器软件，不要 WPS，放桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "calculator.create_verify_open",
+          "title": "创建、验证并打开 HTML 计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 8,
+      "group": "calculator_create",
+      "text": "帮我们写个计算器软件放桌面然后打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 9,
+      "group": "calculator_create",
+      "text": "制作一个网页计算器并打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 10,
+      "group": "calculator_create",
+      "text": "开发一个简单计算器小工具，保存到桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "calculator.create_verify_open",
+          "title": "创建、验证并打开 HTML 计算器",
+          "status": "planned"
+        },
+        {
+          "id": "calculator.create_verify_open",
+          "title": "创建、验证并打开 HTML 计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 11,
+      "group": "calculator_create",
+      "text": "帮我写一个计算器软件放桌面然后打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 12,
+      "group": "calculator_create",
+      "text": "做个白球计算器 html 放到桌面并启动",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 13,
+      "group": "calculator_create",
+      "text": "生成一个能加减乘除的计算器小工具，保存桌面，再打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 14,
+      "group": "calculator_create",
+      "text": "给客户做一个本地计算器网页，放桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 15,
+      "group": "calculator_create",
+      "text": "创建计算器应用，支持百分比，然后帮我打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 16,
+      "group": "calculator_create",
+      "text": "写个 calculator 程序放桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 17,
+      "group": "calculator_create",
+      "text": "我要一个计算器软件，不要 WPS，放桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "calculator.create_verify_open",
+          "title": "创建、验证并打开 HTML 计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 18,
+      "group": "calculator_create",
+      "text": "帮我们写个计算器软件放桌面然后打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 19,
+      "group": "calculator_create",
+      "text": "制作一个网页计算器并打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 20,
+      "group": "calculator_create",
+      "text": "开发一个简单计算器小工具，保存到桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "calculator.create_verify_open",
+          "title": "创建、验证并打开 HTML 计算器",
+          "status": "planned"
+        },
+        {
+          "id": "calculator.create_verify_open",
+          "title": "创建、验证并打开 HTML 计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 21,
+      "group": "calculator_create",
+      "text": "帮我写一个计算器软件放桌面然后打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 22,
+      "group": "calculator_create",
+      "text": "做个白球计算器 html 放到桌面并启动",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 23,
+      "group": "calculator_create",
+      "text": "生成一个能加减乘除的计算器小工具，保存桌面，再打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 24,
+      "group": "calculator_create",
+      "text": "给客户做一个本地计算器网页，放桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 25,
+      "group": "calculator_create",
+      "text": "创建计算器应用，支持百分比，然后帮我打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 26,
+      "group": "calculator_create",
+      "text": "写个 calculator 程序放桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 27,
+      "group": "calculator_create",
+      "text": "我要一个计算器软件，不要 WPS，放桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "calculator.create_verify_open",
+          "title": "创建、验证并打开 HTML 计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 28,
+      "group": "calculator_create",
+      "text": "帮我们写个计算器软件放桌面然后打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 29,
+      "group": "calculator_create",
+      "text": "制作一个网页计算器并打开",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.create.calculator",
+          "title": "step-1.create.calculator",
+          "status": "planned"
+        },
+        {
+          "id": "step-2.open.calculator",
+          "title": "step-2.open.calculator",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 30,
+      "group": "calculator_create",
+      "text": "开发一个简单计算器小工具，保存到桌面",
+      "expected": "dev.code.calculator",
+      "actual": "dev.code.calculator",
+      "intents": [
+        "dev.code.calculator",
+        "dev.code.calculator"
+      ],
+      "tasks": [
+        {
+          "id": "calculator.create_verify_open",
+          "title": "创建、验证并打开 HTML 计算器",
+          "status": "planned"
+        },
+        {
+          "id": "calculator.create_verify_open",
+          "title": "创建、验证并打开 HTML 计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 31,
+      "group": "calculator_open",
+      "text": "打开计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 32,
+      "group": "calculator_open",
+      "text": "启动系统计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 33,
+      "group": "calculator_open",
+      "text": "帮我调出 calculator",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 34,
+      "group": "calculator_open",
+      "text": "运行电脑自带计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 35,
+      "group": "calculator_open",
+      "text": "打开一下计算器软件",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open",
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        },
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 36,
+      "group": "calculator_open",
+      "text": "帮我唤起计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 37,
+      "group": "calculator_open",
+      "text": "start calculator",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 38,
+      "group": "calculator_open",
+      "text": "open 计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 39,
+      "group": "calculator_open",
+      "text": "运行 calc",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 40,
+      "group": "calculator_open",
+      "text": "我要算账，打开计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open",
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        },
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 41,
+      "group": "calculator_open",
+      "text": "打开计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 42,
+      "group": "calculator_open",
+      "text": "启动系统计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 43,
+      "group": "calculator_open",
+      "text": "帮我调出 calculator",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 44,
+      "group": "calculator_open",
+      "text": "运行电脑自带计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 45,
+      "group": "calculator_open",
+      "text": "打开一下计算器软件",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open",
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        },
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 46,
+      "group": "calculator_open",
+      "text": "帮我唤起计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 47,
+      "group": "calculator_open",
+      "text": "start calculator",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 48,
+      "group": "calculator_open",
+      "text": "open 计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 49,
+      "group": "calculator_open",
+      "text": "运行 calc",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 50,
+      "group": "calculator_open",
+      "text": "我要算账，打开计算器",
+      "expected": "math.calculator.open",
+      "actual": "math.calculator.open",
+      "intents": [
+        "math.calculator.open",
+        "math.calculator.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        },
+        {
+          "id": "system.calculator.open",
+          "title": "打开系统计算器",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 51,
+      "group": "persona",
+      "text": "你叫赵华，我叫BOSS",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 52,
+      "group": "persona",
+      "text": "你的名字叫赵华，我的名字叫BOSS",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 53,
+      "group": "persona",
+      "text": "以后叫我老板，你是我的助手赵华",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 54,
+      "group": "persona",
+      "text": "记住，我叫小李，你叫白球",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona",
+        "skill.learn"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        },
+        {
+          "id": "skill.learn.2",
+          "title": "记住",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 55,
+      "group": "persona",
+      "text": "我是BOSS，你叫赵华",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 56,
+      "group": "persona",
+      "text": "你的身份是财务助理，我叫老板",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 57,
+      "group": "persona",
+      "text": "请称呼我王总，你叫小白",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 58,
+      "group": "persona",
+      "text": "你以后叫赵华",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 59,
+      "group": "persona",
+      "text": "我的名字是BOSS",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 60,
+      "group": "persona",
+      "text": "你是我的助手，我叫张总",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 61,
+      "group": "persona",
+      "text": "你叫赵华，我叫BOSS",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 62,
+      "group": "persona",
+      "text": "你的名字叫赵华，我的名字叫BOSS",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 63,
+      "group": "persona",
+      "text": "以后叫我老板，你是我的助手赵华",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 64,
+      "group": "persona",
+      "text": "记住，我叫小李，你叫白球",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona",
+        "skill.learn"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        },
+        {
+          "id": "skill.learn.2",
+          "title": "记住",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 65,
+      "group": "persona",
+      "text": "我是BOSS，你叫赵华",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 66,
+      "group": "persona",
+      "text": "你的身份是财务助理，我叫老板",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 67,
+      "group": "persona",
+      "text": "请称呼我王总，你叫小白",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 68,
+      "group": "persona",
+      "text": "你以后叫赵华",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 69,
+      "group": "persona",
+      "text": "我的名字是BOSS",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 70,
+      "group": "persona",
+      "text": "你是我的助手，我叫张总",
+      "expected": "memory.persona",
+      "actual": "memory.persona",
+      "intents": [
+        "memory.persona"
+      ],
+      "tasks": [
+        {
+          "id": "memory.persona.update",
+          "title": "更新全局身份记忆",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 71,
+      "group": "office",
+      "text": "帮我做一个 Excel 表格",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "帮我做一个 Excel 表格",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 72,
+      "group": "office",
+      "text": "生成一份 Word 文档",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "生成一份 Word 文档",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 73,
+      "group": "office",
+      "text": "做个 WPS 模板",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "做个 WPS 模板",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 74,
+      "group": "office",
+      "text": "帮我整理成 PPT",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "帮我整理成 PPT",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 75,
+      "group": "office",
+      "text": "创建一个办公表格",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "创建一个办公表格",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 76,
+      "group": "office",
+      "text": "写一份文档模板",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "写一份文档模板",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 77,
+      "group": "office",
+      "text": "做商品价格表格",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "做商品价格表格",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 78,
+      "group": "office",
+      "text": "生成销售日报 Excel",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "生成销售日报 Excel",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 79,
+      "group": "office",
+      "text": "帮我写 Word 合同草稿",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "帮我写 Word 合同草稿",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 80,
+      "group": "office",
+      "text": "做一个演示 PPT",
+      "expected": "office.doc",
+      "actual": "office.doc",
+      "intents": [
+        "office.doc"
+      ],
+      "tasks": [
+        {
+          "id": "office.doc.1",
+          "title": "做一个演示 PPT",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 81,
+      "group": "mixed_blocked",
+      "text": "明天成都天气，顺便提醒我带伞，然后保存成Skill",
+      "expected": "info.weather_or_reminder",
+      "actual": "info.weather_or_reminder",
+      "intents": [
+        "info.weather_or_reminder",
+        "info.weather_or_reminder",
+        "skill.learn"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.learn.weather",
+          "title": "step-1.learn.weather",
+          "status": "blocked"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 82,
+      "group": "mixed_blocked",
+      "text": "查天气，再把结果保存成技能",
+      "expected": "info.weather_or_reminder",
+      "actual": "info.weather_or_reminder",
+      "intents": [
+        "info.weather_or_reminder",
+        "skill.learn"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.learn.weather",
+          "title": "step-1.learn.weather",
+          "status": "blocked"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 83,
+      "group": "mixed_blocked",
+      "text": "帮我看明天会不会下雨，并提醒我",
+      "expected": "info.weather_or_reminder",
+      "actual": "info.weather_or_reminder",
+      "intents": [
+        "info.weather_or_reminder",
+        "info.weather_or_reminder"
+      ],
+      "tasks": [
+        {
+          "id": "info.weather_or_reminder.1",
+          "title": "帮我看明天会不会下雨",
+          "status": "blocked"
+        },
+        {
+          "id": "info.weather_or_reminder.2",
+          "title": "并提醒我",
+          "status": "blocked"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 84,
+      "group": "mixed_blocked",
+      "text": "查询成都气温，然后记住我怕冷",
+      "expected": "info.weather_or_reminder",
+      "actual": "info.weather_or_reminder",
+      "intents": [
+        "info.weather_or_reminder",
+        "skill.learn"
+      ],
+      "tasks": [
+        {
+          "id": "info.weather_or_reminder.1",
+          "title": "查询成都气温",
+          "status": "blocked"
+        },
+        {
+          "id": "skill.learn.2",
+          "title": "记住我怕冷",
+          "status": "planned"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 85,
+      "group": "mixed_blocked",
+      "text": "天气好的话提醒我出门",
+      "expected": "info.weather_or_reminder",
+      "actual": "info.weather_or_reminder",
+      "intents": [
+        "info.weather_or_reminder"
+      ],
+      "tasks": [
+        {
+          "id": "info.weather_or_reminder.1",
+          "title": "天气好的话提醒我出门",
+          "status": "blocked"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 86,
+      "group": "mixed_blocked",
+      "text": "帮我创建提醒，明天带伞",
+      "expected": "info.weather_or_reminder",
+      "actual": "info.weather_or_reminder",
+      "intents": [
+        "info.weather_or_reminder",
+        "info.weather_or_reminder"
+      ],
+      "tasks": [
+        {
+          "id": "info.weather_or_reminder.1",
+          "title": "帮我创建提醒",
+          "status": "blocked"
+        },
+        {
+          "id": "info.weather_or_reminder.2",
+          "title": "明天带伞",
+          "status": "blocked"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 87,
+      "group": "mixed_blocked",
+      "text": "保存一个天气提醒 Skill",
+      "expected": "info.weather_or_reminder",
+      "actual": "skill.learn",
+      "intents": [
+        "skill.learn",
+        "info.weather_or_reminder"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.learn.weather",
+          "title": "step-1.learn.weather",
+          "status": "blocked"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 88,
+      "group": "mixed_blocked",
+      "text": "明天上海天气，然后生成提醒",
+      "expected": "info.weather_or_reminder",
+      "actual": "info.weather_or_reminder",
+      "intents": [
+        "info.weather_or_reminder",
+        "info.weather_or_reminder"
+      ],
+      "tasks": [
+        {
+          "id": "info.weather_or_reminder.1",
+          "title": "明天上海天气",
+          "status": "blocked"
+        },
+        {
+          "id": "info.weather_or_reminder.2",
+          "title": "生成提醒",
+          "status": "blocked"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 89,
+      "group": "mixed_blocked",
+      "text": "查一下天气并写入技能库",
+      "expected": "info.weather_or_reminder",
+      "actual": "info.weather_or_reminder",
+      "intents": [
+        "info.weather_or_reminder"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.learn.weather",
+          "title": "step-1.learn.weather",
+          "status": "blocked"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 90,
+      "group": "mixed_blocked",
+      "text": "提醒我下午开会，顺便保存成Skill",
+      "expected": "info.weather_or_reminder",
+      "actual": "info.weather_or_reminder",
+      "intents": [
+        "info.weather_or_reminder",
+        "skill.learn"
+      ],
+      "tasks": [
+        {
+          "id": "step-1.learn.reminder",
+          "title": "step-1.learn.reminder",
+          "status": "blocked"
+        }
+      ],
+      "blocked": true,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 91,
+      "group": "system_open",
+      "text": "打开桌面的报价单",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 92,
+      "group": "system_open",
+      "text": "启动一个不存在的软件 abcxyz123",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 93,
+      "group": "system_open",
+      "text": "打开文件夹",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 94,
+      "group": "system_open",
+      "text": "运行桌面上的程序",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 95,
+      "group": "system_open",
+      "text": "打开网址网页",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 96,
+      "group": "system_open",
+      "text": "帮我打开下载目录",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 97,
+      "group": "system_open",
+      "text": "启动应用",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 98,
+      "group": "system_open",
+      "text": "打开刚刚生成的文件",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 99,
+      "group": "system_open",
+      "text": "运行软件",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    },
+    {
+      "index": 100,
+      "group": "system_open",
+      "text": "打开项目目录",
+      "expected": "system.open",
+      "actual": "system.open",
+      "intents": [
+        "system.open"
+      ],
+      "tasks": [
+        {
+          "id": "system.open",
+          "title": "打开目标",
+          "status": "planned"
+        }
+      ],
+      "blocked": false,
+      "ok": true,
+      "failureReason": ""
+    }
+  ]
+}

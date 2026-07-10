@@ -1,0 +1,18 @@
+{
+  "id": "browser.task",
+  "name": "Browser Task",
+  "taskType": "browser.task",
+  "input": {
+    "url": "string",
+    "instruction": "string"
+  },
+  "output": {
+    "status": "success|failed",
+    "result": "object"
+  },
+  "capabilities": [
+    "browser_open",
+    "browser_read",
+    "verify_result"
+  ]
+}

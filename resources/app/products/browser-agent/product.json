@@ -1,0 +1,15 @@
+{
+  "id": "browser-agent",
+  "name": "Browser Agent",
+  "version": "0.1.0",
+  "description": "Product Layer shell for browser automation tasks through Neural Core v1.0.",
+  "capabilities": [
+    "understand_goal",
+    "execute_tool_task",
+    "verify_result"
+  ],
+  "ui": "browser",
+  "taskTemplates": [
+    "templates/browser-task.json"
+  ]
+}

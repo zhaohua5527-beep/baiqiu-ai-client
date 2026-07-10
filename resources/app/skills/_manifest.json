@@ -1,0 +1,18 @@
+{
+  "skills": [
+    {
+      "name": "get_current_time",
+      "description": "获取当前系统时间",
+      "file": "get_current_time.js",
+      "parameters": {},
+      "enabled": true
+    },
+    {
+      "name": "get_desktop_file_count",
+      "description": "获取桌面文件数量",
+      "file": "get_desktop_file_count.js",
+      "parameters": {},
+      "enabled": true
+    }
+  ]
+}
