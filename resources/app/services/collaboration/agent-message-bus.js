@@ -1,8 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 const { AgentCommunicationProtocol } = require("../protocol/agent-communication-protocol");
 
-const DEFAULT_COLLABORATION_ROOT = path.join("D:\\BaiQiuAI", "data", "collaboration");
+const DEFAULT_COLLABORATION_ROOT = path.join(dataRoot(), "collaboration");
 
 function nowIso() {
   return new Date().toISOString();

@@ -20,14 +20,18 @@ const state = {
   lastMonitorLogAt: 0,
   forceScrollBottom: false,
   lastRenderedSessionId: null,
+  lastMessageSignature: "",
   taskBoardTab: "overview",
-  taskBoardFocusId: ""
+  taskBoardFocusId: "",
+  taskBoardPreviewRows: {},
+  taskBoardPreviewContent: {}
 };
 let pendingConfirmations = {};
 
 const $ = (id) => document.getElementById(id);
 const gatewayStatus = $("gatewayStatus");
 const trialStatus = $("trialStatus");
+const taskBoardToggleBtn = $("taskBoardToggleBtn");
 const licenseOverlay = $("licenseOverlay");
 const licenseCodeInput = $("licenseCodeInput");
 const licenseActivateBtn = $("licenseActivateBtn");
@@ -36,12 +40,21 @@ const licenseNameInput = $("licenseNameInput");
 const licensePhoneInput = $("licensePhoneInput");
 const licenseBuyBtn = $("licenseBuyBtn");
 const licenseOverlayStatus = $("licenseOverlayStatus");
+const paymentPanel = $("paymentPanel");
+const paymentTitle = $("paymentTitle");
+const paymentOrderId = $("paymentOrderId");
+const paymentHint = $("paymentHint");
+const paymentCheckBtn = $("paymentCheckBtn");
+const paymentCopyBtn = $("paymentCopyBtn");
 const sessionList = $("sessionList");
 const messageList = $("messageList");
 const chatForm = $("chatForm");
 const chatInput = $("chatInput");
 const sendBtn = $("sendBtn");
 const accessModeBtn = $("accessModeBtn");
+const reasoningWaterControl = $("reasoningWaterControl");
+const reasoningWaterRange = $("reasoningWaterRange");
+const reasoningWaterLabel = $("reasoningWaterLabel");
 const attachBtn = $("attachBtn");
 const fileInput = $("fileInput");
 const attachmentPreview = $("attachmentPreview");
@@ -124,6 +137,12 @@ const adminCodeSearchInput = $("adminCodeSearchInput");
 const adminRefreshCodesBtn = $("adminRefreshCodesBtn");
 const adminExportCodesBtn = $("adminExportCodesBtn");
 const adminCodeListOutput = $("adminCodeListOutput");
+const licenseMonthlyBtn = $("licenseMonthlyBtn");
+const licenseSixMonthsBtn = $("licenseSixMonthsBtn");
+const licenseYearlyBtn = $("licenseYearlyBtn");
+const settingsMonthlyBtn = $("settingsMonthlyBtn");
+const settingsSixMonthsBtn = $("settingsSixMonthsBtn");
+const settingsYearlyBtn = $("settingsYearlyBtn");
 const developerLogsTab = $("developerLogsTab");
 const developerLogsPage = $("developerLogsPage");
 const developerLogTypeSelect = $("developerLogTypeSelect");
@@ -164,6 +183,14 @@ const ACCESS_MODES = {
   full: { label: "完全访问", short: "完全访问", title: "完全访问模式：允许已授权工具直接执行。" }
 };
 
+
+const PROVIDER_REASONING_LEVELS = {
+  openai: ["minimal", "low", "medium", "high", "extra_high"],
+  deepseek: ["minimal", "low", "medium", "high"],
+  ollama: ["off", "minimal", "low", "medium", "high"],
+  openclaw: ["minimal", "low", "medium", "high"]
+};
+
 const SKIN_PRESETS = {
   black: {
     textColor: "#f3f4f6",
@@ -185,7 +212,35 @@ const SKIN_PRESETS = {
     backgroundColor: "#07090d",
     panelColor: "#111722",
     fontSize: 16
+  },
+  mecha: {
+    textColor: "#e8f7ff",
+    accentColor: "#31d6ff",
+    backgroundColor: "#070b0f",
+    panelColor: "#101820",
+    fontSize: 16
+  },
+  wasteland: {
+    textColor: "#f2ead8",
+    accentColor: "#d6b24a",
+    backgroundColor: "#11100d",
+    panelColor: "#1b1a16",
+    fontSize: 16
   }
+};
+
+const MODEL_VERSION_OPTIONS = {
+  openai: [
+    ["gpt-5.6-sol", "GPT 5.6 Sol"],
+    ["gpt-5.6-terra", "GPT 5.6 Terra"],
+    ["gpt-5.6-luna", "GPT 5.6 Luna"],
+    ["gpt-4.1", "GPT 4.1 兼容"]
+  ],
+  deepseek: [
+    ["deepseek-v4-pro", "DeepSeek V4 Pro"],
+    ["deepseek-v4-flash", "DeepSeek V4 Flash"],
+    ["deepseek-chat", "DeepSeek Chat 兼容"]
+  ]
 };
 
 function escapeHtml(value) {
@@ -202,46 +257,24 @@ function renderMarkdown(text) {
   const withCode = escaped.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (_m, lang, code) => (
     `<pre><code data-lang="${escapeHtml(lang || "text")}">${code}</code></pre>`
   ));
-  const inline = (value) => String(value || "")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_m, label, url) => `<a href="${url}" target="_blank" rel="noreferrer">${label}</a>`);
-  const splitTableCells = (line) => String(line || "")
-    .trim()
-    .replace(/^\|/, "")
-    .replace(/\|$/, "")
-    .split("|")
-    .map((cell) => cell.trim());
-  const isTableDivider = (line) => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line || "");
-  const renderTable = (lines) => {
-    const header = splitTableCells(lines[0]);
-    const rows = lines.slice(2).filter((line) => line.trim()).map(splitTableCells);
-    return `<div class="markdown-table-wrap"><table><thead><tr>${header.map((cell) => `<th>${inline(cell)}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr>${header.map((_cell, index) => `<td>${inline(row[index] || "")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
-  };
   return withCode
     .split(/\n{2,}/)
     .map((block) => {
       if (block.startsWith("<pre>")) return block;
       const lines = block.split("\n");
       const first = lines[0] || "";
+      const inline = (value) => value
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
       if (/^#{1,4}\s+/.test(first)) {
         const level = Math.min(4, first.match(/^#+/)?.[0].length || 2);
         const title = inline(first.replace(/^#{1,4}\s+/, ""));
         const rest = lines.slice(1).join("\n");
         return `<h${level}>${title}</h${level}>${rest ? renderMarkdown(rest) : ""}`;
       }
-      if (lines.length >= 3 && /\|/.test(lines[0]) && isTableDivider(lines[1])) return renderTable(lines);
       if (lines.every((line) => !line.trim() || /^[-*]\s+/.test(line))) {
         const items = lines.filter((line) => line.trim()).map((line) => `<li>${inline(line.replace(/^[-*]\s+/, ""))}</li>`).join("");
         return `<ul>${items}</ul>`;
-      }
-      if (lines.every((line) => !line.trim() || /^\d+\.\s+/.test(line))) {
-        const items = lines.filter((line) => line.trim()).map((line) => `<li>${inline(line.replace(/^\d+\.\s+/, ""))}</li>`).join("");
-        return `<ol>${items}</ol>`;
-      }
-      if (lines.every((line) => !line.trim() || /^&gt;\s?/.test(line))) {
-        const quote = lines.map((line) => line.replace(/^&gt;\s?/, "")).join("\n");
-        return `<blockquote>${inline(quote).replace(/\n/g, "<br>")}</blockquote>`;
       }
       return `<p>${inline(block).replace(/\n/g, "<br>")}</p>`;
     })
@@ -264,9 +297,8 @@ function selectedSession() {
 function statusText(status) {
   if (status === "running") return "执行中";
   if (status === "done") return "完成";
-  if (status === "timeout") return "超时";
-  if (status === "failed") return "失败";
-  if (status === "aborted") return "已中断";
+  if (status === "timeout" || status === "aborted") return "已结束";
+  if (status === "failed") return "需检查";
   return "待命";
 }
 
@@ -303,11 +335,6 @@ function isSkillLearningPrompt(text = "") {
   return /(?:学习|学|安装|创建|新增|做).{0,40}(?:skill|技能)|(?:skill|技能).{0,40}(?:学习|安装|创建|新增)/i.test(String(text || "").trim());
 }
 
-function isCalculatorCreationPrompt(text = "") {
-  const value = String(text || "").trim();
-  return /(计算器|calculator|calc)/i.test(value) && /(帮我|请|写|做|生成|创建|开发|制作|弄|打开|软件|程序|应用|html|桌面)/i.test(value);
-}
-
 function setTaskProgressStage(label, value) {
   if (taskState) taskState.textContent = label || "执行中";
   if (monitorMode) monitorMode.textContent = label || "执行中";
@@ -325,7 +352,6 @@ async function submitProductInput(session, text, { taskMode = true } = {}) {
     sessionId: session.id,
     text,
     message: text,
-    skipPersist: true,
     context: {
       conversationOnly: !taskMode
     }
@@ -342,7 +368,6 @@ async function submitSkillLearningInput(session, text) {
     sessionId: session.id,
     text,
     message: text,
-    skipPersist: true,
     context: {
       chatRuntime: true,
       skillLearning: true
@@ -361,7 +386,6 @@ async function submitAttachmentInput(session, text, attachments = []) {
     text: text || "请分析附件内容。",
     message: text || "请分析附件内容。",
     attachments,
-    skipPersist: true,
     context: {
       chatRuntime: true,
       hasAttachments: true
@@ -451,6 +475,88 @@ function reasoningLabel(value) {
   }[value || "minimal"] || value;
 }
 
+function availableReasoningLevels(providerKey = state.db?.settings?.defaultProvider || "deepseek") {
+  return PROVIDER_REASONING_LEVELS[providerKey] || PROVIDER_REASONING_LEVELS.deepseek;
+}
+
+function normalizeReasoningForProvider(value, providerKey) {
+  const levels = availableReasoningLevels(providerKey);
+  if (levels.includes(value)) return value;
+  if (value === "maximum" || value === "extra_high") return levels[levels.length - 1];
+  return levels[0];
+}
+
+function renderReasoningWater() {
+  if (!reasoningWaterControl || !reasoningWaterRange) return;
+  const providerKey = state.db?.settings?.defaultProvider || "deepseek";
+  const levels = availableReasoningLevels(providerKey);
+  const value = normalizeReasoningForProvider(state.db?.settings?.reasoning || levels[0], providerKey);
+  const index = Math.max(0, levels.indexOf(value));
+  reasoningWaterRange.max = String(levels.length - 1);
+  reasoningWaterRange.value = String(index);
+  reasoningWaterControl.dataset.level = value;
+  reasoningWaterControl.dataset.maximum = index === levels.length - 1 ? "1" : "0";
+  reasoningWaterControl.style.setProperty("--reasoning-progress", `${levels.length > 1 ? (index / (levels.length - 1)) * 100 : 0}%`);
+  if (reasoningWaterLabel) reasoningWaterLabel.textContent = reasoningLabel(value);
+  reasoningWaterControl.title = `${providerKey === "openai" ? "OpenAI" : providerKey === "deepseek" ? "DeepSeek" : "本地模型"}思考等级：${reasoningLabel(value)}`;
+}
+
+async function setReasoningFromWater(index) {
+  const providerKey = state.db?.settings?.defaultProvider || "deepseek";
+  const levels = availableReasoningLevels(providerKey);
+  const value = levels[Math.max(0, Math.min(levels.length - 1, Number(index) || 0))];
+  state.db.settings.reasoning = value;
+  if (reasoningSelect) reasoningSelect.value = value;
+  await api.saveSettings(state.db.settings);
+  state.db = await api.init();
+  renderSettings();
+  renderMetricBars(selectedSession(), []);
+}
+
+
+const MEMBERSHIP_PLAN_NAMES = {
+  monthly: "月卡会员",
+  six_months: "半年卡会员",
+  yearly: "年卡会员"
+};
+let pendingPaymentOrder = null;
+
+async function activateMembershipPlan(plan) {
+  const planName = MEMBERSHIP_PLAN_NAMES[plan] || "会员";
+  if (licenseOverlay) licenseOverlay.hidden = false;
+  if (licenseOverlayStatus) licenseOverlayStatus.textContent = `正在创建${planName}订单...`;
+  const result = await window.license.createOrder?.({ plan, customer: planName, paymentMethod: "wechat" });
+  if (result?.ok && result.order) {
+    pendingPaymentOrder = result.order;
+    if (paymentPanel) paymentPanel.hidden = false;
+    if (paymentTitle) paymentTitle.textContent = `${planName} 待付款 ¥${result.order.firstPrice || result.order.amount || ""}`;
+    if (paymentOrderId) paymentOrderId.textContent = `订单号：${result.order.orderId}`;
+    if (paymentHint) paymentHint.textContent = "请用微信或支付宝扫码付款，付款后联系管理员确认；确认后点击“查询付款结果”。";
+  }
+  const message = result?.message || (result?.ok ? `订单已创建，请扫码付款后等待管理员审核。` : `${planName}订单创建失败。`);
+  if (inviteStatus) inviteStatus.textContent = message;
+  if (licenseOverlayStatus) licenseOverlayStatus.textContent = message;
+}
+
+async function checkPaymentOrder() {
+  const orderId = pendingPaymentOrder?.orderId || "";
+  if (!orderId) {
+    if (licenseOverlayStatus) licenseOverlayStatus.textContent = "请先选择会员套餐并创建订单。";
+    return;
+  }
+  if (licenseOverlayStatus) licenseOverlayStatus.textContent = "正在查询付款审核结果...";
+  const result = await window.license.checkOrder?.({ orderId });
+  const message = result?.message || result?.order?.message || (result?.ok ? "查询完成。" : "暂未确认付款。");
+  if (licenseOverlayStatus) licenseOverlayStatus.textContent = message;
+  if (inviteStatus) inviteStatus.textContent = message;
+  if (result?.ok && result?.activated) {
+    state.db = await api.init();
+    await refreshLicenseStatus();
+    await renderLicenseControls();
+    setTimeout(() => { if (licenseOverlay) licenseOverlay.hidden = true; }, 1000);
+  }
+}
+
 function formatTrialTime(seconds) {
   const value = Math.max(0, Number(seconds || 0));
   const min = Math.floor(value / 60);
@@ -482,19 +588,26 @@ function renderLicenseStatus(status) {
     if (inviteStatus) inviteStatus.textContent = "开发工具面板已解锁。";
     return;
   }
+  const membershipText = status.unlocked
+    ? (status.lifetime
+      ? "永久会员"
+      : `${status.planName || "限时会员"} · 剩余 ${Math.max(0, Math.ceil(Number(status.membershipRemainingSeconds || 0) / 86400))} 天`)
+    : "";
   if (trialStatus) {
     trialStatus.textContent = status.unlocked
-      ? "已激活"
+      ? membershipText
       : status.locked
         ? "试用已结束"
-        : `试用剩余：${formatTrialTime(status.trialRemainingSeconds)} | 购买卡密解锁`;
+        : `试用剩余：${formatTrialTime(status.trialRemainingSeconds)} | 开通会员解锁`;
   }
   if (licenseOverlay) licenseOverlay.hidden = Boolean(status.unlocked || !status.locked);
   if (inviteStatus) {
     inviteStatus.textContent = status.unlocked
-      ? "已激活：当前设备可永久使用白球 AI。"
+      ? (status.lifetime
+        ? "已激活：永久会员。"
+        : `已激活：${status.planName || "限时会员"}，有效期至 ${new Date(status.expiresAt).toLocaleDateString("zh-CN")}，剩余 ${Math.max(0, Math.ceil(Number(status.membershipRemainingSeconds || 0) / 86400))} 天。`)
       : status.locked
-        ? "试用已结束：请输入卡密激活。"
+        ? "试用已结束：请选择会员套餐或输入兑换码。"
         : `试用中：剩余 ${formatTrialTime(status.trialRemainingSeconds)}。`;
   }
 }
@@ -536,6 +649,10 @@ async function tryOpenExternalUrl(url) {
 }
 
 async function openAttachmentExternally(item = {}) {
+  if (typeof api.openAttachment === "function") {
+    const result = await api.openAttachment(item);
+    if (result?.ok !== false) return;
+  }
   const pathValue = item.path || item.originalPath || item.filePath || "";
   const urlValue = item.url || "";
   if (pathValue && typeof api.openPath === "function") {
@@ -950,7 +1067,6 @@ function setBusy(value) {
   state.busy = value;
   document.body.classList.toggle("running", value);
   sendBtn.classList.toggle("abort", value);
-  sendBtn.textContent = value ? "■" : "↑";
   sendBtn.title = value ? "输入为空时中断，输入内容时加入预置任务" : "发送";
   taskState.textContent = value ? "执行中" : "待命";
   if (monitorMode) monitorMode.textContent = value ? "执行中" : "待命";
@@ -969,12 +1085,7 @@ function renderAccessMode() {
   const mode = currentAccessMode();
   const active = ACCESS_MODES[mode] || ACCESS_MODES.ask;
   accessModeBtn.innerHTML = `
-    <span class="access-mode-icon" aria-hidden="true"></span>
-    <span class="access-mode-copy">
-      <span class="access-mode-label">权限</span>
-      <span class="access-mode-current">${active.short || active.label}</span>
-    </span>
-    <span class="access-mode-caret">⌄</span>
+    <span class="access-mode-current">${active.short || active.label}</span><span class="access-mode-caret" aria-hidden="true">⌄</span>
     <span class="access-mode-menu" role="menu">
       ${["normal", "ask", "full"].map((key) => {
         const config = ACCESS_MODES[key];
@@ -1369,16 +1480,22 @@ async function renderMessages() {
   const messageCountIncreased = messages.length > state.lastMessageCount;
   const shouldFollow = state.forceScrollBottom || sessionChanged || messageCountIncreased || isNearBottom(messageList) || state.lastMessageCount === 0;
   state.currentMessages = messages;
-  const fragment = document.createDocumentFragment();
-  if (!messages.length) addMessage({ role: "assistant", text: "发送第一条消息后，我会先引导您设定专属助手的名字、称呼和风格。" }, fragment);
-  else messages.forEach((message) => addMessage(message, fragment));
-  messageList.replaceChildren(fragment);
+  const visibleMessages = messages.slice(-120);
+  const tail = visibleMessages.slice(-3).map((message) => `${message.id || ""}:${String(message.text || message.content || "").slice(-240)}`).join("|");
+  const signature = `${session.id}:${visibleMessages.length}:${tail}`;
+  if (signature !== state.lastMessageSignature || sessionChanged) {
+    const fragment = document.createDocumentFragment();
+    if (!visibleMessages.length) addMessage({ role: "assistant", text: "发送第一条消息后，我会先引导您设定专属助手的名字、称呼和风格。" }, fragment);
+    else visibleMessages.forEach((message) => addMessage(message, fragment));
+    messageList.replaceChildren(fragment);
+    state.lastMessageSignature = signature;
+  }
   state.lastMessageCount = messages.length;
   state.lastRenderedSessionId = session.id;
   if (shouldFollow) scrollMessagesToBottom();
   setBusy(session.status === "running");
   stopProgress(session.status);
-  renderMonitorLog(session, messages);
+  renderMonitorLog(session, messages.slice(-20));
   renderMetricBars(session, messages);
   renderTaskBoard();
 }
@@ -1440,8 +1557,9 @@ function renderSettings() {
     option.selected = settings.defaultProvider === key;
     providerSelect.appendChild(option);
   }
-  reasoningSelect.value = settings.reasoning || "minimal";
+  if (reasoningSelect) reasoningSelect.value = settings.reasoning || "minimal";
   if (sideReasoningSelect) sideReasoningSelect.value = settings.reasoning || "minimal";
+  renderReasoningWater();
   renderProviderDetails();
   const current = settings.providers[settings.defaultProvider];
   modelState.textContent = `${current?.name || "DeepSeek"} / ${reasoningLabel(settings.reasoning)}`;
@@ -1486,10 +1604,16 @@ function renderProviderDetails() {
     `;
     return;
   }
+  const versions = [...(MODEL_VERSION_OPTIONS[key] || [])];
+  if (provider.model && !versions.some(([value]) => value === provider.model)) versions.unshift([provider.model, `${provider.model}（当前）`]);
   providerList.innerHTML = `
     <label>API Key <input id="apiKeyInput" type="password" autocomplete="off" spellcheck="false" value="${escapeHtml(provider.apiKey || "")}" placeholder="sk-..."></label>
     <label>Base URL <input id="baseUrlInput" value="${escapeHtml(provider.baseURL || "")}" placeholder="https://api.deepseek.com"></label>
-    <label>模型 <input id="modelInput" value="${escapeHtml(provider.model || "")}" placeholder="deepseek-chat"></label>
+    <label>模型版本 ${versions.length
+      ? `<select id="modelVersionSelect">${versions.map(([value, label]) => `<option value="${escapeHtml(value)}"${value === provider.model ? " selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select>`
+      : `<input id="modelVersionSelect" value="${escapeHtml(provider.model || "")}" placeholder="模型版本">`}
+    </label>
+    <div class="provider-note model-route-note">所选模型名称会原样发送给当前线路；线路必须支持该版本。</div>
   `;
 }
 
@@ -1517,14 +1641,13 @@ function readSettingsFromDialog() {
   const settings = JSON.parse(JSON.stringify(state.db.settings));
   const updateTarget = updateManifestInput?.value?.trim() || "";
   settings.defaultProvider = providerSelect.value || "deepseek";
-  settings.reasoning = reasoningSelect.value || "minimal";
-  if (settings.reasoning === "off") settings.defaultProvider = "ollama";
+  settings.reasoning = state.db?.settings?.reasoning || "minimal";
   for (const [key, provider] of Object.entries(settings.providers)) provider.enabled = key === settings.defaultProvider;
   const provider = settings.providers[settings.defaultProvider];
   if (settings.defaultProvider !== "openclaw") {
     provider.apiKey = $("apiKeyInput")?.value || "";
     provider.baseURL = $("baseUrlInput")?.value || provider.baseURL || "";
-    provider.model = $("modelInput")?.value || provider.model || "";
+    provider.model = $("modelVersionSelect")?.value || provider.model || "";
   }
   const selectedSkin = SKIN_PRESETS[skinSelect?.value] ? skinSelect.value : "custom";
   const selectedPreset = SKIN_PRESETS[selectedSkin] || SKIN_PRESETS.custom;
@@ -1645,7 +1768,7 @@ async function renderAdminCodeList() {
         item.deviceId || "",
         item.notes || ""
       ].join(" | "));
-    adminCodeListOutput.value = rows.length ? rows.join("\n") : "暂无卡密记录";
+    adminCodeListOutput.value = rows.length ? rows.join("\n") : "暂无兑换码记录";
   } catch (error) {
     adminCodeListOutput.value = `读取失败：${error.message || error}`;
   }
@@ -1665,8 +1788,8 @@ async function renderLicenseControls() {
   if (applyOnlineUpdateBtn) applyOnlineUpdateBtn.hidden = Boolean(status.devMode);
   if (inviteBtn) {
     inviteBtn.hidden = !status.owner && unlocked;
-    inviteBtn.textContent = status.owner ? "卡密管理" : "购买卡密";
-    inviteBtn.title = status.owner ? "卡密生成与管理" : "购买卡密并激活";
+    inviteBtn.textContent = status.owner ? "会员管理" : "会员";
+    inviteBtn.title = status.owner ? "会员与兑换码管理" : "开通会员或兑换";
   }
   if (ownerInvitePanel) ownerInvitePanel.hidden = !status.owner;
   if (publishUpdatePanel) publishUpdatePanel.hidden = !status.owner;
@@ -1708,6 +1831,13 @@ async function renderUpdateInfo() {
       </div>
     `;
     document.getElementById("downloadUpdateBtn")?.addEventListener("click", async () => {
+      const confirmed = await showAppConfirm({
+        title: `更新到 ${info.latestVersion}`,
+        message: "服务器已确认存在新版本。是否现在下载并准备更新？",
+        primary: "确认更新",
+        secondary: "稍后"
+      });
+      if (!confirmed) return;
       updateContent.textContent = "正在下载更新包。";
       try {
         const result = await api.applyOnlineUpdate();
@@ -1939,19 +2069,6 @@ async function sendCurrentTask(task = null) {
       const owner = await api.ownerStatus?.().catch(() => ({ devMode: false }));
       const productTask = await api.productQueryTask?.(productResult.taskId).catch(() => null);
       renderProductDashboard(productTask, { devMode: Boolean(owner?.devMode) });
-      return;
-    }
-    if (isCalculatorCreationPrompt(text) && api.productSubmitTask) {
-      setTaskProgressStage("正在生成计算器", 32);
-      const productResult = await submitProductInput(session, text, { taskMode: false });
-      setTaskProgressStage("正在打开", 78);
-      const assistantText = productResultText(productResult) || productResult?.text || "计算器任务已结束。";
-      addMessage({ role: "assistant", text: assistantText });
-      scrollMessagesToBottom();
-      setTaskProgressStage(productResult?.success ? "已完成" : "执行失败", productResult?.success ? 100 : 0);
-      await api.appendMessage(session.id, userMessage);
-      await api.appendMessage(session.id, { role: "assistant", text: assistantText, raw: { productLayer: true, calculatorShortcut: true, productResult } });
-      state.db = await api.init();
       return;
     }
     if (!useProductTask) {
@@ -2222,9 +2339,9 @@ applyOnlineUpdateBtn?.addEventListener("click", async () => {
   if (!updateContent) return;
   await saveSettingsFromDialogSilently();
   if (!await showAppConfirm({
-    title: "下载在线更新",
-    message: "下载在线更新包并生成更新脚本？当前运行中的白球不会被直接覆盖。",
-    primary: "开始下载",
+    title: "确认更新",
+    message: "服务器已检测到新版本。确认下载并准备更新吗？",
+    primary: "确认更新",
     secondary: "取消"
   })) return;
   applyOnlineUpdateBtn.disabled = true;
@@ -2317,7 +2434,7 @@ resetSaveLocationBtn?.addEventListener("click", async () => {
 unlockInviteBtn?.addEventListener("click", async () => {
   const code = (inviteInput?.value || "").trim();
   if (!code) {
-    if (inviteStatus) inviteStatus.textContent = "请输入卡密。";
+    if (inviteStatus) inviteStatus.textContent = "请输入兑换码。";
     return;
   }
   const customer = {
@@ -2326,7 +2443,7 @@ unlockInviteBtn?.addEventListener("click", async () => {
   };
   const result = await (window.license.confirmActivation?.({ code, ...customer }) || window.license.verifyCode(code, customer));
   state.db = await api.init();
-  if (inviteStatus) inviteStatus.textContent = result.message || (result.ok || result.success ? "激活成功。" : "卡密无效。");
+  if (inviteStatus) inviteStatus.textContent = result.message || (result.ok || result.success ? "激活成功。" : "兑换码无效。");
   if (inviteInput) inviteInput.value = result.code || code;
   await refreshLicenseStatus();
   await renderLicenseControls();
@@ -2337,43 +2454,47 @@ inviteInput?.addEventListener("input", () => {
 licenseCodeInput?.addEventListener("input", () => {
   licenseCodeInput.value = formatLicenseCode(licenseCodeInput.value);
 });
-let licenseActivationStep = 1;
 licenseActivateBtn?.addEventListener("click", async () => {
   const code = licenseCodeInput?.value || "";
   if (!code) {
-    if (licenseOverlayStatus) licenseOverlayStatus.textContent = "请输入卡密。";
+    if (licenseOverlayStatus) licenseOverlayStatus.textContent = "请输入兑换码。";
     return;
   }
-  if (licenseActivationStep === 1) {
-    licenseActivationStep = 2;
-    if (licenseCustomerFields) licenseCustomerFields.hidden = false;
-    if (licenseActivateBtn) licenseActivateBtn.textContent = "确认激活";
-    if (licenseOverlayStatus) licenseOverlayStatus.textContent = "请填写姓名和手机号，用于售后与激活记录。";
-    licenseNameInput?.focus?.();
-    return;
-  }
+  if (licenseOverlayStatus) licenseOverlayStatus.textContent = "正在验证兑换码...";
   const customer = {
     name: licenseNameInput?.value?.trim() || "客户",
     phone: licensePhoneInput?.value?.trim() || ""
   };
   const result = await (window.license.confirmActivation?.({ code, ...customer }) || window.license.verifyCode(code, customer));
-  if (licenseOverlayStatus) licenseOverlayStatus.textContent = result.message || (result.ok ? "激活成功。" : "卡密无效。");
+  if (licenseOverlayStatus) licenseOverlayStatus.textContent = result.message || (result.ok ? "激活成功。" : "兑换码无效。");
   if (result.ok || result.success) {
     state.db = await api.init();
     await refreshLicenseStatus();
     await renderLicenseControls();
     setTimeout(() => {
       if (licenseOverlay) licenseOverlay.hidden = true;
-      licenseActivationStep = 1;
       if (licenseCustomerFields) licenseCustomerFields.hidden = true;
-      if (licenseActivateBtn) licenseActivateBtn.textContent = "下一步";
+      if (licenseActivateBtn) licenseActivateBtn.textContent = "验证确认";
     }, 1500);
   }
 });
+licenseMonthlyBtn?.addEventListener("click", () => activateMembershipPlan("monthly"));
+licenseSixMonthsBtn?.addEventListener("click", () => activateMembershipPlan("six_months"));
+licenseYearlyBtn?.addEventListener("click", () => activateMembershipPlan("yearly"));
+settingsMonthlyBtn?.addEventListener("click", () => activateMembershipPlan("monthly"));
+settingsSixMonthsBtn?.addEventListener("click", () => activateMembershipPlan("six_months"));
+settingsYearlyBtn?.addEventListener("click", () => activateMembershipPlan("yearly"));
+paymentCheckBtn?.addEventListener("click", () => checkPaymentOrder());
+paymentCopyBtn?.addEventListener("click", async () => {
+  const orderId = pendingPaymentOrder?.orderId || "";
+  if (!orderId) return;
+  await api.copyText?.(orderId);
+  if (licenseOverlayStatus) licenseOverlayStatus.textContent = "订单号已复制，请发给管理员核对付款。";
+});
 licenseBuyBtn?.addEventListener("click", () => {
   showAppConfirm({
-    title: "获取卡密",
-    message: "请联系销售获取卡密。",
+    title: "会员价格",
+    message: "月卡首次 ¥19.9（原价 ¥49.9），6个月 ¥88（原价 ¥99）。也可以输入管理员发放的永久兑换码。",
     primary: "知道了",
     secondary: "关闭"
   });
@@ -2460,6 +2581,16 @@ sideReasoningSelect?.addEventListener("change", async () => {
   renderSettings();
   renderMetricBars(selectedSession(), []);
 });
+reasoningWaterRange?.addEventListener("input", () => {
+  const levels = availableReasoningLevels();
+  const index = Math.max(0, Math.min(levels.length - 1, Number(reasoningWaterRange.value) || 0));
+  const value = levels[index];
+  reasoningWaterControl.dataset.level = value;
+  reasoningWaterControl.dataset.maximum = index === levels.length - 1 ? "1" : "0";
+  reasoningWaterControl.style.setProperty("--reasoning-progress", `${levels.length > 1 ? (index / (levels.length - 1)) * 100 : 0}%`);
+  if (reasoningWaterLabel) reasoningWaterLabel.textContent = reasoningLabel(value);
+});
+reasoningWaterRange?.addEventListener("change", () => setReasoningFromWater(reasoningWaterRange.value));
 document.querySelectorAll("[data-window]").forEach((button) => {
   button.addEventListener("click", () => api.windowControl(button.dataset.window));
 });
@@ -2526,7 +2657,7 @@ window.license?.onTrialWarning((status) => {
     sessionStorage.setItem("baiqiuTrialWarned", "1");
     showAppConfirm({
       title: "试用即将结束",
-      message: `白球 AI 试用还剩 ${formatTrialTime(status.trialRemainingSeconds)}，请及时购买卡密激活。`,
+      message: `白球 AI 试用还剩 ${formatTrialTime(status.trialRemainingSeconds)}，请及时开通会员激活。`,
       primary: "知道了",
       secondary: "稍后"
     });
@@ -2555,6 +2686,45 @@ function formatTaskBoardBytes(bytes) {
   if (value < 1024) return `${value} B`;
   if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function isSpreadsheetFile(file = {}) {
+  return /\.(xlsx|xls|csv)$/i.test(String(file.name || "")) || /spreadsheet|excel|csv/i.test(String(file.mimeType || ""));
+}
+
+function taskBoardSheetPreviewHtml(rows = [], title = "表格预览") {
+  const normalized = rows.slice(0, 30).map((row) => row.slice(0, 8));
+  const headers = normalized[0] || [];
+  const records = normalized.slice(1);
+  const meta = `<div class="task-board-sheet-meta"><span>${escapeHtml(title)}</span><b>${records.length} 行 · ${headers.length} 列</b></div>`;
+  return `${meta}<div class="task-board-table-wrap"><table class="task-board-table">${normalized.map((row, rowIndex) => `<tr>${row.map((cell) => rowIndex === 0 ? `<th>${escapeHtml(cell)}</th>` : `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}</table></div>`;
+}
+
+function taskBoardInternalPreviewHtml(file = {}) {
+  const cachedRows = state.taskBoardPreviewRows[file.id || file.name || ""];
+  if (Array.isArray(cachedRows) && cachedRows.length) {
+    return taskBoardSheetPreviewHtml(cachedRows);
+  }
+  const generic = state.taskBoardPreviewContent[file.id || file.name || ""];
+  if (generic?.kind === "image" && generic.dataUrl) return `<div class="task-board-inline-media"><img src="${escapeHtml(generic.dataUrl)}" alt="${escapeHtml(file.name || "图片预览")}"></div>`;
+  if (generic?.kind === "frame" && generic.fileUrl) return `<div class="task-board-inline-frame"><iframe src="${escapeHtml(generic.fileUrl)}" title="${escapeHtml(file.name || "文件预览")}"></iframe></div>`;
+  if (generic?.previewText) return `<pre class="task-board-file-preview">${escapeHtml(generic.previewText)}</pre>`;
+  const text = String(file.textContent || "").trim();
+  if (!text) {
+    return `<div class="task-board-file-preview muted-preview">${isSpreadsheetFile(file) ? "表格内部预览待生成：请先发送附件让白球完成分析，或使用外部打开查看完整表格。" : "暂不支持此类文件的内部预览。"}</div>`;
+  }
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 32);
+  const tableLines = lines.filter((line) => line.includes("|"));
+  if (isSpreadsheetFile(file) && tableLines.length >= 2) {
+    const rows = tableLines
+      .filter((line) => !/^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?$/.test(line))
+      .slice(0, 18)
+      .map((line) => line.replace(/^\||\|$/g, "").split("|").map((cell) => cell.trim()).slice(0, 8));
+    if (rows.length) {
+      return `<div class="task-board-table-wrap"><table class="task-board-table">${rows.map((row, rowIndex) => `<tr>${row.map((cell) => rowIndex === 0 ? `<th>${escapeHtml(cell)}</th>` : `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}</table></div>`;
+    }
+  }
+  return `<div class="task-board-file-preview">${escapeHtml(text.slice(0, 1800))}</div>`;
 }
 
 function collectTaskBoardLinks(messages = []) {
@@ -2592,7 +2762,14 @@ function collectTaskBoardAssets(messages = []) {
       });
     }
   }
-  return { files, images, links: collectTaskBoardLinks(messages) };
+  const uniqueFiles = new Map();
+  for (const file of files) {
+    const key = `${String(file.name || "").toLowerCase()}:${Number(file.sizeBytes || 0)}`;
+    const richness = (file.dataUrl ? 8 : 0) + (file.path || file.filePath || file.originalPath ? 4 : 0) + (file.textContent ? 2 : 0);
+    const previous = uniqueFiles.get(key);
+    if (!previous || richness > previous.richness) uniqueFiles.set(key, { file, richness });
+  }
+  return { files: [...uniqueFiles.values()].map((entry) => entry.file), images, links: collectTaskBoardLinks(messages) };
 }
 
 function ensureTaskBoardDrawer() {
@@ -2642,6 +2819,11 @@ function openTaskBoard(tab = "overview", focusId = "") {
   drawer.hidden = false;
   drawer.dataset.tab = state.taskBoardTab;
   drawer.classList.add("open");
+  if (taskBoardToggleBtn) {
+    taskBoardToggleBtn.dataset.expanded = "1";
+    taskBoardToggleBtn.title = "收起任务看板";
+    taskBoardToggleBtn.setAttribute("aria-label", "收起任务看板");
+  }
   renderTaskBoard();
 }
 
@@ -2650,6 +2832,11 @@ function closeTaskBoard() {
   if (!drawer) return;
   drawer.classList.remove("open");
   drawer.hidden = true;
+  if (taskBoardToggleBtn) {
+    taskBoardToggleBtn.dataset.expanded = "0";
+    taskBoardToggleBtn.title = "展开任务看板";
+    taskBoardToggleBtn.setAttribute("aria-label", "展开任务看板");
+  }
 }
 
 function renderTaskBoard() {
@@ -2665,7 +2852,10 @@ function renderTaskBoard() {
   const session = selectedSession();
   const messages = state.currentMessages || [];
   const monitorLines = (state.monitorLogLines || []).slice(-12).reverse();
-  const { files, images, links } = collectTaskBoardAssets(messages);
+  const assets = collectTaskBoardAssets(messages.slice(-120));
+  const files = assets.files.slice(-24);
+  const images = assets.images.slice(-16);
+  const links = assets.links.slice(-30);
   const currentModel = modelState?.textContent || "DeepSeek / Minimal";
   const currentTask = taskState?.textContent || statusText(session?.status);
   const currentRecord = recordState?.textContent || "-";
@@ -2709,13 +2899,31 @@ function renderTaskBoard() {
             <span>${escapeHtml(file.source || "附件")} · ${escapeHtml(file.mimeType || "未知类型")} · ${formatTaskBoardBytes(file.sizeBytes)}</span>
           </div>
           <div class="task-board-file-actions">
+            <button type="button" data-board-file-internal="${escapeHtml(id)}">内部打开</button>
             <button type="button" data-board-file-open="${escapeHtml(id)}">外部打开</button>
             <button type="button" data-board-file-copy="${escapeHtml(file.name || "")}">复制文件名</button>
           </div>
-          <div class="task-board-file-preview">${escapeHtml((file.textContent || "暂不支持此类文件的内嵌预览。").slice(0, 1200))}</div>
+          ${state.taskBoardFocusId === id ? taskBoardInternalPreviewHtml(file) : ""}
         </article>
       `;
     }).join("");
+    body.querySelectorAll("[data-board-file-internal]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const current = files.find((item) => (item.id || item.name || "") === (button.dataset.boardFileInternal || ""));
+        if (!current) return;
+        state.taskBoardFocusId = current.id || current.name || "";
+        if (isSpreadsheetFile(current) && typeof api.spreadsheetPreview === "function") {
+          button.disabled = true;
+          button.textContent = "读取中";
+          const preview = await api.spreadsheetPreview(current).catch(() => null);
+          if (preview?.rows?.length) state.taskBoardPreviewRows[state.taskBoardFocusId] = preview.rows;
+        } else if (typeof api.previewAttachment === "function") {
+          state.taskBoardPreviewContent[state.taskBoardFocusId] = await api.previewAttachment(current).catch(() => ({ ok: false, previewText: "当前文件暂不支持内部预览。" }));
+        }
+        showCopyToast(isSpreadsheetFile(current) ? "已在看板内部打开表格预览" : "已在看板内部打开文件预览");
+        renderTaskBoard();
+      });
+    });
     body.querySelectorAll("[data-board-file-open]").forEach((button) => {
       button.addEventListener("click", async () => {
         const current = files.find((item) => (item.id || item.name || "") === (button.dataset.boardFileOpen || ""));
@@ -2742,7 +2950,7 @@ function renderTaskBoard() {
         const id = image.id || image.name || "";
         return `
           <figure class="task-board-image-card${state.taskBoardFocusId && state.taskBoardFocusId === id ? " active" : ""}">
-            <img src="${image.dataUrl}" alt="${escapeHtml(image.name || `图片 ${index + 1}`)}">
+            <img src="${image.dataUrl}" loading="lazy" decoding="async" alt="${escapeHtml(image.name || `图片 ${index + 1}`)}">
             <figcaption>
               <span>${escapeHtml(image.name || `图片 ${index + 1}`)} · ${escapeHtml(image.source || "会话图片")}</span>
               <button type="button" data-board-image-open="${escapeHtml(id)}">外部打开</button>
@@ -2794,6 +3002,11 @@ function renderTaskBoard() {
 }
 
 function bindTaskBoardEntrances() {
+  taskBoardToggleBtn?.addEventListener("click", () => {
+    const drawer = ensureTaskBoardDrawer();
+    if (drawer?.classList.contains("open")) closeTaskBoard();
+    else openTaskBoard(state.taskBoardTab || "overview");
+  });
   document.querySelector(".mini-monitor")?.addEventListener("click", (event) => {
     if (event.target.closest("button")) return;
     openTaskBoard("timeline");
@@ -2828,22 +3041,3 @@ api.init().then(async (db) => {
     if (info?.hasUpdate) showUpdateBadge(info);
   } catch {}
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_INTENT_ROOT = path.join("D:\\BaiQiuAI", "data", "intent");
+const DEFAULT_INTENT_ROOT = path.join(dataRoot(), "intent");
 
 function nowIso() {
   return new Date().toISOString();

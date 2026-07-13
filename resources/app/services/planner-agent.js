@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("./data-root");
 const { TaskDecomposer } = require("./planning/task-decomposer");
 const { DependencyBuilder } = require("./planning/dependency-builder");
 const { RiskAnalyzer } = require("./planning/risk-analyzer");
@@ -21,7 +22,7 @@ const { DecisionEngine } = require("./neural-core/decision-engine");
 const { AgentManager } = require("./neural-core/agent-manager");
 const { TeamPlanner } = require("./neural-core/team-planner");
 
-const DEFAULT_SAFE_ROOT = path.join("D:\\BaiQiuAI", "data", "workspace");
+const DEFAULT_SAFE_ROOT = path.join(dataRoot(), "workspace");
 
 function metric(name, data) {
   try { require("./neural-core/agent-event-bus").recordRuntimeMetric?.(name, data); } catch {}

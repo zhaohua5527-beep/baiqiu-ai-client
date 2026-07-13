@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_REASONING_ROOT = path.join("D:\\BaiQiuAI", "data", "reasoning");
+const DEFAULT_REASONING_ROOT = path.join(dataRoot(), "reasoning");
 
 function makeId() {
   return `rs-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;

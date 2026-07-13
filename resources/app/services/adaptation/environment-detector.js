@@ -1,8 +1,9 @@
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_ADAPTATION_ROOT = path.join("D:\\BaiQiuAI", "data", "adaptation");
+const DEFAULT_ADAPTATION_ROOT = path.join(dataRoot(), "adaptation");
 
 function nowIso() {
   return new Date().toISOString();
@@ -29,14 +30,14 @@ class EnvironmentDetector {
         free: Number(input.freeMemory || os.freemem())
       },
       paths: {
-        dataRoot: input.dataRoot || path.join("D:\\BaiQiuAI", "data"),
-        workspace: input.workspace || path.join("D:\\BaiQiuAI", "data", "workspace"),
-        apps: input.apps || path.join("D:\\BaiQiuAI", "data", "apps")
+        dataRoot: input.dataRoot || path.join(dataRoot()),
+        workspace: input.workspace || path.join(dataRoot(), "workspace"),
+        apps: input.apps || path.join(dataRoot(), "apps")
       },
       capabilities: {
         hasDDrive: input.hasDDrive !== undefined ? Boolean(input.hasDDrive) : fs.existsSync("D:\\"),
-        hasWorkspace: input.hasWorkspace !== undefined ? Boolean(input.hasWorkspace) : fs.existsSync(path.join("D:\\BaiQiuAI", "data", "workspace")),
-        hasAppsDir: input.hasAppsDir !== undefined ? Boolean(input.hasAppsDir) : fs.existsSync(path.join("D:\\BaiQiuAI", "data", "apps")),
+        hasWorkspace: input.hasWorkspace !== undefined ? Boolean(input.hasWorkspace) : fs.existsSync(path.join(dataRoot(), "workspace")),
+        hasAppsDir: input.hasAppsDir !== undefined ? Boolean(input.hasAppsDir) : fs.existsSync(path.join(dataRoot(), "apps")),
         browserAvailable: input.browserAvailable !== undefined ? Boolean(input.browserAvailable) : true
       },
       constraints: {

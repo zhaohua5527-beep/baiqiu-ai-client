@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
 const { AgentController } = require("../agent-controller");
 const { IntentAgent } = require("../intent-agent");
@@ -13,7 +14,7 @@ const { CapabilityCenter } = require("../capability-center");
 const { AgentTracer } = require("../observability/agent-tracer");
 
 const DEFAULT_CASES = path.join(__dirname, "..", "..", "tests", "agent-evaluation-cases.json");
-const EVALUATION_ROOT = path.join("D:\\BaiQiuAI", "data", "evaluation");
+const EVALUATION_ROOT = path.join(dataRoot(), "evaluation");
 
 function defaultRunRoot() {
   return path.join(EVALUATION_ROOT, "runs", `run-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`);

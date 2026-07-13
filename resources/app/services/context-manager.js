@@ -1,8 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("./data-root");
 const { randomUUID } = require("node:crypto");
 
-const DEFAULT_ROOT = path.join("D:\\BaiQiuAI", "data", "memory", "context");
+const DEFAULT_ROOT = path.join(dataRoot(), "memory", "context");
 const DEFAULT_MAX_CONTEXT_SIZE = 64000;
 const DEFAULT_MAX_HISTORY_LENGTH = 50;
 const KEEP_RECENT_MESSAGES = 30;

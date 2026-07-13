@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_OPTIMIZATION_DIR = path.join("D:\\BaiQiuAI", "data", "optimization");
+const DEFAULT_OPTIMIZATION_DIR = path.join(dataRoot(), "optimization");
 const DEFAULT_PERFORMANCE_FILE = path.join(DEFAULT_OPTIMIZATION_DIR, "performance.json");
 
 function nowIso() {

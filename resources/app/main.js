@@ -106,6 +106,7 @@ const activeRuns = new Map();
 let lastGatewayStatusSent = { state: "", message: "", at: 0 };
 let lastGatewayReconnectAt = 0;
 const INVITE_SECRET = "baiqiu-ai-owner-signed-invite-v2";
+const DEFAULT_PUBLIC_SERVER = "https://baiqiuai.xiaoxin8.com";
 const isDevMode = process.argv.includes("--dev");
 
 app.setName("Baiqiu AI");
@@ -153,7 +154,7 @@ function licenseMirrorPath(...parts) {
 }
 
 function baiqiuDataRoot(...parts) {
-  const root = path.join("D:\\BaiQiuAI", "data");
+  const root = path.join(app.getPath("appData"), "Baiqiu AI", "data");
   const full = path.join(root, ...parts);
   try { fs.mkdirSync(parts.length ? path.dirname(full) : full, { recursive: true }); } catch {}
   return full;
@@ -423,7 +424,7 @@ function defaultDb() {
       license: {
         unlocked: false,
         inviteCode: "",
-        activateServer: "http://127.0.0.1:18790"
+        activateServer: DEFAULT_PUBLIC_SERVER
       },
       skills: {
         custom: [],
@@ -471,8 +472,8 @@ function defaultDb() {
         persona: "专业、可靠、高效的本地桌面执行官。"
       },
       update: {
-        manifestUrl: "http://127.0.0.1:18790/manifest.json",
-        updateServer: "http://127.0.0.1:18790",
+        manifestUrl: `${DEFAULT_PUBLIC_SERVER}/manifest.json`,
+        updateServer: DEFAULT_PUBLIC_SERVER,
         autoCheck: true,
         lastCheckAt: 0,
         updateStatus: "idle",
@@ -797,81 +798,12 @@ async function productLayerConversationReply(input = {}) {
   return runtime.text || "我在。";
 }
 
-function isCalculatorCreationRequest(message = "") {
-  const text = sanitizeText(message);
-  if (!/(计算器|calculator|calc)/i.test(text)) return false;
-  return /(帮我|请|写|做|生成|创建|开发|制作|弄|打开|软件|程序|应用|html|桌面)/i.test(text);
-}
-
-async function runCalculatorShortcut({ sessionId = "", message = "", signal = null, traceId = "" } = {}) {
-  recordAgentState(sessionId, "intent_detected", {
-    intent: "dev.code.calculator",
-    logicalTool: "calculator_creator",
-    currentAgent: "supervisor",
-    goal: message
-  });
-  recordAgentState(sessionId, "tool_selected", {
-    intent: "dev.code.calculator",
-    logicalTool: "calculator_creator",
-    toolId: "calculator_creator",
-    currentAgent: "tool_selector",
-    plan: ["创建、验证并打开 HTML 计算器"]
-  });
-  const execution = await ensureToolExecutionService().execute({
-    toolId: "calculator_creator",
-    args: { message },
-    context: {
-      sessionId,
-      signal,
-      traceId,
-      userMessage: message,
-      agentIntent: "dev.code.calculator",
-      provider: "product-calculator-shortcut"
-    }
-  });
-  const verified = execution.response?.result || execution.result || {};
-  const ok = Boolean(execution.success && verified.success !== false);
-  const errorText = readableToolError(execution.error, verified.error, execution.response?.error, verified);
-  recordAgentState(sessionId, ok ? "completed" : "failed", {
-    intent: "dev.code.calculator",
-    logicalTool: "calculator_creator",
-    toolId: "calculator_creator",
-    currentAgent: "reply",
-    lastError: ok ? "" : errorText
-  });
-  return {
-    ok,
-    sessionId,
-    text: verified.text || (ok ? "计算器已生成并打开。" : `计算器生成失败：${errorText}`),
-    raw: { calculatorShortcut: true, execution, verified }
-  };
-}
-
 async function productLayerChatRuntime(input = {}) {
   const session = loadDb().sessions.find((item) => item.id === input.sessionId) || ensureSelectedSession();
   const originalText = String(input.message || input.text || input.input || "").trim() || "请分析附件内容。";
   const attachments = enrichAttachments(input.attachments || []);
   const settings = loadDb().settings;
   try {
-    if (isCalculatorCreationRequest(originalText)) {
-      if (!input.skipPersist) {
-        appendMessage(session.id, { role: "user", text: originalText });
-        updateSession(session.id, { status: "running" });
-        mainWindow?.webContents.send("session:changed", loadDb());
-      }
-      const calculatorResult = await runCalculatorShortcut({
-        sessionId: session.id,
-        message: originalText,
-        signal: input.signal || null,
-        traceId: input.traceId || input.taskId || ""
-      });
-      if (!input.skipPersist) {
-        appendMessage(session.id, { role: "assistant", text: calculatorResult.text, raw: { productLayer: true, calculatorShortcut: true, raw: calculatorResult.raw } });
-        updateSession(session.id, { status: calculatorResult.ok ? "done" : "failed" });
-        mainWindow?.webContents.send("session:changed", loadDb());
-      }
-      return calculatorResult;
-    }
     if (isSkillLearningRequest(originalText)) {
       if (!input.skipPersist) {
         appendMessage(session.id, { role: "user", text: originalText });
@@ -886,26 +818,19 @@ async function productLayerChatRuntime(input = {}) {
       }
       return { ok: skillReply.ok, sessionId: session.id, text: skillReply.text, raw: skillReply.result };
     }
-    const spreadsheetReply = spreadsheetAttachmentAnalysisReply(attachments);
-    if (spreadsheetReply) {
-      if (!input.skipPersist) {
-        appendMessage(session.id, {
-          role: "user",
-          text: originalText,
-          attachments: attachments.map((item) => ({ name: item.name, mimeType: item.mimeType, sizeBytes: item.sizeBytes })),
-          images: attachments.filter((item) => String(item.mimeType || "").startsWith("image/")).map((item) => item.dataUrl)
-        });
-        appendMessage(session.id, { role: "assistant", text: spreadsheetReply, raw: { productLayer: true, spreadsheetAnalysis: true } });
-        updateSession(session.id, { status: "done" });
-        mainWindow?.webContents.send("session:changed", loadDb());
-      }
-      return { ok: true, sessionId: session.id, text: spreadsheetReply, raw: { spreadsheetAnalysis: true } };
-    }
     if (!input.skipPersist) {
       appendMessage(session.id, {
         role: "user",
         text: originalText,
-        attachments: attachments.map((item) => ({ name: item.name, mimeType: item.mimeType, sizeBytes: item.sizeBytes })),
+        attachments: attachments.map((item) => ({
+          id: item.id,
+          name: item.name,
+          mimeType: item.mimeType,
+          sizeBytes: item.sizeBytes,
+          path: item.path || "",
+          dataUrl: item.dataUrl || "",
+          textContent: String(item.textContent || "").slice(0, 120000)
+        })),
         images: attachments.filter((item) => String(item.mimeType || "").startsWith("image/")).map((item) => item.dataUrl)
       });
       updateSession(session.id, { status: "running" });
@@ -1996,8 +1921,11 @@ function ensureLicenseManager() {
   const settings = loadDb().settings || {};
   const licenseSettings = settings.license || {};
   const configuredActivateServer = sanitizeText(licenseSettings.activateServer || "");
-  const activateServer = !configuredActivateServer || configuredActivateServer === "https://your-license-server.com"
-    ? "http://127.0.0.1:18790"
+  const activateServer = !configuredActivateServer
+    || configuredActivateServer === "https://your-license-server.com"
+    || /^http:\/\/(?:localhost|127\.0\.0\.1):18790$/i.test(configuredActivateServer)
+    || configuredActivateServer === "http://108.187.15.86"
+    ? DEFAULT_PUBLIC_SERVER
     : configuredActivateServer;
   const serverSecret = sanitizeText(licenseSettings.serverSecret || "") || undefined;
   if (!licenseManager) {
@@ -2072,6 +2000,72 @@ function developerLicenseStatus() {
   };
 }
 
+
+function membershipExpiresAt(plan) {
+  const days = plan === "yearly" ? 372 : plan === "six_months" ? 186 : 31;
+  return new Date(Date.now() + days * 86400 * 1000).toISOString();
+}
+
+function activateMembershipPlan(payload = {}) {
+  const plan = String(payload.plan || "monthly");
+  const planMeta = {
+    monthly: { code: "MONTH", name: "月卡会员" },
+    six_months: { code: "6M", name: "6个月会员" },
+    yearly: { code: "12M", name: "12个月会员" }
+  }[plan] || { code: "MONTH", name: "月卡会员" };
+  const expiresAt = membershipExpiresAt(plan);
+  const code = `MEMBER-${planMeta.code}-${Date.now()}`;
+  const customer = { name: planMeta.name, phone: "" };
+  const result = ensureLicenseManager().activateOfflineInvite(code, expiresAt, customer);
+  writeActivationRecord(code, customer);
+  backupLicenseState();
+  broadcastLicenseStatus();
+  return {
+    ...result,
+    plan,
+    expiresAt,
+    message: `${customer.name}已开通，有效期至 ${new Date(expiresAt).toLocaleDateString("zh-CN")}。`
+  };
+}
+
+async function createPaidMembershipOrder(payload = {}) {
+  const result = await ensureLicenseManager().createPaidOrder(payload);
+  if (!result?.ok || !result.order) {
+    return { ok: false, success: false, message: result?.message || "订单创建失败，请稍后重试。" };
+  }
+  return {
+    ok: true,
+    success: true,
+    order: result.order,
+    message: `订单已创建：${result.order.orderId}。请扫码付款后联系管理员审核。`
+  };
+}
+
+async function checkPaidMembershipOrder(payload = {}) {
+  const orderId = sanitizeText(payload.orderId || "");
+  if (!orderId) return { ok: false, success: false, message: "缺少订单号。" };
+  const result = await ensureLicenseManager().checkPaidOrder(orderId);
+  if (!result?.ok || !result.order) {
+    return { ok: false, success: false, message: result?.message || "订单查询失败。" };
+  }
+  const order = result.order;
+  if (order.status !== "approved" || !order.license) {
+    return { ok: true, success: true, activated: false, order, message: order.message || "付款暂未审核，请稍后再查。" };
+  }
+  const activated = ensureLicenseManager().activatePaidLicense(
+    order.license.code,
+    order.license.expiresAt,
+    order.license.signature,
+    { name: order.planName || "会员", phone: "" },
+    { plan: order.plan || "paid", planName: order.planName || "付费会员" }
+  );
+  if (!activated.ok) return { ok: false, success: false, order, message: activated.message || "会员发放失败。" };
+  writeActivationRecord(order.license.code, { name: order.planName || "会员", phone: "" });
+  backupLicenseState();
+  broadcastLicenseStatus();
+  return { ok: true, success: true, activated: true, order, message: activated.message };
+}
+
 function currentLicenseStatus() {
   if (isDevMode) return developerLicenseStatus();
   const status = ensureLicenseManager().getStatus();
@@ -2079,19 +2073,8 @@ function currentLicenseStatus() {
   return status;
 }
 
-function effectiveLicenseUnlocked(db = loadDb()) {
-  if (isDevMode) return true;
-  if (db.settings?.license?.unlocked) return true;
-  try {
-    return Boolean(ensureLicenseManager().getStatus()?.unlocked);
-  } catch {
-    return false;
-  }
-}
-
 function broadcastLicenseStatus(status = currentLicenseStatus()) {
   if (isDevMode) status = developerLicenseStatus();
-  syncToolRegistryPermissions();
   mainWindow?.webContents.send("license:trial-update", status);
   if (status.shouldWarn) mainWindow?.webContents.send("license:trial-warning", status);
   if (status.locked) mainWindow?.webContents.send("license:locked", status);
@@ -2214,7 +2197,7 @@ function effectiveAppVersion() {
 function updateJsonUrl(settings = loadDb().settings) {
   const configuredServer = sanitizeText(settings.update?.updateServer || "");
   const server = !configuredServer || /^http:\/\/(?:localhost|127\.0\.0\.1):3000$/i.test(configuredServer)
-    ? "http://127.0.0.1:18790"
+    ? DEFAULT_PUBLIC_SERVER
     : configuredServer;
   return `${server.replace(/\/+$/, "")}/update.json`;
 }
@@ -2390,7 +2373,7 @@ function ensureUpdater() {
   const settings = loadDb().settings;
   const configuredServer = sanitizeText(settings.update?.updateServer || "");
   const updateServer = !configuredServer || /^http:\/\/(?:localhost|127\.0\.0\.1):3000$/i.test(configuredServer)
-    ? "http://127.0.0.1:18790"
+    ? DEFAULT_PUBLIC_SERVER
     : configuredServer;
   if (!updater || updater.updateServer !== updateServer || updater.currentVersion !== effectiveAppVersion()) {
     updater = new Updater({
@@ -2678,7 +2661,7 @@ async function publishCustomerUpdate(payload = {}) {
   const updateJsonPath = path.join(__dirname, "server", "update.json");
   const configuredServer = sanitizeText(loadDb().settings.update?.updateServer || "");
   const updateServer = !configuredServer || /^http:\/\/(?:localhost|127\.0\.0\.1):3000$/i.test(configuredServer)
-    ? "http://127.0.0.1:18790"
+    ? DEFAULT_PUBLIC_SERVER
     : configuredServer;
   const manifest = readJson(manifestPath, { channels: { stable: [] } });
   manifest.channels ||= {};
@@ -2901,6 +2884,19 @@ function fileBase64(dataUrl) {
   return String(dataUrl || "").replace(/^data:[^,]+,/, "");
 }
 
+function persistAttachmentForMessage(attachment = {}) {
+  const name = path.basename(String(attachment.name || "attachment")).replace(/[<>:"/\\|?*\x00-\x1f]/g, "_") || "attachment";
+  const sourcePath = sanitizeText(attachment.path || attachment.originalPath || attachment.filePath || "");
+  const result = { id: attachment.id || randomUUID(), name, mimeType: sanitizeText(attachment.mimeType || ""), sizeBytes: Number(attachment.sizeBytes || 0), textContent: sanitizeText(attachment.textContent || "") };
+  if (sourcePath && fs.existsSync(sourcePath)) return { ...result, path: sourcePath };
+  if (!attachment.dataUrl) return result;
+  const cacheDir = userDataPath("attachment-cache");
+  fs.mkdirSync(cacheDir, { recursive: true });
+  const cacheFile = path.join(cacheDir, `${String(result.id).replace(/[^a-zA-Z0-9_-]/g, "_")}-${name}`);
+  if (!fs.existsSync(cacheFile)) fs.writeFileSync(cacheFile, Buffer.from(fileBase64(attachment.dataUrl), "base64"));
+  return { ...result, path: cacheFile };
+}
+
 function attachmentText(attachment) {
   return sanitizeText(attachment.textContent || "");
 }
@@ -2932,29 +2928,92 @@ function attachmentBrief(attachment = {}) {
 }
 
 function parseSpreadsheet(attachment) {
+  if (!XLSX || !attachment?.dataUrl) return "";
   if (!/\.(xlsx|xls|csv)$/i.test(String(attachment.name || ""))) return "";
-  if (!XLSX) throw new Error("运行包缺少 xlsx 解析依赖，请同步 node_modules/xlsx 后重试");
-  if (!attachment?.dataUrl) throw new Error("附件缺少表格二进制内容，前端只传来了文件名和类型");
   const buffer = Buffer.from(fileBase64(attachment.dataUrl), "base64");
-  if (!buffer.length) throw new Error("附件表格数据为空，无法解析");
   const analysis = SpreadsheetAgent.analyzeWorkbook(XLSX, buffer, { name: attachment.name || "表格文件" });
-  return {
-    analysis,
-    textContent: SpreadsheetAgent.formatWorkbookAnalysis(analysis)
-  };
+  return SpreadsheetAgent.formatWorkbookAnalysis(analysis);
+}
+
+function spreadsheetRowsFromAttachment(attachment = {}, maxRows = 120, maxColumns = 24) {
+  if (!XLSX || !/\.(xlsx|xls|csv)$/i.test(String(attachment.name || ""))) return [];
+  let workbook;
+  if (attachment.dataUrl) {
+    workbook = XLSX.read(Buffer.from(fileBase64(attachment.dataUrl), "base64"), { type: "buffer", cellDates: true });
+  } else {
+    const declaredPath = sanitizeText(attachment.sourcePath || attachment.path || attachment.originalPath || attachment.filePath || "");
+    const name = path.basename(String(attachment.name || ""));
+    const cacheDir = userDataPath("attachment-cache");
+    const cachedCandidate = name && fs.existsSync(cacheDir)
+      ? fs.readdirSync(cacheDir).filter((entry) => entry.endsWith(`-${name}`)).sort().reverse().map((entry) => path.join(cacheDir, entry))[0]
+      : "";
+    const source = [declaredPath, cachedCandidate, ...[app.getPath("desktop"), app.getPath("downloads"), app.getPath("documents")].map((dir) => path.join(dir, name))].find((candidate) => candidate && fs.existsSync(candidate)) || "";
+    if (!source || !fs.existsSync(source)) return [];
+    workbook = XLSX.readFile(source, { cellDates: true });
+  }
+  const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+  if (!firstSheet) return [];
+  return XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "", raw: false })
+    .slice(0, maxRows)
+    .map((row) => row.slice(0, maxColumns).map((cell) => String(cell ?? "")));
+}
+
+function resolvePreviewAttachmentPath(attachment = {}) {
+  const declaredPath = sanitizeText(attachment.sourcePath || attachment.path || attachment.originalPath || attachment.filePath || "");
+  const name = path.basename(String(attachment.name || ""));
+  const cacheDir = userDataPath("attachment-cache");
+  const cachedCandidate = name && fs.existsSync(cacheDir)
+    ? fs.readdirSync(cacheDir).filter((entry) => entry.endsWith(`-${name}`)).sort().reverse().map((entry) => path.join(cacheDir, entry))[0]
+    : "";
+  return [declaredPath, cachedCandidate, ...[app.getPath("desktop"), app.getPath("downloads"), app.getPath("documents")].map((dir) => path.join(dir, name))].find((candidate) => candidate && fs.existsSync(candidate)) || "";
+}
+
+function previewAttachmentData(attachment = {}) {
+  const name = path.basename(String(attachment.name || "附件"));
+  const mimeType = sanitizeText(attachment.mimeType || "");
+  const source = resolvePreviewAttachmentPath(attachment);
+  const buffer = attachment.dataUrl
+    ? Buffer.from(fileBase64(attachment.dataUrl), "base64")
+    : source ? fs.readFileSync(source) : attachment.textContent ? Buffer.from(String(attachment.textContent), "utf8") : null;
+  if (/^image\//i.test(mimeType) || /\.(png|jpe?g|webp|gif)$/i.test(name)) {
+    if (!buffer) return { ok: false, kind: "empty", previewText: "当前图片内容不可用。" };
+    return { ok: true, kind: "image", dataUrl: attachment.dataUrl || `data:${mimeType || "image/png"};base64,${buffer.toString("base64")}` };
+  }
+  if ((/pdf|html/i.test(mimeType) || /\.(pdf|html?)$/i.test(name)) && source) {
+    return { ok: true, kind: "frame", fileUrl: pathToFileURL(source).toString() };
+  }
+  if (/^text\/|json|markdown|xml|javascript|html/i.test(mimeType) || /\.(txt|md|json|log|html?|js|css)$/i.test(name)) {
+    return { ok: true, kind: "text", previewText: buffer ? buffer.toString("utf8").slice(0, 12000) : "当前文本内容不可用。" };
+  }
+  return { ok: false, kind: "binary", previewText: "此格式暂不支持内部解析，请使用外部打开。" };
+}
+
+function spreadsheetHtmlDocument(attachment = {}, rows = []) {
+  const escape = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;");
+  const table = rows.map((row, rowIndex) => `<tr>${row.map((cell) => rowIndex === 0 ? `<th>${escape(cell)}</th>` : `<td>${escape(cell)}</td>`).join("")}</tr>`).join("");
+  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(attachment.name || "白球表格")}</title><style>body{margin:0;background:#0a0f15;color:#e8f0f7;font:14px/1.5 system-ui,"Microsoft YaHei",sans-serif}.top{position:sticky;top:0;z-index:3;padding:18px 24px;background:#101820;border-bottom:1px solid #263748}.top h1{margin:0;font-size:18px}.top p{margin:4px 0 0;color:#8fa5b8}.wrap{padding:20px;overflow:auto}table{width:100%;min-width:760px;border-collapse:separate;border-spacing:0;background:#111923;border:1px solid #293949}th,td{padding:11px 13px;border-right:1px solid #243443;border-bottom:1px solid #243443;text-align:left;white-space:nowrap}th{position:sticky;top:79px;z-index:2;background:#173044;color:#82ddff;font-weight:800}tr:nth-child(even) td{background:#0e1720}tr:hover td{background:#152536}td:first-child,th:first-child{position:sticky;left:0}th:first-child{z-index:4}td:first-child{background:#121e28;font-weight:650}tr:nth-child(even) td:first-child{background:#101b24}</style></head><body><header class="top"><h1>${escape(attachment.name || "白球表格")}</h1><p>${Math.max(0, rows.length - 1)} 行 · ${Math.max(0, ...rows.map((row) => row.length))} 列 · 白球美化视图</p></header><main class="wrap"><table>${table}</table></main></body></html>`;
+}
+
+async function openAttachmentView(attachment = {}) {
+  if (/\.(xlsx|xls|csv)$/i.test(String(attachment.name || ""))) {
+    const rows = spreadsheetRowsFromAttachment(attachment, 5000, 80);
+    if (!rows.length) throw new Error("无法读取该表格内容");
+    const dir = userDataPath("previews");
+    fs.mkdirSync(dir, { recursive: true });
+    const file = path.join(dir, `table-${Date.now()}.html`);
+    fs.writeFileSync(file, spreadsheetHtmlDocument(attachment, rows), "utf8");
+    const error = await shell.openPath(file);
+    if (error) throw new Error(error);
+    return { ok: true, kind: "styled-spreadsheet", file };
+  }
+  const target = sanitizeText(attachment.sourcePath || attachment.path || attachment.originalPath || attachment.filePath || "");
+  if (!target) return { ok: false, message: "附件没有可打开路径" };
+  await executeOpenPath({ path: target });
+  return { ok: true, kind: "path", file: target };
 }
 
 function enrichAttachments(attachments = []) {
-  return attachments.map((item) => {
-    if (item.textContent) return item;
-    try {
-      const parsed = parseSpreadsheet(item);
-      if (!parsed) return { ...item, textContent: "", spreadsheetParsed: false };
-      return { ...item, textContent: parsed.textContent || "", spreadsheetAnalysis: parsed.analysis || null, spreadsheetParsed: Boolean(parsed.textContent) };
-    } catch (error) {
-      return { ...item, textContent: "", spreadsheetParsed: false, spreadsheetParseError: sanitizeText(error?.message || String(error || "解析失败")) };
-    }
-  });
+  return attachments.map((item) => item.textContent ? item : { ...item, textContent: parseSpreadsheet(item) || "" });
 }
 
 function appendAttachmentText(message, attachments = []) {
@@ -2964,104 +3023,6 @@ function appendAttachmentText(message, attachments = []) {
     else blocks.push(attachmentBrief(item));
   }
   return [sanitizeText(message), ...blocks].filter(Boolean).join("\n\n");
-}
-
-function isSpreadsheetAttachment(attachment = {}) {
-  const name = String(attachment.name || "");
-  const mime = String(attachment.mimeType || "");
-  return /\.(xlsx|xls|csv)$/i.test(name) || /spreadsheet|excel|csv/i.test(mime);
-}
-
-function compactList(items = [], limit = 6) {
-  const list = items.filter(Boolean).slice(0, limit);
-  const suffix = items.length > limit ? ` 等 ${items.length} 项` : "";
-  return list.join("、") + suffix;
-}
-
-function numberText(value) {
-  if (typeof value !== "number" || !Number.isFinite(value)) return "";
-  if (Math.abs(value) >= 10000) return value.toLocaleString("zh-CN", { maximumFractionDigits: 2 });
-  return String(value);
-}
-
-function importantColumnSummary(sheet = {}) {
-  const columns = Array.isArray(sheet.columns) ? sheet.columns : [];
-  const importantNames = new Set(Object.values(sheet.importantColumns || {}).filter(Boolean));
-  const picked = columns
-    .filter((col) => importantNames.has(col.name) || typeof col.sum === "number")
-    .slice(0, 8);
-  if (!picked.length) return "未识别到明显的金额/销量/分类关键列。";
-  return picked.map((col) => {
-    if (typeof col.sum === "number") return `${col.name}：合计 ${numberText(col.sum)}，均值 ${numberText(col.avg)}`;
-    if (col.topValues?.length) return `${col.name}：高频 ${compactList(col.topValues, 4)}`;
-    return `${col.name}：非空 ${col.nonEmpty}`;
-  }).join("\n");
-}
-
-function topCategorySummary(sheet = {}) {
-  const columns = Array.isArray(sheet.columns) ? sheet.columns : [];
-  const names = Object.values(sheet.importantColumns || {}).filter(Boolean);
-  const category = columns.find((col) => names.includes(col.name) && col.topValues?.length) || columns.find((col) => col.topValues?.length);
-  return category ? `${category.name}：${compactList(category.topValues, 8)}` : "";
-}
-
-function summarizeSpreadsheetForUser(analysis = {}) {
-  const sheets = Array.isArray(analysis.sheets) ? analysis.sheets : [];
-  const first = sheets.find((sheet) => !sheet.empty) || sheets[0] || {};
-  const sheetRows = sheets.slice(0, 10).map((sheet) => `| ${sheet.name || "-"} | ${sheet.rowCount || 0} | ${sheet.columnCount || 0} | ${compactList(sheet.headers || [], 8)} |`);
-  const categoryLine = topCategorySummary(first);
-  const keySummary = importantColumnSummary(first);
-  return [
-    `已读取：${analysis.fileName || "表格文件"}`,
-    "",
-    "### 总览",
-    `- 工作表：${analysis.sheetCount || 0} 个，已分析：${analysis.analyzedSheetCount || 0} 个`,
-    `- 数据规模：${Number(analysis.totalRows || 0).toLocaleString("zh-CN")} 行，${Number(analysis.totalColumns || 0).toLocaleString("zh-CN")} 列`,
-    first?.name ? `- 主要工作表：${first.name}（${Number(first.rowCount || 0).toLocaleString("zh-CN")} 行，${first.columnCount || 0} 列）` : "",
-    "",
-    "### 工作表结构",
-    "| 工作表 | 行数 | 列数 | 主要字段 |",
-    "| --- | ---: | ---: | --- |",
-    ...sheetRows,
-    "",
-    "### 初步结论",
-    categoryLine ? `- 商品/分类数据已经识别，${categoryLine}` : "- 已识别表格结构，下一步可以按销售、库存、商品、分类维度继续拆解。",
-    "- 默认不展开全部字段明细，避免刷屏；需要明细时可以说“展开字段摘要”或“导出分析表”。",
-    "",
-    "### 关键字段",
-    keySummary,
-    "",
-    "### 可以继续分析",
-    "- 销售额排行 / 月售排行",
-    "- 商品动销与滞销",
-    "- 分类结构占比",
-    "- 价格带与折扣",
-    "- 库存异常",
-    "- 门店经营建议"
-  ].filter(Boolean).join("\n");
-}
-
-function spreadsheetAttachmentAnalysisReply(attachments = []) {
-  const spreadsheets = attachments.filter(isSpreadsheetAttachment);
-  if (!spreadsheets.length) return "";
-  const parsed = spreadsheets.filter((item) => attachmentText(item));
-  const failed = spreadsheets.filter((item) => !attachmentText(item));
-  const lines = [
-    parsed.length
-      ? `我已读取 ${parsed.length} 个表格附件。下面先给精简分析，不直接铺开原始字段明细。`
-      : "我已收到表格附件，但这次没有解析出可用内容。"
-  ];
-  for (const item of parsed) {
-    lines.push("", `## ${item.name || "表格文件"}`);
-    if (item.spreadsheetAnalysis) lines.push(summarizeSpreadsheetForUser(item.spreadsheetAnalysis));
-    else lines.push(attachmentText(item).split("\n").slice(0, 40).join("\n"));
-  }
-  for (const item of failed) {
-    lines.push("", `## ${item.name || "表格文件"}`);
-    lines.push(`解析失败：${item.spreadsheetParseError || "没有读取到表格内容。可能原因：附件二进制未传入、运行包缺少 xlsx 依赖、文件损坏或工作簿加密。"}`);
-  }
-  lines.push("", "需要更细的话，直接说：展开字段摘要、分析销售额排行、分析库存异常，或导出分析表。");
-  return lines.join("\n").trim();
 }
 
 function analysisSearchRoots() {
@@ -4760,13 +4721,25 @@ function providerRequestBody(settings, message, attachments, sessionId = "") {
       "【附件说明】当前模型接口只支持纯文本消息，无法查看或识别图片内容。请明确说明图片已收到并保留在对话中，但当前模型不能直接看图；不要假装已经分析图片。"
     ].filter(Boolean).join("\n");
   }
-  return {
+  const request = {
     model: provider.model || "deepseek-chat",
     messages: [{ role: "system", content: systemPrompt }, ...chatHistoryMessages(sessionId), { role: "user", content }],
     tools: toolSchemasForFunctionCalling(),
     tool_choice: "auto",
     stream: false
   };
+  if (providerKey === "openai") {
+    request.reasoning_effort = {
+      off: "none",
+      minimal: "minimal",
+      low: "low",
+      medium: "medium",
+      high: "high",
+      extra_high: "xhigh",
+      maximum: "xhigh"
+    }[settings.reasoning || "minimal"] || "minimal";
+  }
+  return request;
 }
 
 async function directProviderChat(settings, text, attachments, sessionId = "", options = {}) {
@@ -4864,7 +4837,7 @@ async function directProviderChat(settings, text, attachments, sessionId = "", o
     const assistantMessage = payload.choices?.[0]?.message || {};
     const toolCalls = Array.isArray(assistantMessage.tool_calls) ? assistantMessage.tool_calls : [];
     if (!toolCalls.length) {
-      const rawText = contentText(assistantMessage.content ?? payload.output_text ?? "");
+      const rawText = contentText(assistantMessage.content ?? assistantMessage.reasoning_content ?? payload.output_text ?? "");
       const extracted = extractBaiqiuActions(rawText);
       if (extracted.actions.length) {
         logAgentLoop(debugRunId, loopNo, {
@@ -4930,7 +4903,7 @@ async function directProviderChat(settings, text, attachments, sessionId = "", o
 
     logAgentLoop(debugRunId, loopNo, {
       llm: {
-        content: assistantMessage.content || "",
+        content: assistantMessage.content || assistantMessage.reasoning_content || "",
         tool_calls: toolCalls
       }
     });
@@ -5086,7 +5059,7 @@ function shouldStopAfterWebSearch(executed = []) {
 }
 
 function assistantVisibleText(message = {}, payload = {}) {
-  const content = message.content ?? payload.output_text ?? "";
+  const content = message.content ?? message.reasoning_content ?? payload.output_text ?? "";
   return safeAssistantVisibleText(contentText(content).replace(/^\uFEFF/, "").trim());
 }
 
@@ -5801,7 +5774,7 @@ function initializeToolRegistry() {
     mainWindow,
     ownerDevice: hasAdminAccess(),
     advancedMode: Boolean(db.settings?.permissions?.advancedLocalExecution),
-    isUnlocked: effectiveLicenseUnlocked(db),
+    isUnlocked: Boolean(db.settings?.license?.unlocked),
     accessMode: db.settings?.permissions?.accessMode || "ask",
     permissionModes: db.settings?.permissions?.permissionModes || {},
     trustedTools: db.settings?.permissions?.trustedTools || [],
@@ -5822,7 +5795,7 @@ function syncToolRegistryPermissions() {
     mainWindow,
     ownerDevice: hasAdminAccess(),
     advancedMode: Boolean(db.settings?.permissions?.advancedLocalExecution),
-    isUnlocked: effectiveLicenseUnlocked(db),
+    isUnlocked: Boolean(db.settings?.license?.unlocked),
     accessMode: db.settings?.permissions?.accessMode || "ask",
     permissionModes: db.settings?.permissions?.permissionModes || {},
     trustedTools: db.settings?.permissions?.trustedTools || [],
@@ -6050,25 +6023,6 @@ function humanReadableError(error) {
     .slice(0, 240) || "未知原因";
 }
 
-function readableToolError(...values) {
-  for (const value of values) {
-    if (value === null || value === undefined || value === "") continue;
-    if (typeof value === "object") {
-      if (value.message) return humanReadableError(value.message);
-      if (value.error) {
-        const nested = readableToolError(value.error);
-        if (nested) return nested;
-      }
-      if (value.code === "PERMISSION_DENIED") {
-        return humanReadableError(value.message || "权限不足，无法执行工具。");
-      }
-      return humanReadableError(value);
-    }
-    return humanReadableError(value);
-  }
-  return "未知原因";
-}
-
 function compactExecutionOutput(text) {
   return String(text || "")
     .replace(/\r/g, "")
@@ -6269,7 +6223,8 @@ async function pollForResult(localSessionId, openclawKey, baselineCount, runId, 
 }
 
 function iconImage(size = 64) {
-  const icon = appPath("renderer", "assets", "baiqiu-icon.png");
+  const trayIcon = appPath("renderer", "assets", "baiqiu-tray.png");
+  const icon = size <= 32 && fs.existsSync(trayIcon) ? trayIcon : appPath("renderer", "assets", "baiqiu-icon.png");
   const fallback = appPath("renderer", "assets", "baiqiu-icon.ico");
   const image = nativeImage.createFromPath(fs.existsSync(icon) ? icon : fallback);
   return image.isEmpty() ? nativeImage.createEmpty() : image.resize({ width: size, height: size });
@@ -6378,14 +6333,31 @@ function createWindow() {
 }
 
 function createTray() {
-  tray = new Tray(iconImage(32).resize({ width: 16, height: 16 }));
+  tray = new Tray(iconImage(24));
   tray.setToolTip("白球 AI");
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: "Show / Hide", click: () => mainWindow?.isVisible() ? mainWindow.hide() : showWindow() },
+    { label: "Uninstall Baiqiu AI", click: () => launchInstalledUninstaller() },
     { type: "separator" },
     { label: "Exit", click: () => { app.isQuitting = true; app.quit(); } }
   ]));
   tray.on("click", () => mainWindow?.isVisible() ? mainWindow.hide() : showWindow());
+}
+
+function launchInstalledUninstaller() {
+  const uninstaller = path.join(path.dirname(process.execPath), "Uninstall.exe");
+  if (isDevMode || !fs.existsSync(uninstaller)) {
+    dialog.showMessageBox({
+      type: "info",
+      title: "Baiqiu AI",
+      message: "The current copy is not installed. Use the installed customer version to uninstall."
+    });
+    return;
+  }
+  const child = spawn(uninstaller, [], { detached: true, stdio: "ignore", windowsHide: false });
+  child.unref();
+  app.isQuitting = true;
+  setTimeout(() => app.quit(), 150);
 }
 
 function wireGateway() {
@@ -6572,7 +6544,7 @@ function wireIpc() {
       name: sanitizeText(payload.userName || payload.name || "客户"),
       phone: sanitizeText(payload.phone || "")
     };
-    if (!inviteCode) return { ok: false, success: false, message: "请输入卡密。" };
+    if (!inviteCode) return { ok: false, success: false, message: "请输入兑换码。" };
     const result = await ensureLicenseManager().verifyCode(inviteCode, customer);
     if (result.ok || result.success) {
       writeActivationRecord(result.code || inviteCode, customer);
@@ -6582,6 +6554,9 @@ function wireIpc() {
     broadcastLicenseStatus();
     return { ...result, code: result.code || inviteCode };
   });
+  ipcMain.handle("license:activate-plan", (_event, payload) => createPaidMembershipOrder(payload));
+  ipcMain.handle("license:create-order", (_event, payload) => createPaidMembershipOrder(payload));
+  ipcMain.handle("license:check-order", (_event, payload) => checkPaidMembershipOrder(payload));
   ipcMain.handle("license:status", () => currentLicenseStatus());
   ipcMain.handle("license:trial-info", () => currentLicenseStatus());
   ipcMain.handle("license:trial-remaining", () => currentLicenseStatus().trialRemainingSeconds);
@@ -6646,7 +6621,7 @@ function wireIpc() {
         mainWindow?.webContents.send("license:locked", licenseStatus);
         traceStatus = "failed";
         traceResult = { status: "failed", message: "license_locked" };
-        throw new Error("免费试用已结束，请输入卡密激活白球 AI。");
+        throw new Error("免费试用已结束，请开通会员或输入兑换码激活白球 AI。");
       }
       if (pendingConfirmation) {
         const intent = confirmationIntent(originalText);
@@ -6807,20 +6782,6 @@ function wireIpc() {
       } else {
         attachments = enrichAttachments(attachments);
       }
-      const spreadsheetReply = spreadsheetAttachmentAnalysisReply(attachments);
-      if (spreadsheetReply) {
-        appendMessage(session.id, {
-          role: "user",
-          text: originalText,
-          attachments: attachments.map((item) => ({ name: item.name, mimeType: item.mimeType, sizeBytes: item.sizeBytes })),
-          images: attachments.filter((item) => String(item.mimeType || "").startsWith("image/")).map((item) => item.dataUrl)
-        });
-        appendMessage(session.id, { role: "assistant", text: spreadsheetReply, raw: { spreadsheetAnalysis: true } });
-        updateSession(session.id, { status: "done" });
-        traceResult = { status: "success", action: "spreadsheet_analysis" };
-        mainWindow?.webContents.send("session:changed", loadDb());
-        return { ok: true, sessionId: session.id, spreadsheetAnalysis: true };
-      }
 
       maybeRememberMessage(originalText);
       settings = loadDb().settings;
@@ -6828,7 +6789,7 @@ function wireIpc() {
       appendMessage(session.id, {
         role: "user",
         text: originalText,
-        attachments: attachments.map((item) => ({ name: item.name, mimeType: item.mimeType, sizeBytes: item.sizeBytes })),
+        attachments: attachments.map(persistAttachmentForMessage),
         images: attachments.filter((item) => String(item.mimeType || "").startsWith("image/")).map((item) => item.dataUrl)
       });
       updateSession(session.id, { status: "running" });
@@ -6904,12 +6865,17 @@ function wireIpc() {
   ipcMain.handle("system:open-path", async (_event, target = "") => {
     return executeOpenPath({ path: target });
   });
+  ipcMain.handle("system:open-attachment", (_event, attachment = {}) => openAttachmentView(attachment));
+  ipcMain.handle("system:spreadsheet-preview", (_event, attachment = {}) => ({
+    ok: true,
+    rows: spreadsheetRowsFromAttachment(attachment, 30, 8)
+  }));
+  ipcMain.handle("system:preview-attachment", (_event, attachment = {}) => previewAttachmentData(attachment));
 }
 
 app.whenReady().then(() => {
   installCrashHandlers();
   devLog("system", "INFO", "[System] App started", { devMode: isDevMode, version: appVersion() });
-  resetCustomerStateForTesting();
   ensureUpdateV2Layout();
   recoverInterruptedUpdate();
   wireIpc();
@@ -6934,27 +6900,6 @@ app.whenReady().then(() => {
 app.on("activate", () => showWindow());
 app.on("before-quit", () => auditLogger?.destroy?.());
 app.on("window-all-closed", (event) => event.preventDefault());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

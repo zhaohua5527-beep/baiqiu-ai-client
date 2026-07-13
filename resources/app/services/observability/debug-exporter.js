@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const TRACE_DIR = path.join("D:\\BaiQiuAI", "data", "logs", "trace");
+const TRACE_DIR = path.join(dataRoot(), "logs", "trace");
 
 class DebugExporter {
   constructor({ traceDir = TRACE_DIR } = {}) {

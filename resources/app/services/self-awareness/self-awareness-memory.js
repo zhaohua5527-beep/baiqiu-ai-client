@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_SELF_AWARENESS_ROOT = path.join("D:\\BaiQiuAI", "data", "self-awareness");
+const DEFAULT_SELF_AWARENESS_ROOT = path.join(dataRoot(), "self-awareness");
 
 function nowIso() {
   return new Date().toISOString();

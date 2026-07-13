@@ -1,9 +1,10 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
 class RegressionManager {
   constructor({ rootDir } = {}) {
-    this.rootDir = rootDir || path.join("D:\\BaiQiuAI", "data", "simulation");
+    this.rootDir = rootDir || path.join(dataRoot(), "simulation");
     fs.mkdirSync(this.rootDir, { recursive: true });
     this.baselineFile = path.join(this.rootDir, "baseline.json");
     this.compareFile = path.join(this.rootDir, "compare.json");

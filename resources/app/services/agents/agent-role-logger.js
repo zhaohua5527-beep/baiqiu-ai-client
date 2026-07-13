@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_ROOT = path.join("D:\\BaiQiuAI", "data", "logs", "agents");
+const DEFAULT_ROOT = path.join(dataRoot(), "logs", "agents");
 
 function safeJson(value) {
   try {

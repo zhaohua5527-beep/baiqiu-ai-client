@@ -10,20 +10,16 @@
   <div class="app" id="app">
     <header class="titlebar">
       <div class="brand terminal-brand">
-        <div class="brand-terminal" aria-hidden="true">
-          <span>BAIQIU</span>
-          <b></b>
-        </div>
         <div>
-          <strong>白球 AI</strong>
-          <span id="gatewayStatus">白球内核待命</span>
+          <strong>白球AI</strong>
+          <span id="gatewayStatus">内核就绪</span>
         </div>
       </div>
       <div class="title-actions">
         <span id="trialStatus" class="trial-status">试用检测中</span>
         <button id="modelBtn" title="模型">模型</button>
         <button id="skinBtn" title="主题">主题</button>
-        <button id="inviteBtn" title="购买卡密">购买卡密</button>
+        <button id="inviteBtn" title="会员中心">会员</button>
         <button id="settingsBtn" title="设置">设置</button>
         <button data-window="minimize" title="最小化">_</button>
         <button data-window="maximize" title="最大化">□</button>
@@ -52,30 +48,88 @@
         <button id="attachBtn" type="button" title="上传文件">+</button>
         <textarea id="chatInput" rows="1"></textarea>
         <button id="accessModeBtn" class="access-mode-btn" type="button" title="访问模式">完全</button>
-        <button id="sendBtn" type="submit" title="发送">↑</button>
+        <div id="reasoningWaterControl" class="reasoning-water-control" data-level="minimal">
+          <div class="reasoning-water-shell">
+            <div class="reasoning-water-flow" aria-hidden="true"></div>
+            <input id="reasoningWaterRange" type="range" min="0" max="4" step="1" value="0" aria-label="切换思考等级">
+          </div>
+          <div class="reasoning-water-copy">
+            <span>切换思考等级</span>
+            <b id="reasoningWaterLabel">最低</b>
+          </div>
+        </div>
+        <button id="sendBtn" type="submit" title="发送"><span class="send-state-ring" aria-hidden="true"><i></i></span></button>
       </form>
       <input id="fileInput" type="file" multiple hidden accept="image/*,.xlsx,.xls,.csv,.txt,.md,.json">
     </main>
 
     <div id="licenseOverlay" class="license-overlay" hidden>
       <div class="license-panel">
-        <strong>您的免费试用已结束</strong>
-        <p>请输入卡密激活白球 AI，激活后将绑定当前设备并永久使用。</p>
-        <input id="licenseCodeInput" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
+        <div class="license-heading">
+          <span>您的免费试用已结束</span>
+          <strong>开通会员继续使用白球 AI</strong>
+          <p>选择套餐购买，或输入管理员发放的兑换码激活。</p>
+        </div>
+        <div class="license-redeem-card">
+          <div>
+            <b>兑换码激活</b>
+            <span>管理员发放的兑换码，可直接在这里验证。</span>
+          </div>
+          <div class="license-redeem-row">
+            <input id="licenseCodeInput" placeholder="兑换码：BQ-XXXX-XXXX-XXXX" maxlength="19">
+            <button id="licenseActivateBtn" type="button">验证确认</button>
+          </div>
+        </div>
+        <div class="membership-plans license-plan-grid">
+          <button id="licenseMonthlyBtn" class="license-plan-card" type="button">
+            <span class="plan-tag">新手体验</span>
+            <b>月卡</b>
+            <span class="plan-origin">原价 ¥49.9</span>
+            <span class="plan-price">首充 ¥19.9</span>
+            <em>适用于新手体验</em>
+          </button>
+          <button id="licenseSixMonthsBtn" class="license-plan-card featured" type="button">
+            <span class="plan-tag">推荐长期使用</span>
+            <b>半年卡</b>
+            <span class="plan-origin">原价 ¥99</span>
+            <span class="plan-price">折扣价 ¥88</span>
+            <em>适用于长期使用</em>
+          </button>
+          <button id="licenseYearlyBtn" class="license-plan-card" type="button">
+            <span class="plan-tag">重度使用</span>
+            <b>年卡</b>
+            <span class="plan-origin">原价 ¥180</span>
+            <span class="plan-price">折扣价 ¥168</span>
+            <em>适用于重度使用</em>
+          </button>
+        </div>
+        <div id="paymentPanel" class="payment-panel" hidden>
+          <div class="payment-head">
+            <strong id="paymentTitle">订单待付款</strong>
+            <span id="paymentOrderId">订单号：-</span>
+          </div>
+          <p id="paymentHint">请使用微信或支付宝扫码付款，付款后联系管理员审核确认。</p>
+          <div class="payment-qr-grid">
+            <div><img src="./assets/payment/wechat.jpg" alt="微信支付"><span>微信支付</span></div>
+            <div><img src="./assets/payment/alipay.jpg" alt="支付宝支付"><span>支付宝支付</span></div>
+          </div>
+          <div class="payment-actions">
+            <button id="paymentCheckBtn" type="button">查询付款结果</button>
+            <button id="paymentCopyBtn" type="button">复制订单号</button>
+          </div>
+        </div>
         <div id="licenseCustomerFields" class="license-customer-fields" hidden>
           <input id="licenseNameInput" placeholder="姓名">
           <input id="licensePhoneInput" placeholder="手机号">
           <p class="license-privacy">仅用于购买记录、售后和设备激活核验，不会用于无关用途。</p>
-        </div>
-        <div class="license-actions">
-          <button id="licenseActivateBtn" type="button">下一步</button>
-          <button id="licenseBuyBtn" type="button">获取卡密</button>
         </div>
         <div id="licenseOverlayStatus" class="license-status"></div>
       </div>
     </div>
 
     <div class="splitter splitter-right" aria-hidden="true"></div>
+
+    <button id="taskBoardToggleBtn" class="task-board-edge-toggle" type="button" title="展开任务看板" aria-label="展开任务看板">‹</button>
 
     <aside class="terminal">
       <div class="mini-monitor" aria-hidden="true">
@@ -123,19 +177,6 @@
       <div class="terminal-panel compact-terminal-panel">
         <div class="terminal-head">
           <div class="terminal-title">任务状态</div>
-          <div class="inline-reasoning">
-            <span>思考模式</span>
-            <select id="sideReasoningSelect" class="side-reasoning side-reasoning-inline">
-              <option value="default">默认</option>
-              <option value="off">关闭</option>
-              <option value="minimal">最低</option>
-              <option value="low">低</option>
-              <option value="medium">中</option>
-              <option value="high">高</option>
-              <option value="extra_high">最高</option>
-              <option value="maximum">极限</option>
-            </select>
-          </div>
         </div>
         <div class="stat"><span>任务</span><b id="taskState">待命</b></div>
         <div class="stat"><span>模型</span><b id="modelState">DeepSeek</b></div>
@@ -208,19 +249,14 @@
             <span>模型</span>
             <select id="providerSelect"></select>
           </label>
-          <label>
-            <span>推理等级</span>
-            <select id="reasoningSelect">
-              <option value="default">默认</option>
-              <option value="off">关闭</option>
-              <option value="minimal">最低</option>
-              <option value="low">低</option>
-              <option value="medium">中</option>
-              <option value="high">高</option>
-              <option value="extra_high">最高</option>
-              <option value="maximum">极限</option>
-            </select>
-          </label>
+          <select id="reasoningSelect" hidden aria-hidden="true">
+            <option value="off">关闭</option>
+            <option value="minimal">最低</option>
+            <option value="low">低</option>
+            <option value="medium">中</option>
+            <option value="high">高</option>
+            <option value="extra_high">最高</option>
+          </select>
         </div>
         <div id="providerList" class="providers"></div>
       </section>
@@ -234,6 +270,8 @@
               <option value="custom">AI OS</option>
               <option value="black">经典黑</option>
               <option value="white">经典白</option>
+              <option value="mecha">磁暴装甲</option>
+              <option value="wasteland">余烬荒原</option>
             </select>
           </label>
           <label class="skin-image-picker">
@@ -269,12 +307,9 @@
         <div class="settings-card">
           <strong>版本更新</strong>
           <div class="stat"><span>当前版本</span><b id="appVersion">0.2.0</b></div>
-          <label>
-            <span>更新服务器</span>
-            <input id="updateManifestInput" placeholder="http://localhost:3000">
-          </label>
-          <button id="updateCheckBtn" type="button">检查最新版本</button>
-          <button id="applyOnlineUpdateBtn" type="button">下载在线更新</button>
+          <div class="update-server-status"><span>更新服务器</span><b>白球官方线路</b><i>自动连接</i></div>
+          <button id="updateCheckBtn" type="button">检查服务器更新</button>
+          <button id="applyOnlineUpdateBtn" type="button" hidden>确认更新</button>
           <button id="syncOpenClawBtn" type="button" hidden>同步 OpenClaw 最新功能</button>
           <label>
             <span>开机自启动</span>
@@ -332,10 +367,15 @@
 
       <section class="settings-page" data-settings-page="invite">
         <div class="settings-card">
-          <strong>购买卡密</strong>
+          <strong>会员中心</strong>
+          <div class="settings-membership-plans">
+            <button id="settingsMonthlyBtn" type="button"><b>月卡</b><span>原价 ¥49.9</span><em>首充 ¥19.9</em><small>适用于新手体验</small></button>
+            <button id="settingsSixMonthsBtn" class="featured" type="button"><b>6个月</b><span>原价 ¥99</span><em>折扣价 ¥88</em><small>适用于长期使用</small></button>
+            <button id="settingsYearlyBtn" type="button"><b>12个月</b><span>原价 ¥180</span><em>折扣价 ¥168</em><small>适用于重度使用</small></button>
+          </div>
           <label>
-            <span>卡密</span>
-            <input id="inviteInput" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
+            <span>兑换码</span>
+            <input id="inviteInput" placeholder="兑换码：XXXX-XXXX-XXXX-XXXX" maxlength="19">
           </label>
           <label>
             <span>姓名</span>
@@ -345,23 +385,23 @@
             <span>手机号</span>
             <input id="invitePhoneInput" placeholder="用于激活核验">
           </label>
-          <button id="unlockInviteBtn" type="button">激活卡密</button>
-          <div id="inviteStatus" class="update-content">购买后在这里输入卡密，激活成功后将绑定当前设备。</div>
+          <button id="unlockInviteBtn" type="button">验证确认</button>
+          <div id="inviteStatus" class="update-content">可直接开通会员，也可以输入管理员发放的永久兑换码。</div>
         </div>
         <div id="ownerInvitePanel" class="settings-card" hidden>
-          <strong>卡密管理模板</strong>
+          <strong>会员与兑换码管理</strong>
           <label>
             <span>生成数量</span>
             <input id="inviteCountInput" type="number" min="1" max="50" value="5">
           </label>
-          <button id="generateInviteBtn" type="button">生成卡密</button>
+          <button id="generateInviteBtn" type="button">生成永久兑换码</button>
           <textarea id="generatedInviteOutput" rows="6" readonly placeholder="生成后复制给客户。"></textarea>
           <div class="admin-code-tools">
-            <input id="adminCodeSearchInput" placeholder="搜索卡密/状态/备注">
+            <input id="adminCodeSearchInput" placeholder="搜索兑换码/状态/备注">
             <button id="adminRefreshCodesBtn" type="button">刷新列表</button>
             <button id="adminExportCodesBtn" type="button">导出CSV</button>
           </div>
-          <textarea id="adminCodeListOutput" rows="10" readonly placeholder="管理员卡密与用户列表"></textarea>
+          <textarea id="adminCodeListOutput" rows="10" readonly placeholder="管理员兑换码与会员列表"></textarea>
         </div>
       </section>
 
@@ -474,11 +514,3 @@
   <script src="./app.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-

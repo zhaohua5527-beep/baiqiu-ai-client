@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
 const { IntentAgent } = require("../intent-agent");
 const { PlannerAgent } = require("../planner-agent");
@@ -16,7 +17,7 @@ const { BenchmarkEngine } = require("./benchmark-engine");
 const { RegressionManager } = require("./regression-manager");
 const { ToolRegistry } = require("../../tool-registry");
 
-const SIMULATION_ROOT = path.join("D:\\BaiQiuAI", "data", "simulation");
+const SIMULATION_ROOT = path.join(dataRoot(), "simulation");
 
 function runRoot() {
   return path.join(SIMULATION_ROOT, "runs", `run-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`);

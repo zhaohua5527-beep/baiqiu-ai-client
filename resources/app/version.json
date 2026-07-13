@@ -1,5 +1,5 @@
-﻿{
-    "appVersion":  "1.1.1",
-    "channel":  "customer",
-    "build":  "20260710"
+{
+  "appVersion": "1.1.20",
+  "build": "20260713",
+  "channel": "customer"
 }

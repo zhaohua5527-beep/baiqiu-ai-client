@@ -1,10 +1,11 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("./data-root");
 const { randomUUID } = require("node:crypto");
 const { getDefaultAgentStateManager } = require("./agent_state_manager");
 const { getDefaultAgentEventBus, AGENT_EVENTS } = require("./neural-core/agent-event-bus");
 
-const DEFAULT_ROOT = path.join("D:\\BaiQiuAI", "data", "memory");
+const DEFAULT_ROOT = path.join(dataRoot(), "memory");
 const MAX_HISTORY_ITEMS = 50;
 
 function cleanText(value, limit = 2000) {

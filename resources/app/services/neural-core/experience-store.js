@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_EXPERIENCE_MEMORY_FILE = path.join("D:\\BaiQiuAI", "data", "memory", "experience.json");
+const DEFAULT_EXPERIENCE_MEMORY_FILE = path.join(dataRoot(), "memory", "experience.json");
 
 function nowIso() {
   return new Date().toISOString();

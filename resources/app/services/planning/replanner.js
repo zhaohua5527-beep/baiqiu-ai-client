@@ -1,7 +1,8 @@
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 const { ExperienceCenter } = require("../experience/experience-center");
 
-const DEFAULT_SAFE_ROOT = path.join("D:\\BaiQiuAI", "data", "workspace");
+const DEFAULT_SAFE_ROOT = path.join(dataRoot(), "workspace");
 
 function errorText(value) {
   return String(value?.message || value || "").trim();

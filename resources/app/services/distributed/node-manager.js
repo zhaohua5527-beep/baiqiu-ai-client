@@ -1,8 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 const { ExecutionNode } = require("./execution-node");
 
-const DEFAULT_DISTRIBUTED_ROOT = path.join("D:\\BaiQiuAI", "data", "distributed");
+const DEFAULT_DISTRIBUTED_ROOT = path.join(dataRoot(), "distributed");
 
 class NodeManager {
   constructor({ rootDir = DEFAULT_DISTRIBUTED_ROOT, nodes = [] } = {}) {

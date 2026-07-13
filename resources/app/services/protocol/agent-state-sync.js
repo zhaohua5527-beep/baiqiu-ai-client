@@ -1,8 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 const { ProtocolValidator } = require("./protocol-validator");
 
-const DEFAULT_PROTOCOL_ROOT = path.join("D:\\BaiQiuAI", "data", "protocol");
+const DEFAULT_PROTOCOL_ROOT = path.join(dataRoot(), "protocol");
 
 function nowIso() {
   return new Date().toISOString();

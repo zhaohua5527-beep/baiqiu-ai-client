@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 const { GoalAnalyzer } = require("./goal-analyzer");
 const { PlanEvaluator } = require("./plan-evaluator");
 const { TaskDecomposer } = require("./task-decomposer");
@@ -10,7 +11,7 @@ const { MetaLearningCenter } = require("../meta-learning/meta-learning-center");
 const { ReflectionMemory } = require("../reflection/reflection-memory");
 const { ExperienceCenter } = require("../experience/experience-center");
 
-const DEFAULT_PLANNING_ROOT = path.join("D:\\BaiQiuAI", "data", "planning");
+const DEFAULT_PLANNING_ROOT = path.join(dataRoot(), "planning");
 
 class AutonomousPlanner {
   constructor({

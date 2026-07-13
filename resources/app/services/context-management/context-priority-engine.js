@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_CONTEXT_MANAGEMENT_ROOT = path.join("D:\\BaiQiuAI", "data", "context-management");
+const DEFAULT_CONTEXT_MANAGEMENT_ROOT = path.join(dataRoot(), "context-management");
 
 function nowIso() {
   return new Date().toISOString();

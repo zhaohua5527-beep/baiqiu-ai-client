@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_EVOLUTION_NETWORK_ROOT = path.join("D:\\BaiQiuAI", "data", "evolution-network");
+const DEFAULT_EVOLUTION_NETWORK_ROOT = path.join(dataRoot(), "evolution-network");
 
 function nowIso() {
   return new Date().toISOString();

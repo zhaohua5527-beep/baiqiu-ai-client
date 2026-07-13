@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_AUTONOMY_ROOT = path.join("D:\\BaiQiuAI", "data", "autonomy");
+const DEFAULT_AUTONOMY_ROOT = path.join(dataRoot(), "autonomy");
 const DEFAULT_LEVELS = Object.freeze({
   manual: {
     level: "manual",

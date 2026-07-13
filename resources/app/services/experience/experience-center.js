@@ -1,9 +1,10 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 const { KnowledgeCenter } = require("../knowledge/knowledge-center");
 const { KnowledgeIndexer } = require("../knowledge/knowledge-indexer");
 
-const DEFAULT_EXPERIENCE_DIR = path.join("D:\\BaiQiuAI", "data", "experience");
+const DEFAULT_EXPERIENCE_DIR = path.join(dataRoot(), "experience");
 const DEFAULT_EXPERIENCE_FILE = path.join(DEFAULT_EXPERIENCE_DIR, "experiences.json");
 
 function nowIso() {

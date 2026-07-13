@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_STRATEGY_ROOT = path.join("D:\\BaiQiuAI", "data", "strategy-intelligence");
+const DEFAULT_STRATEGY_ROOT = path.join(dataRoot(), "strategy-intelligence");
 
 function nowIso() {
   return new Date().toISOString();

@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_RESOURCE_ROOT = path.join("D:\\BaiQiuAI", "data", "resources");
+const DEFAULT_RESOURCE_ROOT = path.join(dataRoot(), "resources");
 
 const DEFAULT_QUOTA = Object.freeze({
   maxConcurrentTasks: 3,

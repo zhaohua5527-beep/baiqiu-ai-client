@@ -26,6 +26,16 @@
         "notes": "客户安装版：优先下载安装器；如电脑拦截或无法运行，可下载兼容压缩包，解压后双击 BaiqiuAI.exe。",
         "forceUpdate": true,
         "publishedAt": "2026-07-10T05:53:59.224Z"
+      },
+      {
+        "version": "1.1.4",
+        "file": "baiqiu-customer-1.1.4.zip",
+        "installerFile": "BaiqiuAI-Setup-1.1.4.exe",
+        "sha256": "9dcfcd746047835ce48aa78335cb7d218f9586a4671742535b47211ff58b9895",
+        "installerSha256": "0b1acbbc0635fc9634bbedc8b3d1505dbfa8284c2efd88972d3d429f1f31aeeb",
+        "notes": "安装后桌面仅保留白球AI快捷方式，并自动清理旧版桌面文件夹；已输入过卡密的用户，重装或更新后会自动保留授权，不需要二次输入。",
+        "forceUpdate": true,
+        "publishedAt": "2026-07-10T07:42:59.363Z"
       }
     ]
   }

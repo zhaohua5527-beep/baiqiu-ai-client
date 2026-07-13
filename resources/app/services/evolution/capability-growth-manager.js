@@ -1,10 +1,11 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 const { KnowledgeCenter } = require("../knowledge/knowledge-center");
 const { ExperienceCenter } = require("../experience/experience-center");
 const { ReflectionMemory } = require("../reflection/reflection-memory");
 
-const DEFAULT_EVOLUTION_ROOT = path.join("D:\\BaiQiuAI", "data", "evolution");
+const DEFAULT_EVOLUTION_ROOT = path.join(dataRoot(), "evolution");
 
 function nowIso() {
   return new Date().toISOString();

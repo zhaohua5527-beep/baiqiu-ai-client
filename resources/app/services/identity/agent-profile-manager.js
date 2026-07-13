@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_IDENTITY_ROOT = path.join("D:\\BaiQiuAI", "data", "identity");
+const DEFAULT_IDENTITY_ROOT = path.join(dataRoot(), "identity");
 
 function nowIso() {
   return new Date().toISOString();

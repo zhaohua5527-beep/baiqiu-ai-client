@@ -1,10 +1,11 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 const { randomUUID } = require("node:crypto");
 const { ProductEventAdapter } = require("./product-event-adapter");
 const { TaskExperience } = require("./task-experience");
 
-const DEFAULT_PRODUCT_DATA_ROOT = path.join("D:\\BaiQiuAI", "data", "products");
+const DEFAULT_PRODUCT_DATA_ROOT = path.join(dataRoot(), "products");
 
 function nowIso() {
   return new Date().toISOString();

@@ -1,8 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("./data-root");
 const { randomUUID } = require("node:crypto");
 
-const DEFAULT_ROOT = path.join("D:\\BaiQiuAI", "data", "skills");
+const DEFAULT_ROOT = path.join(dataRoot(), "skills");
 
 function cleanText(value, limit = 2000) {
   return String(value || "").replace(/\s+/g, " ").trim().slice(0, limit);

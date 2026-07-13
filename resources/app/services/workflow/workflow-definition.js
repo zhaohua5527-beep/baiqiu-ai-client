@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_WORKFLOW_ROOT = path.join("D:\\BaiQiuAI", "data", "workflows");
+const DEFAULT_WORKFLOW_ROOT = path.join(dataRoot(), "workflows");
 
 function nowIso() {
   return new Date().toISOString();

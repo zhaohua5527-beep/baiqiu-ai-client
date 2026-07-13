@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const DEFAULT_GOVERNANCE_ROOT = path.join("D:\\BaiQiuAI", "data", "governance");
+const DEFAULT_GOVERNANCE_ROOT = path.join(dataRoot(), "governance");
 const DEFAULT_POLICY = Object.freeze({
   maxSteps: 50,
   maxToolCalls: 100,

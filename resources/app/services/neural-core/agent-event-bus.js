@@ -4,8 +4,9 @@ const { NeuralGovernance } = require("./governance");
 const { ReflectionEngine } = require("./reflection-engine");
 const fs = require("node:fs");
 const path = require("node:path");
+const { dataRoot } = require("../data-root");
 
-const RUNTIME_DIR = path.join("D:\\BaiQiuAI", "data", "neural-core");
+const RUNTIME_DIR = path.join(dataRoot(), "neural-core");
 const RUNTIME_METRICS_FILE = path.join(RUNTIME_DIR, "runtime-metrics.json");
 const HEALTH_REPORT_FILE = path.join(RUNTIME_DIR, "health-report.json");
 const DIAGNOSTICS_FILE = path.join(RUNTIME_DIR, "diagnostics.json");
@@ -98,10 +99,10 @@ function writeDiagnostics(extra = {}) {
       healthFile: HEALTH_REPORT_FILE
     },
     memory: {
-      root: path.join("D:\\BaiQiuAI", "data", "memory")
+      root: path.join(dataRoot(), "memory")
     },
     experience: {
-      file: path.join("D:\\BaiQiuAI", "data", "memory", "experience.json")
+      file: path.join(dataRoot(), "memory", "experience.json")
     },
     coverage: metrics.modules || {},
     health,
