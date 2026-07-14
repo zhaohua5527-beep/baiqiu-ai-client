@@ -1,5 +1,6 @@
 {
-  "appVersion": "1.1.20",
-  "build": "20260713",
-  "channel": "customer"
+  "appVersion": "1.1.21",
+  "build": "20260714",
+  "channel": "customer",
+  "notes": "修复高DPI和不同窗口尺寸下聊天区、输入框、标题栏及任务看板显示异常；修复荒原主题消息对比度。"
 }
