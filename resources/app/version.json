@@ -1,6 +1,6 @@
 {
-  "appVersion": "1.1.21",
-  "build": "20260714",
+  "appVersion": "1.1.23",
+  "build": "20260717",
   "channel": "customer",
-  "notes": "修复高DPI和不同窗口尺寸下聊天区、输入框、标题栏及任务看板显示异常；修复荒原主题消息对比度。"
+  "notes": "增加真实模型列表读取和模型 ID 选择；修复 OpenAI、DeepSeek、Anthropic 供应商协议与请求参数；修复 OpenAI 默认接口和内置密钥问题。"
 }

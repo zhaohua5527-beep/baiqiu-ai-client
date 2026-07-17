@@ -19,7 +19,7 @@ const Updater = require("./services/updater");
 const { UpdateState } = require("./services/update-state");
 const LicenseManager = require("./services/license-manager");
 const IntegrityChecker = require("./services/integrity-checker");
-const { PRESET_PROVIDERS, normalizeProvider, callChatCompletion } = require("./services/model-adapter");
+const { PRESET_PROVIDERS, normalizeProvider, listProviderModels, callChatCompletion } = require("./services/model-adapter");
 const { IntentAgent } = require("./services/intent-agent");
 const { PlannerAgent } = require("./services/planner-agent");
 const { TaskQueue } = require("./services/task-queue");
@@ -486,7 +486,7 @@ function defaultDb() {
       },
       providers: {
         openclaw: { name: "OpenClaw", enabled: false, baseURL: "", apiKey: "", model: "gateway" },
-        deepseek: { name: CLOUD_MODEL_DEFAULTS.deepseek.name, enabled: true, baseURL: CLOUD_MODEL_DEFAULTS.deepseek.baseURL, apiKey: "sk-39203847afd37212a14ac2a8ecacc44d0ed79550eb611de3aafac251c6dd7316", model: CLOUD_MODEL_DEFAULTS.deepseek.model },
+        deepseek: { name: CLOUD_MODEL_DEFAULTS.deepseek.name, enabled: true, baseURL: CLOUD_MODEL_DEFAULTS.deepseek.baseURL, apiKey: "", model: CLOUD_MODEL_DEFAULTS.deepseek.model },
         openai: { ...PRESET_PROVIDERS.openai, enabled: false, apiKey: "" },
         kimi: { ...PRESET_PROVIDERS.kimi, enabled: false, apiKey: "" },
         anthropic: { ...PRESET_PROVIDERS.anthropic, enabled: false, apiKey: "" },
@@ -565,6 +565,13 @@ function loadDb() {
   db.settings.providers ||= {};
   for (const [key, provider] of Object.entries(base.settings.providers)) {
     db.settings.providers[key] = { ...provider, ...(db.settings.providers[key] || {}) };
+  }
+  const deepseek = db.settings.providers.deepseek;
+  if (/codekey\.buzz\/keys\/?$/i.test(deepseek?.baseURL || "")) {
+    deepseek.name = "DeepSeek";
+    deepseek.baseURL = PRESET_PROVIDERS.deepseek.baseURL;
+    deepseek.apiKey = "";
+    deepseek.model = PRESET_PROVIDERS.deepseek.model;
   }
   for (const session of db.sessions) {
     session.sessionId ||= session.id;
@@ -4667,7 +4674,7 @@ function providerSupportsImageContent(providerKey, provider = {}) {
 }
 
 function shouldLocalReplyImageUnsupported(settings = {}, attachments = []) {
-  const providerKey = settings.reasoning === "off" ? "ollama" : (settings.defaultProvider || "deepseek");
+  const providerKey = settings.defaultProvider || "deepseek";
   const provider = normalizeProvider(providerKey, settings.providers?.[providerKey] || {});
   const imageCount = attachments.filter((item) => String(item.mimeType || "").startsWith("image/")).length;
   if (!imageCount) return false;
@@ -4675,7 +4682,7 @@ function shouldLocalReplyImageUnsupported(settings = {}, attachments = []) {
 }
 
 function imageUnsupportedReply(settings = {}, attachments = []) {
-  const providerKey = settings.reasoning === "off" ? "ollama" : (settings.defaultProvider || "deepseek");
+  const providerKey = settings.defaultProvider || "deepseek";
   const provider = normalizeProvider(providerKey, settings.providers?.[providerKey] || {});
   const names = attachments
     .filter((item) => String(item.mimeType || "").startsWith("image/"))
@@ -4728,8 +4735,9 @@ function providerRequestBody(settings, message, attachments, sessionId = "") {
     tool_choice: "auto",
     stream: false
   };
-  if (providerKey === "openai") {
-    request.reasoning_effort = {
+  const supportsReasoningEffort = /^(gpt-5(?:\.|-|$)|o[134](?:-|$))/i.test(provider.model || "");
+  if (providerKey === "openai" && supportsReasoningEffort) {
+    request.reasoning_effort = /^gpt-5\.6(?:-|$)/i.test(provider.model || "") ? "none" : ({
       off: "none",
       minimal: "minimal",
       low: "low",
@@ -4737,14 +4745,14 @@ function providerRequestBody(settings, message, attachments, sessionId = "") {
       high: "high",
       extra_high: "xhigh",
       maximum: "xhigh"
-    }[settings.reasoning || "minimal"] || "minimal";
+    }[settings.reasoning || "minimal"] || "minimal");
   }
   return request;
 }
 
 async function directProviderChat(settings, text, attachments, sessionId = "", options = {}) {
   const signal = options.signal || null;
-  const providerKey = settings.reasoning === "off" ? "ollama" : (settings.defaultProvider || "deepseek");
+  const providerKey = settings.defaultProvider || "deepseek";
   const localSettings = providerKey === settings.defaultProvider ? settings : { ...settings, defaultProvider: providerKey };
   const provider = settings.providers?.[providerKey];
   if (providerKey === "openclaw") return null;
@@ -6481,6 +6489,18 @@ function wireIpc() {
     syncPersonaMemory(db.settings);
     return saveDb(db).settings;
   });
+  ipcMain.handle("models:list", async (_event, payload = {}) => {
+    const providerId = sanitizeText(payload.providerId || "").toLowerCase();
+    if (!providerId) throw new Error("请选择模型供应商。");
+    const saved = loadDb().settings.providers?.[providerId] || {};
+    const provider = {
+      ...saved,
+      apiKey: sanitizeText(payload.apiKey || saved.apiKey || ""),
+      baseURL: sanitizeText(payload.baseURL || saved.baseURL || ""),
+      apiStyle: sanitizeText(payload.apiStyle || saved.apiStyle || "openai")
+    };
+    return listProviderModels({ providerId, provider, signal: AbortSignal.timeout(15000) });
+  });
   ipcMain.handle("settings:choose-save-location", async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
       title: "选择白球默认保存位置",
@@ -6900,11 +6920,6 @@ app.whenReady().then(() => {
 app.on("activate", () => showWindow());
 app.on("before-quit", () => auditLogger?.destroy?.());
 app.on("window-all-closed", (event) => event.preventDefault());
-
-
-
-
-
 
 
 

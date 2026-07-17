@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld("heiqiu", {
   messages: (id) => ipcRenderer.invoke("session:messages", id),
   appendMessage: (id, message) => ipcRenderer.invoke("session:append-message", id, message),
   saveSettings: (settings) => ipcRenderer.invoke("settings:save", settings),
+  listModels: (provider) => ipcRenderer.invoke("models:list", provider),
   chooseSaveLocation: () => ipcRenderer.invoke("settings:choose-save-location"),
   updateInfo: () => ipcRenderer.invoke("app:update-info"),
   downloadUpdate: () => ipcRenderer.invoke("update:download"),

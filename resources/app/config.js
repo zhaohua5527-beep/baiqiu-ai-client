@@ -12,8 +12,8 @@ const DEFAULT_GATEWAY = {
 
 const CLOUD_MODEL_DEFAULTS = {
   deepseek: {
-    name: "供应商2",
-    baseURL: "https://codekey.buzz/keys",
+    name: "DeepSeek",
+    baseURL: "https://api.deepseek.com/v1",
     model: "deepseek-chat"
   }
 };

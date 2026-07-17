@@ -24,7 +24,10 @@ const state = {
   taskBoardTab: "overview",
   taskBoardFocusId: "",
   taskBoardPreviewRows: {},
-  taskBoardPreviewContent: {}
+  taskBoardPreviewContent: {},
+  providerModels: {},
+  providerModelStatus: {},
+  providerDetailKey: ""
 };
 let pendingConfirmations = {};
 
@@ -240,7 +243,13 @@ const MODEL_VERSION_OPTIONS = {
     ["deepseek-v4-pro", "DeepSeek V4 Pro"],
     ["deepseek-v4-flash", "DeepSeek V4 Flash"],
     ["deepseek-chat", "DeepSeek Chat 兼容"]
-  ]
+  ],
+  kimi: [["moonshot-v1-128k", "Moonshot 128K"]],
+  anthropic: [["claude-3-5-sonnet-latest", "Claude Sonnet"]],
+  qwen: [["qwen-plus", "Qwen Plus"], ["qwen-max", "Qwen Max"]],
+  baidu: [["ernie-4.0-turbo-8k", "ERNIE 4.0 Turbo"]],
+  zhipu: [["glm-4-plus", "GLM-4 Plus"]],
+  ollama: [["qwen2.5:7b", "Qwen 2.5 7B"]]
 };
 
 function escapeHtml(value) {
@@ -691,6 +700,10 @@ function adjustComposerHeight() {
 
 function setupComposerResize() {
   if (!chatForm || !chatInput || chatForm.querySelector(".composer-resize-handle")) return;
+  const chatPane = chatForm.closest(".chat");
+  const syncComposerLayout = () => {
+    chatPane?.style.setProperty("--composer-height", `${chatForm.getBoundingClientRect().height}px`);
+  };
   const minHeight = 38;
   const maxHeight = () => Math.max(180, Math.floor(window.innerHeight * 0.68));
   const saved = Number(localStorage.getItem("baiqiu.composerHeight") || 0);
@@ -698,32 +711,53 @@ function setupComposerResize() {
     chatInput.dataset.manualResize = "1";
     chatInput.style.height = `${Math.max(minHeight, Math.min(saved, maxHeight()))}px`;
   }
+  syncComposerLayout();
   const handle = document.createElement("div");
   handle.className = "composer-resize-handle";
   handle.title = "按住拖拽调整输入框高度";
   chatForm.prepend(handle);
   let startY = 0;
   let startHeight = 0;
+  let activePointerId = null;
+  let mouseActive = false;
+  const resizeComposerTo = (clientY) => {
+    const next = Math.max(minHeight, Math.min(startHeight + (startY - clientY), maxHeight()));
+    chatInput.dataset.manualResize = "1";
+    chatInput.style.setProperty("height", `${next}px`, "important");
+    localStorage.setItem("baiqiu.composerHeight", String(Math.round(next)));
+    syncComposerLayout();
+  };
   const stop = (event) => {
-    handle.releasePointerCapture?.(event?.pointerId);
+    activePointerId = null;
     document.body.classList.remove("resizing-composer");
   };
   handle.addEventListener("pointerdown", (event) => {
     event.preventDefault();
-    handle.setPointerCapture(event.pointerId);
+    activePointerId = event.pointerId;
     startY = event.clientY;
     startHeight = chatInput.getBoundingClientRect().height;
     document.body.classList.add("resizing-composer");
   });
-  handle.addEventListener("pointermove", (event) => {
-    if (!document.body.classList.contains("resizing-composer")) return;
-    const next = Math.max(minHeight, Math.min(startHeight + (startY - event.clientY), maxHeight()));
-    chatInput.dataset.manualResize = "1";
-    chatInput.style.height = `${next}px`;
-    localStorage.setItem("baiqiu.composerHeight", String(Math.round(next)));
+  document.addEventListener("pointermove", (event) => {
+    if (activePointerId === null) return;
+    resizeComposerTo(event.clientY);
   });
-  handle.addEventListener("pointerup", stop);
-  handle.addEventListener("pointercancel", stop);
+  document.addEventListener("pointerup", stop);
+  document.addEventListener("pointercancel", stop);
+  handle.addEventListener("mousedown", (event) => {
+    event.preventDefault();
+    mouseActive = true;
+    startY = event.clientY;
+    startHeight = chatInput.getBoundingClientRect().height;
+    document.body.classList.add("resizing-composer");
+  });
+  document.addEventListener("mousemove", (event) => {
+    if (mouseActive) resizeComposerTo(event.clientY);
+  });
+  document.addEventListener("mouseup", () => {
+    mouseActive = false;
+    document.body.classList.remove("resizing-composer");
+  });
 }
 
 function isNearBottom(element) {
@@ -1562,8 +1596,8 @@ function renderSettings() {
   renderReasoningWater();
   renderProviderDetails();
   const current = settings.providers[settings.defaultProvider];
-  modelState.textContent = `${current?.name || "DeepSeek"} / ${reasoningLabel(settings.reasoning)}`;
-  if (monitorModel) monitorModel.textContent = (current?.name || "DeepSeek").toUpperCase();
+  modelState.textContent = `${current?.name || "DeepSeek"} · ${current?.model || "未选模型"} / ${reasoningLabel(settings.reasoning)}`;
+  if (monitorModel) monitorModel.textContent = (current?.model || current?.name || "DeepSeek").toUpperCase();
   if (skinSelect) skinSelect.value = settings.appearance.skin;
   if (textColorInput) textColorInput.value = settings.appearance.textColor || skinPreset.textColor;
   if (accentColorInput) accentColorInput.value = settings.appearance.accentColor || skinPreset.accentColor;
@@ -1595,6 +1629,7 @@ function renderProviderDetails() {
   const settings = state.db.settings;
   const key = providerSelect.value || settings.defaultProvider || "deepseek";
   const provider = settings.providers[key];
+  state.providerDetailKey = key;
   providerList.hidden = false;
   if (key === "openclaw") {
     providerList.innerHTML = `
@@ -1604,17 +1639,57 @@ function renderProviderDetails() {
     `;
     return;
   }
-  const versions = [...(MODEL_VERSION_OPTIONS[key] || [])];
+  const discovered = state.providerModels[key] || [];
+  const versions = [...discovered.map((model) => [model, model]), ...(MODEL_VERSION_OPTIONS[key] || [])]
+    .filter(([value], index, all) => all.findIndex(([candidate]) => candidate === value) === index);
   if (provider.model && !versions.some(([value]) => value === provider.model)) versions.unshift([provider.model, `${provider.model}（当前）`]);
+  const modelOptions = versions.map(([value]) => `<option value="${escapeHtml(value)}"></option>`).join("");
+  const status = state.providerModelStatus[key] || "点击刷新后，只显示当前 API Key 实际可用的模型。";
   providerList.innerHTML = `
     <label>API Key <input id="apiKeyInput" type="password" autocomplete="off" spellcheck="false" value="${escapeHtml(provider.apiKey || "")}" placeholder="sk-..."></label>
     <label>Base URL <input id="baseUrlInput" value="${escapeHtml(provider.baseURL || "")}" placeholder="https://api.deepseek.com"></label>
-    <label>模型版本 ${versions.length
-      ? `<select id="modelVersionSelect">${versions.map(([value, label]) => `<option value="${escapeHtml(value)}"${value === provider.model ? " selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select>`
-      : `<input id="modelVersionSelect" value="${escapeHtml(provider.model || "")}" placeholder="模型版本">`}
+    <label>接口协议
+      <select id="apiStyleSelect">
+        <option value="openai"${provider.apiStyle !== "anthropic" ? " selected" : ""}>OpenAI 兼容</option>
+        <option value="anthropic"${provider.apiStyle === "anthropic" ? " selected" : ""}>Anthropic</option>
+      </select>
     </label>
-    <div class="provider-note model-route-note">所选模型名称会原样发送给当前线路；线路必须支持该版本。</div>
+    <label>模型 ID
+      <div class="model-picker-row">
+        <input id="modelVersionInput" list="modelVersionOptions" value="${escapeHtml(provider.model || "")}" placeholder="先刷新，或输入供应商提供的模型 ID">
+        <datalist id="modelVersionOptions">${modelOptions}</datalist>
+        <button id="refreshModelsBtn" type="button" title="从供应商读取可用模型">刷新</button>
+      </div>
+    </label>
+    <div id="modelDiscoveryStatus" class="provider-note model-route-note">${escapeHtml(status)}</div>
   `;
+  $("refreshModelsBtn")?.addEventListener("click", async () => {
+    const button = $("refreshModelsBtn");
+    const statusNode = $("modelDiscoveryStatus");
+    if (button) button.disabled = true;
+    if (statusNode) statusNode.textContent = "正在读取供应商模型列表...";
+    const draft = captureVisibleProviderDraft(key);
+    try {
+      const result = await api.listModels({ providerId: key, ...draft });
+      state.providerModels[key] = result.models || [];
+      state.providerModelStatus[key] = `已读取 ${state.providerModels[key].length} 个可用模型，请从模型 ID 输入框选择。`;
+      renderProviderDetails();
+    } catch (error) {
+      state.providerModelStatus[key] = error?.message || String(error);
+      if (statusNode) statusNode.textContent = state.providerModelStatus[key];
+      if (button) button.disabled = false;
+    }
+  });
+}
+
+function captureVisibleProviderDraft(key = providerSelect.value) {
+  const provider = state.db.settings.providers?.[key];
+  if (!provider || key === "openclaw") return provider || {};
+  provider.apiKey = $("apiKeyInput")?.value || "";
+  provider.baseURL = $("baseUrlInput")?.value?.trim() || provider.baseURL || "";
+  provider.model = $("modelVersionInput")?.value?.trim() || provider.model || "";
+  provider.apiStyle = $("apiStyleSelect")?.value || provider.apiStyle || "openai";
+  return provider;
 }
 
 async function renderAll() {
@@ -1647,7 +1722,8 @@ function readSettingsFromDialog() {
   if (settings.defaultProvider !== "openclaw") {
     provider.apiKey = $("apiKeyInput")?.value || "";
     provider.baseURL = $("baseUrlInput")?.value || provider.baseURL || "";
-    provider.model = $("modelVersionSelect")?.value || provider.model || "";
+    provider.model = $("modelVersionInput")?.value?.trim() || provider.model || "";
+    provider.apiStyle = $("apiStyleSelect")?.value || provider.apiStyle || "openai";
   }
   const selectedSkin = SKIN_PRESETS[skinSelect?.value] ? skinSelect.value : "custom";
   const selectedPreset = SKIN_PRESETS[selectedSkin] || SKIN_PRESETS.custom;
@@ -1961,6 +2037,9 @@ function setupSplitters() {
   document.addEventListener("pointerup", () => {
     active = null;
   });
+  document.addEventListener("pointercancel", () => {
+    active = null;
+  });
 }
 
 function guessMime(name) {
@@ -2270,7 +2349,10 @@ $("saveSettingsBtn").addEventListener("click", async (event) => {
   renderSettings();
   settingsDialog.close();
 });
-providerSelect.addEventListener("change", renderProviderDetails);
+providerSelect.addEventListener("change", () => {
+  captureVisibleProviderDraft(state.providerDetailKey);
+  renderProviderDetails();
+});
 skinSelect?.addEventListener("change", () => applySkinPreset(skinSelect.value));
 [textColorInput, accentColorInput, backgroundColorInput, panelColorInput, fontSizeInput].forEach((input) => {
   input?.addEventListener("input", () => {

@@ -1,6 +1,6 @@
 {
   "name": "baiqiu-ai",
-  "version": "1.1.21",
+  "version": "1.1.23",
   "description": "Baiqiu AI desktop client with embedded OpenClaw control",
   "main": "main.js",
   "private": true,

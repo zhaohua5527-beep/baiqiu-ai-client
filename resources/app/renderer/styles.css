@@ -6636,6 +6636,7 @@ textarea::placeholder {
 .appearance-settings input,
 .appearance-settings select,
 .providers input,
+.providers select,
 .model-simple select {
   width: 100% !important;
   min-height: 44px !important;
@@ -8806,6 +8807,18 @@ body.resizing-composer * {
   white-space: pre-wrap;
 }
 
+.model-picker-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.model-picker-row button {
+  min-height: 44px;
+  padding: 0 12px;
+}
+
 .task-board-file-preview.muted-preview {
   color: #94a3b8;
 }
@@ -9746,7 +9759,7 @@ body[data-skin="white"] :is(.product-task-strip,.product-task-card,.product-task
 body[data-skin="mecha"] :is(.product-task-strip,.product-task-card,.product-task-pill,.neural-dashboard,.neural-dashboard *,.mini-monitor,.mini-monitor *,.task-board-drawer,.task-board-drawer *,.session-item,.session-item *,.settings-card,.settings-card *,.terminal-panel,.terminal-panel *){color:#e9f8ff!important;text-shadow:none!important}body[data-skin="mecha"] :is(input,textarea,select){color:#e9f8ff!important;background:#07141c!important}body[data-skin="mecha"] :is(input,textarea)::placeholder{color:#9fc2d0!important;opacity:1!important}
 body[data-skin="wasteland"] :is(.product-task-strip,.product-task-card,.product-task-pill,.neural-dashboard,.neural-dashboard *,.mini-monitor,.mini-monitor *,.task-board-drawer,.task-board-drawer *,.session-item,.session-item *,.settings-card,.settings-card *,.terminal-panel,.terminal-panel *){color:#29261e!important;text-shadow:none!important}body[data-skin="wasteland"] :is(input,textarea,select){color:#29261e!important;background:#f4ecd5!important}body[data-skin="wasteland"] :is(input,textarea)::placeholder{color:#685f4c!important;opacity:1!important}
 
-/* 1.1.21 responsive fix layer: keep this as the final cascade layer. */
+/* 1.1.22 customer DPI and resizable layout fix layer. */
 html,
 body {
   max-width: 100%;
@@ -10031,6 +10044,72 @@ body[data-skin="wasteland"] .message.user .bubble {
   color: #29261e !important;
   text-shadow: none !important;
   box-shadow: 3px 3px 0 rgba(83, 75, 53, 0.18) !important;
+}
+
+/* Customer high-DPI layout correction: both splitters must own a grid track. */
+.app {
+  grid-template-columns:
+    clamp(220px, var(--sessions-w, 260px), 340px)
+    22px
+    minmax(0, 1fr)
+    22px
+    clamp(320px, var(--terminal-w, 380px), 440px) !important;
+}
+
+.splitter-left,
+.splitter-right {
+  display: block !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+.splitter-right {
+  grid-column: 4 !important;
+  grid-row: 2 !important;
+}
+
+.task-board-edge-toggle {
+  position: absolute !important;
+  top: 62% !important;
+  right: calc(clamp(320px, var(--terminal-w, 380px), 440px) + 22px) !important;
+  transform: translateY(-50%) !important;
+  z-index: 22 !important;
+}
+
+.task-board-drawer {
+  top: 8px !important;
+  bottom: calc(var(--composer-height, 112px) + 64px) !important;
+  max-height: calc(100% - var(--composer-height, 112px) - 72px) !important;
+}
+
+/* Preserve all title controls at the customer's 1280 CSS-pixel viewport. */
+@media (min-width: 1181px) and (max-width: 1320px) {
+  .titlebar { padding-inline: 10px !important; }
+  .terminal-brand { min-width: 170px !important; }
+  .terminal-brand strong { font-size: 23px !important; }
+  .title-actions { gap: 4px !important; }
+  .trial-status { max-width: 142px !important; padding-inline: 8px !important; }
+  .title-actions button { min-width: 36px !important; padding-inline: 9px !important; font-size: 12px !important; }
+  .title-actions button[data-window] { width: 36px !important; min-width: 36px !important; padding: 0 !important; }
+}
+
+@media (max-width: 1180px) {
+  .app { grid-template-columns: 0 0 minmax(0, 1fr) 0 0 !important; }
+  .sessions, .terminal, .splitter-left, .splitter-right {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    pointer-events: none !important;
+  }
+  .task-board-edge-toggle {
+    right: 0 !important;
+    transform: translateY(-50%) !important;
+  }
 }
 
 body[data-skin="wasteland"] .message.user .bubble :is(.rendered, .rendered *, p, ul, ol, li, code, pre, strong, em, a, span) {
