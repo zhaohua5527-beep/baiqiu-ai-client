@@ -37,6 +37,29 @@ async function main() {
   assert.equal(chatRequest.body.model, "gpt-5.6-sol");
   assert.equal(chat.choices[0].message.content, "ok");
 
+  let deepseekRequest = null;
+  await callChatCompletion({
+    providerId: "deepseek",
+    provider: { apiKey: "test-key", baseURL: "https://api.deepseek.com/v1", model: "deepseek-chat", apiStyle: "anthropic" },
+    body: { messages: [{ role: "user", content: "hello" }] },
+    fetchImpl: async (url, options) => {
+      deepseekRequest = { url, headers: options.headers, body: JSON.parse(options.body) };
+      return response(200, { choices: [{ message: { role: "assistant", content: "ok" } }] });
+    }
+  });
+  assert.equal(deepseekRequest.url, "https://api.deepseek.com/v1/chat/completions");
+  assert.equal(deepseekRequest.headers.Authorization, "Bearer test-key");
+
+  const kimi = await listProviderModels({
+    providerId: "kimi",
+    provider: { apiKey: "test-key", baseURL: "https://api.moonshot.cn/v1" },
+    fetchImpl: async (url) => {
+      assert.equal(url, "https://api.moonshot.cn/v1/models");
+      return response(200, { data: [{ id: "kimi-account-latest" }] });
+    }
+  });
+  assert.deepEqual(kimi.models, ["kimi-account-latest"]);
+
   let anthropicRequest = null;
   const anthropic = await callChatCompletion({
     providerId: "anthropic",

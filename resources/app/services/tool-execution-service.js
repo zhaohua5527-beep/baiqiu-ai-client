@@ -64,11 +64,7 @@ class ToolExecutionService {
       args: this.safeArgs(args)
     });
     try {
-      const response = await this.withTimeout(
-      this.registry.execute(id, args, { ...context, toolSelection: approval }),
-      30000,
-      `工具 ${id} 执行`
-    );
+      const response = await this.registry.execute(id, args, { ...context, toolSelection: approval });
       return this.standardize({ toolId: id, response, startedAt, approval, traceId: context.traceId || "" });
     } catch (error) {
       return this.standardize({

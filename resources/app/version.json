@@ -1,6 +1,6 @@
 {
-  "appVersion": "1.1.23",
-  "build": "20260717",
+  "appVersion": "2.0.0",
+  "build": "20260722",
   "channel": "customer",
-  "notes": "增加真实模型列表读取和模型 ID 选择；修复 OpenAI、DeepSeek、Anthropic 供应商协议与请求参数；修复 OpenAI 默认接口和内置密钥问题。"
+  "notes": "白球 AI 2.0 预览版：重建 Kimi 式工作台、模型协议自动匹配、长任务不再被本地计时器强制截断。"
 }

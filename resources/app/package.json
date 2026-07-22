@@ -1,11 +1,12 @@
 {
   "name": "baiqiu-ai",
-  "version": "1.1.23",
+  "version": "2.0.0",
   "description": "Baiqiu AI desktop client with embedded OpenClaw control",
   "main": "main.js",
   "private": true,
   "dependencies": {
     "adler-32": "^1.3.1",
+    "marked": "^15.0.12",
     "ws": "^8.18.0",
     "xlsx": "^0.18.5"
   },
@@ -13,8 +14,16 @@
   "build": {
     "appId": "com.baiqiu.ai",
     "productName": "白球AI",
-    "directories": { "output": "dist" },
-    "win": { "target": ["nsis", "zip"], "icon": "assets/icon.ico" },
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ],
+      "icon": "assets/icon.ico"
+    },
     "nsis": {
       "oneClick": true,
       "allowToChangeInstallationDirectory": false,

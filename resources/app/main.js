@@ -111,7 +111,10 @@ const isDevMode = process.argv.includes("--dev");
 
 app.setName("Baiqiu AI");
 app.setAppUserModelId("Baiqiu.AI");
-app.setPath("userData", path.join(app.getPath("appData"), isDevMode ? "Baiqiu AI Dev" : "Baiqiu AI"));
+const userDataOverride = String(process.env.BAIQIU_USER_DATA_ROOT || "").trim();
+app.setPath("userData", userDataOverride
+  ? path.resolve(userDataOverride)
+  : path.join(app.getPath("appData"), isDevMode ? "Baiqiu AI Dev" : "Baiqiu AI"));
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -154,7 +157,8 @@ function licenseMirrorPath(...parts) {
 }
 
 function baiqiuDataRoot(...parts) {
-  const root = path.join(app.getPath("appData"), "Baiqiu AI", "data");
+  const override = String(process.env.BAIQIU_DATA_ROOT || "").trim();
+  const root = override ? path.resolve(override) : path.join(app.getPath("appData"), "Baiqiu AI", "data");
   const full = path.join(root, ...parts);
   try { fs.mkdirSync(parts.length ? path.dirname(full) : full, { recursive: true }); } catch {}
   return full;
@@ -241,6 +245,7 @@ function resetCustomerStateForTesting() {
 }
 
 function migrateLegacyData() {
+  if (process.env.BAIQIU_DISABLE_LEGACY_MIGRATION === "1") return;
   const appData = app.getPath("appData");
   const sourceDirs = [
     licenseMirrorPath(),
@@ -412,6 +417,7 @@ function defaultDb() {
     settings: {
       defaultProvider: "deepseek",
       reasoning: "minimal",
+      webSearch: { enabled: true },
       appearance: {
         skin: "custom",
         textColor: "#eef4ff",
@@ -508,11 +514,15 @@ function loadDb() {
   const db = readJson(dbPath(), defaultDb());
   const base = defaultDb();
   db.sessions ||= [];
+  for (const session of db.sessions) {
+    if (session?.title === "New Chat") session.title = "新对话";
+  }
   db.messages ||= {};
   db.queue ||= [];
   db.settings ||= base.settings;
   db.settings.defaultProvider ||= "deepseek";
   db.settings.reasoning ||= "minimal";
+  db.settings.webSearch = { ...base.settings.webSearch, ...(db.settings.webSearch || {}) };
   db.settings.appearance = { ...base.settings.appearance, ...(db.settings.appearance || {}) };
   db.settings.license = { ...base.settings.license, ...(db.settings.license || {}) };
   db.settings.skills = { ...base.settings.skills, ...(db.settings.skills || {}) };
@@ -991,7 +1001,7 @@ function sortedSessions(db = loadDb()) {
   });
 }
 
-function createSession(title = "New Chat") {
+function createSession(title = "新对话") {
   const db = loadDb();
   const globalPersona = normalizePersonaMemory(db.settings);
   const session = {
@@ -1131,8 +1141,8 @@ function appendMessage(sessionId, message) {
       longTermMemory: { ...(db.memory || {}), ...(session.memory?.longTermMemory || {}) }
     };
     session.updatedAt = Date.now();
-    if (message.role === "user" && (!session.title || session.title === "New Chat")) {
-      session.title = String(message.text || "New Chat").replace(/\s+/g, " ").slice(0, 30) || "New Chat";
+    if (message.role === "user" && (!session.title || session.title === "New Chat" || session.title === "新对话")) {
+      session.title = String(message.text || "新对话").replace(/\s+/g, " ").slice(0, 30) || "新对话";
     }
   }
   saveDb(db);
@@ -3927,7 +3937,9 @@ function buildSystemPrompt(profile, settings = loadDb().settings, sessionMemory 
     `- AI助手名字：${aiName}`,
     "- 后续所有回复必须使用以上称呼，不得用旧称呼。",
     `- ${dateContext.instruction}`,
-    "- 如果用户问“今天/现在/最新”的体育赛程、世界杯、新闻、天气、价格、政策等实时问题，不能用训练记忆直接回答；必须使用 web_search 或可用实时工具，并基于工具返回结果总结。",
+    settings.webSearch?.enabled !== false
+      ? "- 如果用户问“今天/现在/最新”的体育赛程、新闻、天气、价格、政策等实时问题，不能用训练记忆直接回答；必须使用 web_search，并基于工具返回结果总结。"
+      : "- 当前会话已关闭联网搜索。涉及实时信息时，必须明确说明无法核验最新数据，不得编造。",
     "",
     "# System 级偏好规则（优先级高于普通记忆）",
     priority.preferenceText,
@@ -3958,7 +3970,9 @@ function buildSystemPrompt(profile, settings = loadDb().settings, sessionMemory 
     "技能代码必须使用传统 CommonJS：const fs = require('node:fs'); module.exports = { MANIFEST, execute }; 避免 class static 属性、顶层 await、ESM import/export 等高版本 Node 特性。",
     "代码中如确需执行 shell 命令，可以使用 child_process.execSync，并必须 try/catch 处理错误；优先使用 fs/path/os 等 Node 标准库直接完成任务。",
     "禁止生成危险操作代码；涉及删除、系统设置、注册表、关机、进程控制、危险外部命令的技能都不能安装。",
-    "如果用户要求学习网上流行的技能，必须先调用 web_search 搜索相关信息，再基于搜索结果生成技能代码并调用 install_skill 安装。",
+    settings.webSearch?.enabled !== false
+      ? "如果用户要求学习网上流行的技能，必须先调用 web_search 搜索相关信息，再基于搜索结果生成技能代码并调用 install_skill 安装。"
+      : "当前已关闭联网搜索；需要网上资料才能学习的技能，应请用户先开启联网搜索。",
     "用户要求列出技能时调用 list_skills；用户要求使用某个技能时调用对应的 skill_技能名 工具。",
     "用户要求修改称呼、名字、性格、回复风格、做事风格时，必须调用 update_profile；查询当前人格资料时调用 get_profile。",
     "用户要求切换模型时调用 switch_model；询问可用模型时调用 list_models；切换推理等级时调用 switch_reasoning。",
@@ -4880,16 +4894,9 @@ async function directProviderChat(settings, text, attachments, sessionId = "", o
           });
         }
         if (shouldStopAfterWebSearch(executed)) {
-          const webItem = executed.find((item) => item?.type === "web_search");
-          const finalText = summarizeWebSearchResultsForUser(webItem.response, text);
           logAgentLoop(debugRunId, loopNo, {
-            finalResponse: finalText,
-            endReason: "web_search 已返回结果，白球本地收敛为最终自然语言回复，避免重复搜索循环。"
+            endReason: "web_search 已返回结果，继续交给模型整合为最终回复。"
           });
-          return {
-            text: finalText,
-            raw: { rounds: payloads, final: payload, baiqiuActions: actionResults, webSearchFinalized: true }
-          };
         }
         messages.push({
           role: "user",
@@ -4970,25 +4977,6 @@ async function directProviderChat(settings, text, attachments, sessionId = "", o
         content: JSON.stringify(executed?.response || { success: false, error: "Tool execution failed" })
       });
     }
-    if (shouldStopAfterWebSearch(toolCalls.map((call, index) => ({
-      type: call.function?.name || call.name || "",
-      response: (() => {
-        try { return JSON.parse(toolMessages[index]?.content || "{}"); } catch { return {}; }
-      })()
-    })))) {
-      const webIndex = toolCalls.findIndex((call) => (call.function?.name || call.name || "") === "web_search");
-      let webResponse = {};
-      try { webResponse = JSON.parse(toolMessages[webIndex]?.content || "{}"); } catch {}
-      const finalText = summarizeWebSearchResultsForUser(webResponse, text);
-      logAgentLoop(debugRunId, loopNo, {
-        finalResponse: finalText,
-        endReason: "web_search function call 已返回结果，白球本地收敛为最终自然语言回复，避免重复搜索循环。"
-      });
-      return {
-        text: finalText,
-        raw: { rounds: payloads, final: payload, baiqiuActions: actionResults, webSearchFinalized: true }
-      };
-    }
     messages.push(...toolMessages);
     messages.push({
       role: "user",
@@ -5046,7 +5034,7 @@ function summarizeWebSearchResultsForUser(response = {}, userText = "") {
   if (!cleanResults.length) {
     return [
       `我按当前时间（${dateContext.china}）联网搜索了，但没有拿到可用结果。`,
-      "这类实时赛程不能凭记忆猜，我建议换一个更具体的关键词再查，例如“2026 FIFA World Cup July 9 2026 fixtures”。"
+      "请换一个更具体的关键词，或稍后重试。"
     ].join("\n");
   }
   const lines = [
@@ -5058,7 +5046,7 @@ function summarizeWebSearchResultsForUser(response = {}, userText = "") {
     lines.push(`${item.index}. ${item.title}${item.snippet ? `：${item.snippet}` : ""}${item.url ? `\n   来源：${item.url}` : ""}`);
   }
   lines.push("");
-  lines.push("说明：以上是搜索结果摘要。若要给出“今天具体对战国家”，需要结果里出现明确日期和对阵；没有明确对阵时我不会编造。");
+  lines.push("说明：以上是网页检索的原始摘要，结论应以来源中明确给出的日期和事实为准。");
   return lines.join("\n");
 }
 
@@ -6019,6 +6007,7 @@ function humanReadableError(error) {
     : String(error || "");
   const value = raw.replace(/\r/g, "\n").split("\n").filter(Boolean)[0] || "未知原因";
   if (/permission|access\s*denied|eacces|eperm|权限/i.test(value)) return "权限不足，请切换到请求或完全权限后重试。";
+  if (/weekly[_\s-]*limit|usage[_\s-]*limit|quota|rate[_\s-]*limit|429|配额|额度|限额/i.test(raw)) return "模型供应商额度已用完或触发限流，请更换有额度的 API Key，或等待额度恢复。";
   if (/timeout|timed?\s*out|超时/i.test(value)) return "网络或工具响应超时，请稍后重试。";
   if (/not\s*found|enoent|不存在|找不到/i.test(value)) return "文件或程序不存在。";
   if (/模型接口|chat\/completions|Base URL|choices|output_text|codekey|api key|apiKey/i.test(raw)) return "模型接口连接失败，请检查模型 Base URL、API Key 和模型名称。";
@@ -6078,14 +6067,17 @@ function maybeCachePendingConfirmation(aiText, actions, originalUserMessage) {
 }
 
 function toolSchemasForFunctionCalling() {
-  return ensureToolRegistry().list().map((tool) => ({
+  const settings = loadDb().settings;
+  return ensureToolRegistry().list()
+    .filter((tool) => settings.webSearch?.enabled !== false || tool.id !== "web_search")
+    .map((tool) => ({
     type: "function",
     function: {
       name: tool.id,
       description: tool.description || tool.name || tool.id,
       parameters: normalizeToolParameters(tool.parameters)
     }
-  }));
+    }));
 }
 
 function toolCatalogForPrompt() {
@@ -6318,7 +6310,7 @@ function createWindow() {
     }
   });
   Menu.setApplicationMenu(null);
-  mainWindow.loadFile(appPath("renderer", "index.html"));
+  mainWindow.loadFile(appPath("renderer-v2", "index.html"));
   mainWindow.once("ready-to-show", () => showWindow());
   let resizeTimer = null;
   let moveTimer = null;
@@ -6461,7 +6453,7 @@ function wireIpc() {
     db.selectedSessionId = id;
     return saveDb({ ...db, sessions: sortedSessions(db) });
   });
-  ipcMain.handle("session:rename", (_event, id, title) => updateSession(id, { title: sanitizeText(title) || "New Chat" }));
+  ipcMain.handle("session:rename", (_event, id, title) => updateSession(id, { title: sanitizeText(title) || "新对话" }));
   ipcMain.handle("session:delete", (_event, id) => deleteSession(id));
   ipcMain.handle("session:favorite", (_event, id, pinned) => updateSession(id, { pinned: Boolean(pinned) }));
   ipcMain.handle("session:duplicate", (_event, id) => duplicateSession(id));
@@ -6815,6 +6807,7 @@ function wireIpc() {
       updateSession(session.id, { status: "running" });
       mainWindow?.webContents.send("session:changed", loadDb());
       const runtimeContext = ensureContextManager().getActiveContext(session.id);
+      ensureAgentGuard().beginTask(session.id);
       const agentResult = await ensureAgentController().run({
         requestId: randomUUID(),
         traceId,
@@ -6920,12 +6913,6 @@ app.whenReady().then(() => {
 app.on("activate", () => showWindow());
 app.on("before-quit", () => auditLogger?.destroy?.());
 app.on("window-all-closed", (event) => event.preventDefault());
-
-
-
-
-
-
 
 
 

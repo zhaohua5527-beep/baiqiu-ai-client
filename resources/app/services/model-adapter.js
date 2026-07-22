@@ -22,7 +22,7 @@ function normalizeProvider(id, provider = {}) {
     name: provider.name || preset.name || id,
     baseURL,
     model: provider.model || preset.model || "",
-    apiStyle: provider.apiStyle || preset.apiStyle || "openai",
+    apiStyle: preset.apiStyle || provider.apiStyle || "openai",
     requiresApiKey: provider.requiresApiKey !== undefined ? Boolean(provider.requiresApiKey) : preset.requiresApiKey !== false,
     local: Boolean(provider.local || preset.local)
   };

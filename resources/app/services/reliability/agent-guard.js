@@ -28,6 +28,14 @@ class AgentGuard {
     this.sessions = new Map();
   }
 
+  beginTask(sessionId = "") {
+    const id = String(sessionId || "global");
+    const state = { calls: [], startedAt: this.clock(), status: "normal" };
+    this.sessions.set(id, state);
+    this.logger?.log?.("guard", "beginTask", { sessionId: id, startedAt: state.startedAt });
+    return state;
+  }
+
   beforeToolCall({ sessionId = "", toolId = "", args = {} } = {}) {
     const id = String(sessionId || "global");
     const call = {
@@ -53,13 +61,13 @@ class AgentGuard {
       state.status = "blocked";
     } else if (elapsed > this.maxExecutionMs) {
       result = {
-        allowed: false,
-        status: "blocked",
+        allowed: true,
+        status: "running_long",
         repeated,
         elapsed,
-        reason: "任务执行时间过长，已停止保护。"
+        reason: "任务仍在执行，可由用户主动停止。"
       };
-      state.status = "blocked";
+      state.status = "running_long";
     } else if (repeated === this.maxRepeatedCalls) {
       result.status = "warning";
       result.reason = "检测到重复工具调用，继续观察。";
